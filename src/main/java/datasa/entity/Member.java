@@ -1,0 +1,34 @@
+package datasa.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "member")
+@Getter
+@NoArgsConstructor
+public class Member {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    private String password;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String role;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}
