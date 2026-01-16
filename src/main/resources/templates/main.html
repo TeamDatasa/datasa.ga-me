@@ -8,17 +8,17 @@
     <title>Document</title>
 </head>
 <body>
-<header>
-    <div th:if="${isLogin}">
-        <span>로그인 상태</span>
-        <a href="#">로그아웃</a>
-    </div>
+<!--<header>-->
+<!--    <div th:if="${isLogin}">-->
+<!--        <span>로그인 상태</span>-->
+<!--        <a href="#">로그아웃</a>-->
+<!--    </div>-->
 
-    <div th:unless="${isLogin}">
-        <a href="#">로그인</a>
-        <a href="#">회원가입</a>
-    </div>
-</header>
+<!--    <div th:unless="${isLogin}">-->
+<!--        <a href="#">로그인</a>-->
+<!--        <a href="#">회원가입</a>-->
+<!--    </div>-->
+<!--</header>-->
 
 <nav class="quick-menu">
     <a href="/">홈</a>
@@ -30,15 +30,15 @@
 </nav>
 
 
-<section>
-    <h2>추천 코스</h2>
+<!--<section>-->
+<!--    <h2>추천 코스</h2>-->
 
-    <ul>
-        <li th:each="course : ${recommendCourses}">
-            <span th:text="${course.title}"></span>
-        </li>
-    </ul>
-</section>
+<!--    <ul>-->
+<!--        <li th:each="course : ${recommendCourses}">-->
+<!--            <span th:text="${course.title}"></span>-->
+<!--        </li>-->
+<!--    </ul>-->
+<!--</section>-->
 
 </body>
 </html>
