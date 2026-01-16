@@ -3,12 +3,11 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TRIP")
+@Table(name = "trip")
 @Getter
 @NoArgsConstructor
 public class Trip {

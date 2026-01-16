@@ -3,13 +3,12 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "CHAT_MESSAGE",
+        name = "chat_message",
         indexes = {
                 @Index(name = "idx_chat_message_room", columnList = "room_id"),
                 @Index(name = "idx_chat_message_sender", columnList = "sender_user_id")

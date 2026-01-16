@@ -3,12 +3,11 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.parsing.Location;
-import org.springframework.data.annotation.Id;
+
 
 @Entity
 @Table(
-        name = "TRIP_LOCATION",
+        name = "trip_location",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uq_trip_location_order",

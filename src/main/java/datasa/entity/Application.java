@@ -3,14 +3,13 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(
-        name = "APPLICATION",
+        name = "application",
         indexes = {
                 @Index(name = "idx_application_trip", columnList = "trip_id"),
                 @Index(name = "idx_application_user", columnList = "user_id")
