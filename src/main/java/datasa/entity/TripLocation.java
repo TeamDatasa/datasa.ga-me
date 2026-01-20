@@ -5,9 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 
+
 @Entity
 @Table(
-        name = "trip_location",
+        name = "TRIP_LOCATION",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uq_trip_location_order",
