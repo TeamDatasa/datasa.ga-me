@@ -1,18 +1,18 @@
 package datasa.controller;
 
+import datasa.entity.Trip;
+import datasa.entity.User;
 import datasa.service.TripService;
-import domain.dto.TripListResponse;
+import domain.dto.TripDetailResponse;
 import domain.dto.TripWriteRequest;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import org.hibernate.engine.jdbc.env.spi.IdentifierHelperBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,33 +21,33 @@ import java.util.List;
 public class TripController {
 	private final TripService tripService;
 	
-    /**
-     * 여행 목록
-     */
-    @GetMapping
-    public Page<Trip> list(
-            @RequestParam(defaultValue = "latest") String order,
-            Pageable pageable
-    ) {
-        return tripService.getTripList(order, pageable);
-    }
-
-
-    /**
-     * U_002: 여행 검색 (지역/언어/테마)
-     */
-    @GetMapping("/search")
-    public Page<Trip> search(
-            @RequestParam(required = false) String language,
-            @RequestParam(defaultValue = "latest") String order,
-            Pageable pageable
-    ) {
-        return tripService.searchByFilters(
-                language, order, pageable
-        );
-    }
-
-    // 동식ver List
+	/**
+	 * 여행 목록
+	 */
+	@GetMapping
+	public Page<Trip> list(
+			@RequestParam(defaultValue = "latest") String order,
+			Pageable pageable
+	) {
+		return tripService.getTripList(order, pageable);
+	}
+	
+	
+	/**
+	 * U_002: 여행 검색 (지역/언어/테마)
+	 */
+	@GetMapping("/search")
+	public Page<Trip> search(
+			@RequestParam(required = false) String language,
+			@RequestParam(defaultValue = "latest") String order,
+			Pageable pageable
+	) {
+		return tripService.searchByFilters(
+				language, order, pageable
+		);
+	}
+	
+	// 동식ver List
 	// @GetMapping("/list")
 	// public String list(Model model) {
 	// 	List<TripListResponse> boardList = tripService.getListAll();
@@ -73,4 +73,40 @@ public class TripController {
 	}
 	
 	
+	@PostMapping("update/{boardNum}")
+	public String update(Model model, @PathVariable Long boardNum, User user
+	) {
+		try {
+			TripDetailResponse response = tripService.getTripDetail(boardNum);
+			if (!user.getUserId().equals(response.getHostUser().getUserId())) {
+				throw new RuntimeException("수정권한이 없습니다.");
+			}
+			
+			model.addAttribute("request", response);
+			return "trips/updateForm";
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/trips/list";
+		}
+	}
+	
+	/**
+	 * 게시글 수정 처리
+	 *
+	 */
+	@PostMapping("update")
+	public String update(
+			@ModelAttribute("request") TripDetailResponse request, User user
+	) {
+		try {
+			tripService.update(request, user);
+			log.debug("수정이 완료 되었습니다.");
+			return "redirect:/trips/read/" + request.getTripId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/trips/list";
+		}
+		
+	}
 }
