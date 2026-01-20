@@ -1,18 +1,19 @@
 package datasa.controller;
 
 import datasa.entity.Trip;
-import datasa.entity.User;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripWriteRequest;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.engine.jdbc.env.spi.IdentifierHelperBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

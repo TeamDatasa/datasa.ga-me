@@ -64,13 +64,19 @@ public class Trip {
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
-	
+
+
+
 	@PreUpdate
 	protected void onUpdate() {
 		this.updatedAt = LocalDateTime.now();
 	}
-	
-	/* ===== ENUM ===== */
+
+
+    @Column(name = "theme", nullable = false)
+    private String theme;
+
+    /* ===== ENUM ===== */
 	public enum Status {
 		DRAFT, OPEN, CLOSED
 	}
