@@ -14,19 +14,46 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/trips")
 @Slf4j
-@AllArgsConstructor
-@RequestMapping("trips")
 public class TripController {
 	private final TripService tripService;
 	
-	@GetMapping("/list")
-	public String list(Model model) {
-		List<TripListResponse> boardList = tripService.getListAll();
-		model.addAttribute("boardList", boardList);
-		return "trips/list";
-	}
+    /**
+     * 여행 목록
+     */
+    @GetMapping
+    public Page<Trip> list(
+            @RequestParam(defaultValue = "latest") String order,
+            Pageable pageable
+    ) {
+        return tripService.getTripList(order, pageable);
+    }
+
+
+    /**
+     * U_002: 여행 검색 (지역/언어/테마)
+     */
+    @GetMapping("/search")
+    public Page<Trip> search(
+            @RequestParam(required = false) String language,
+            @RequestParam(defaultValue = "latest") String order,
+            Pageable pageable
+    ) {
+        return tripService.searchByFilters(
+                language, order, pageable
+        );
+    }
+
+    // 동식ver List
+	// @GetMapping("/list")
+	// public String list(Model model) {
+	// 	List<TripListResponse> boardList = tripService.getListAll();
+	// 	model.addAttribute("boardList", boardList);
+	// 	return "trips/list";
+	// }
 	
 	@GetMapping("/write")
 	public String write(@ModelAttribute TripWriteRequest request, Model model) {

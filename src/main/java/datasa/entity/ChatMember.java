@@ -1,15 +1,15 @@
 package datasa.entity;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "chat_member",
+        name = "CHAT_MEMBER",
         indexes = {
                 @Index(name = "idx_chat_member_room", columnList = "room_id"),
                 @Index(name = "idx_chat_member_user", columnList = "user_id")

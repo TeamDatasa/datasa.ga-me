@@ -1,15 +1,17 @@
 package datasa.entity;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "location",
+        name = "LOCATION",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uq_location_google_place",

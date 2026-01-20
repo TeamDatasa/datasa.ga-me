@@ -1,6 +1,7 @@
 package datasa.repository;
 
 
+
 import datasa.entity.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
 
