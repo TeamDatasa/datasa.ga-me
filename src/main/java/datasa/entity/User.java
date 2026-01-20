@@ -97,4 +97,11 @@ public class User {
     public enum Status {
         ACTIVE, INACTIVE, SUSPENDED
     }
+	
+	/* ===== 회원가입용 최초 생성자 ===== */
+	public User(String email, String passwordHash, String name){
+		this.email = email;
+		this.passwordHash = passwordHash;
+		this.name = name;
+	}
 }

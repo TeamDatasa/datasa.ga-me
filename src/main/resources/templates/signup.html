@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>signup form</title>
+    <link rel="stylesheet" th:href="@{/css/signup.css}">
+</head>
+<body>
+<div class="signup">
+    <h1 class="signup__title">Sign Up</h1>
+
+    <!-- 글로벌 에러 메시지 -->
+    <p class="signup__error"
+       th:if="${error}"
+       th:text="${error}">
+    </p>
+
+    <form class="signup__form"
+          th:action="@{/signup}"
+          method="post"
+          th:object="${signupRequest}">
+
+        <!-- 이메일 -->
+        <div class="field">
+            <label class="field__label">Email</label>
+            <input type="email"
+                   class="field__input"
+                   th:field="*{email}"
+                   placeholder="example@email.com">
+
+            <p class="field__error"
+               th:if="${#fields.hasErrors('email')}"
+               th:errors="*{email}">
+            </p>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="field">
+            <label class="field__label">PassWord</label>
+            <input type="password"
+                   class="field__input"
+                   th:field="*{password}"
+                   placeholder="영문 + 숫자 8~20자">
+
+            <p class="field__error"
+               th:if="${#fields.hasErrors('password')}"
+               th:errors="*{password}">
+            </p>
+        </div>
+
+        <!-- 이름 -->
+        <div class="field">
+            <label class="field__label">Name</label>
+            <input type="text"
+                   class="field__input"
+                   th:field="*{name}"
+                   placeholder="이름 입력">
+
+            <p class="field__error"
+               th:if="${#fields.hasErrors('name')}"
+               th:errors="*{name}">
+            </p>
+        </div>
+
+        <button type="submit" class="signup__btn">
+            SIGN UP
+        </button>
+    </form>
+
+    <div class="signup__footer">
+        <a href="/login">이미 계정이 있나요? 로그인</a>
+    </div>
+</div>
+</body>
+</html>
