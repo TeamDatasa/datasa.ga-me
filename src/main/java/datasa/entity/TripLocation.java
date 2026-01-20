@@ -3,8 +3,8 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.parsing.Location;
-import org.springframework.data.annotation.Id;
+
+
 
 @Entity
 @Table(

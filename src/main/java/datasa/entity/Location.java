@@ -1,9 +1,10 @@
 package datasa.entity;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
