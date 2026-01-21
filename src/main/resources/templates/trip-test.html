@@ -1,144 +1,235 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Trip Filter Test</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .section { margin-bottom: 15px; }
+        body {
+          font-family: Arial, sans-serif;
+          padding: 20px;
+        }
+        h2 {
+          margin-bottom: 10px;
+        }
+        .section {
+          margin-bottom: 14px;
+          display: flex;
+          gap: 14px;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        .box {
+          padding: 10px;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+        }
         button {
-            padding: 6px 12px;
-            margin-right: 6px;
-            cursor: pointer;
+          padding: 6px 12px;
+          cursor: pointer;
         }
         button.active {
-            background-color: #333;
-            color: #fff;
+          background-color: #333;
+          color: #fff;
+        }
+        select {
+          padding: 6px;
         }
         .trip {
-            border: 1px solid #ddd;
-            padding: 12px;
-            margin-bottom: 10px;
+          border: 1px solid #ddd;
+          padding: 12px;
+          margin-bottom: 10px;
+          border-radius: 6px;
+        }
+        .muted {
+          color: #777;
+          font-size: 13px;
         }
     </style>
 </head>
 <body>
-<nav class="quick-menu">
-    <a href="/">홈</a>
 
-    <a th:if="${isLogin}" href="/course/create">코스 등록</a>
-    <a th:if="${isLogin}" href="/mypage">마이페이지</a>
+<h2>여행 목록 / 필터 테스트</h2>
 
-    <a th:unless="${isLogin}" href="/login">로그인</a>
-    <a th:unless="${isLogin}" href="/signup">로그인</a>
-</nav>
-<h2>여행 목록</h2>
-
-<!-- 언어 필터 -->
+<!-- 필터 영역 -->
 <div class="section">
-    <strong>언어:</strong>
-    <label><input type="checkbox" value="ko" class="lang"> KO</label>
-    <label><input type="checkbox" value="en" class="lang"> EN</label>
-    <label><input type="checkbox" value="ja" class="lang"> JA</label>
+
+    <!-- 언어 (복수 선택) -->
+    <div class="box">
+        <strong>언어</strong>
+        <span class="muted">(복수 선택)</span><br/>
+        <label><input type="checkbox" class="lang" value="ko"> KO</label>
+        <label><input type="checkbox" class="lang" value="en"> EN</label>
+        <label><input type="checkbox" class="lang" value="ja"> JA</label>
+    </div>
+
+    <!-- 지역 -->
+    <div class="box">
+        <strong>지역</strong><br/>
+        <select id="region">
+            <option value="">전체</option>
+            <option value="BUSAN">부산</option>
+            <option value="SEOUL">서울</option>
+            <option value="JEJU">제주</option>
+            <option value="DAEGU">대구</option>
+            <option value="GYEONGJU">경주</option>
+            <option value="GANGNEUNG">강릉</option>
+            <option value="JEONJU">전주</option>
+        </select>
+    </div>
+
+    <!-- 테마 -->
+    <div class="box">
+        <strong>테마</strong><br/>
+        <select id="theme">
+            <option value="">전체</option>
+            <option value="FOOD">FOOD</option>
+            <option value="WALK">WALK</option>
+            <option value="NIGHT">NIGHT</option>
+            <option value="PHOTO">PHOTO</option>
+            <option value="HISTORY">HISTORY</option>
+            <option value="SHOPPING">SHOPPING</option>
+        </select>
+    </div>
+
+    <!-- 정렬 -->
+    <div class="box">
+        <strong>정렬</strong><br/>
+        <button id="latestBtn" class="active" onclick="setOrder('latest')">최신순</button>
+        <button id="popularBtn" onclick="setOrder('popular')">인기순</button>
+    </div>
 </div>
 
-<!-- 정렬 버튼 -->
+<!-- 액션 버튼 -->
 <div class="section">
-    <strong>정렬:</strong>
-    <button id="latestBtn" class="active" onclick="setOrder('latest')">최신순</button>
-    <button id="popularBtn" onclick="setOrder('popular')">인기순</button>
+    <button onclick="applyFilter()">적용</button>
+    <button onclick="resetFilter()">초기화</button>
 </div>
 
-<button onclick="applyFilter()">적용</button>
+<hr/>
 
-<hr>
-
+<!-- 결과 -->
 <div id="result"></div>
 
 <script>
     let currentOrder = 'latest';
 
-    /* 초기 로드 */
     window.onload = function () {
-        loadTrips();
+      loadTrips();
     };
 
+    /* 정렬 변경 */
     function setOrder(order) {
-        currentOrder = order;
-
-        document.getElementById('latestBtn').classList.remove('active');
-        document.getElementById('popularBtn').classList.remove('active');
-
-        if (order === 'latest') {
-            document.getElementById('latestBtn').classList.add('active');
-        } else {
-            document.getElementById('popularBtn').classList.add('active');
-        }
-
-        applyFilter();
+      currentOrder = order;
+      document.getElementById('latestBtn').classList.toggle('active', order === 'latest');
+      document.getElementById('popularBtn').classList.toggle('active', order === 'popular');
+      applyFilter();
     }
 
     /* 전체 목록 */
     function loadTrips() {
-        fetch(`/api/trips?order=${currentOrder}`)
-            .then(res => res.json())
-            .then(data => renderTrips(data.content))
-            .catch(console.error);
+      fetch(`/api/trips?order=${currentOrder}`)
+        .then(res => res.json())
+        .then(data => renderTrips(data.content))
+        .catch(showError);
     }
 
     /* 필터 적용 */
     function applyFilter() {
-        const checked = document.querySelectorAll('.lang:checked');
+      const region = document.getElementById('region').value;
+      const theme = document.getElementById('theme').value;
+      const checkedLangs = Array.from(
+        document.querySelectorAll('.lang:checked')
+      ).map(cb => cb.value);
 
-        // 언어 선택 안 하면 전체 목록
-        if (checked.length === 0) {
-            loadTrips();
-            return;
-        }
+      const hasAnyFilter =
+        region !== '' || theme !== '' || checkedLangs.length > 0;
 
-        // 여러 언어 선택 → 결과 합치기
-        let promises = [];
-        checked.forEach(cb => {
-            const lang = cb.value;
-            promises.push(
-                fetch(`/api/trips/search?language=${lang}&order=${currentOrder}`)
-                    .then(res => res.json())
-                    .then(data => data.content)
-            );
+      if (!hasAnyFilter) {
+        loadTrips();
+        return;
+      }
+
+      function buildSearchUrl(params) {
+        const qs = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== '') {
+            qs.append(key, value);
+          }
         });
+        return `/api/trips/search?${qs.toString()}`;
+      }
 
-        Promise.all(promises)
-            .then(results => {
-                // 중복 제거 (tripId 기준)
-                const map = new Map();
-                results.flat().forEach(trip => {
-                    map.set(trip.tripId, trip);
-                });
-                renderTrips([...map.values()]);
-            });
+      const promises = [];
+
+      if (checkedLangs.length === 0) {
+        const url = buildSearchUrl({
+          order: currentOrder,
+          region,
+          theme
+        });
+        promises.push(fetch(url).then(r => r.json()).then(d => d.content));
+      } else {
+        checkedLangs.forEach(lang => {
+          const url = buildSearchUrl({
+            order: currentOrder,
+            language: lang,
+            region,
+            theme
+          });
+          promises.push(fetch(url).then(r => r.json()).then(d => d.content));
+        });
+      }
+
+      Promise.all(promises)
+        .then(results => {
+          const map = new Map();
+          results.flat().forEach(trip => {
+            map.set(trip.tripId, trip);
+          });
+          renderTrips([...map.values()]);
+        })
+        .catch(showError);
     }
 
-    /* 화면 렌더링 */
+    /* 초기화 */
+    function resetFilter() {
+      document.querySelectorAll('.lang').forEach(cb => cb.checked = false);
+      document.getElementById('region').value = '';
+      document.getElementById('theme').value = '';
+      setOrder('latest');
+    }
+
+    /* 렌더링 */
     function renderTrips(trips) {
-        const result = document.getElementById('result');
-        result.innerHTML = '';
+  const result = document.getElementById('result');
+  result.innerHTML = '';
 
-        if (!trips || trips.length === 0) {
-            result.innerHTML = '<p>표시할 여행이 없습니다.</p>';
-            return;
-        }
+  if (!trips || trips.length === 0) {
+    result.innerHTML = '<p class="muted">표시할 여행이 없습니다.</p>';
+    return;
+  }
 
-        trips.forEach(trip => {
-            const div = document.createElement('div');
-            div.className = 'trip';
-            div.innerHTML = `
-                <h3>${trip.title}</h3>
-                <p>시작일: ${trip.startAt}</p>
-                <p>비용: ${trip.estimatedCost}</p>
-                <p>상태: ${trip.status}</p>
-            `;
-            result.appendChild(div);
-        });
+  trips.forEach(trip => {
+    const div = document.createElement('div');
+    div.className = 'trip';
+    div.innerHTML = `
+      <h3>
+        <a href="/trips/${trip.tripId}">
+          ${trip.title}
+        </a>
+      </h3>
+      <p>지역: ${trip.region}</p>
+      <p>테마: ${trip.theme}</p>
+      <p>모집 인원: ${trip.approvedCount} / ${trip.maxParticipants}</p>
+    `;
+    result.appendChild(div);
+  });
+}
+
+    function showError(err) {
+      console.error(err);
+      document.getElementById('result').innerHTML =
+        '<p style="color:red">요청 중 오류가 발생했습니다. 콘솔/서버 로그를 확인하세요.</p>';
     }
 </script>
 
