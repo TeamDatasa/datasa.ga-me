@@ -201,28 +201,30 @@
 
     /* 렌더링 */
     function renderTrips(trips) {
-      const result = document.getElementById('result');
-      result.innerHTML = '';
+  const result = document.getElementById('result');
+  result.innerHTML = '';
 
-      if (!trips || trips.length === 0) {
-        result.innerHTML = '<p class="muted">표시할 여행이 없습니다.</p>';
-        return;
-      }
+  if (!trips || trips.length === 0) {
+    result.innerHTML = '<p class="muted">표시할 여행이 없습니다.</p>';
+    return;
+  }
 
-      trips.forEach(trip => {
-        const div = document.createElement('div');
-        div.className = 'trip';
-        div.innerHTML = `
-          <h3>${trip.title}</h3>
-          <p>지역: ${trip.region ?? '-'}</p>
-          <p>테마: ${trip.theme ?? '-'}</p>
-          <p>시작일: ${trip.startAt}</p>
-          <p>비용: ${trip.estimatedCost}</p>
-          <p>상태: ${trip.status}</p>
-        `;
-        result.appendChild(div);
-      });
-    }
+  trips.forEach(trip => {
+    const div = document.createElement('div');
+    div.className = 'trip';
+    div.innerHTML = `
+      <h3>
+        <a href="/trips/${trip.tripId}">
+          ${trip.title}
+        </a>
+      </h3>
+      <p>지역: ${trip.region}</p>
+      <p>테마: ${trip.theme}</p>
+      <p>모집 인원: ${trip.approvedCount} / ${trip.maxParticipants}</p>
+    `;
+    result.appendChild(div);
+  });
+}
 
     function showError(err) {
       console.error(err);

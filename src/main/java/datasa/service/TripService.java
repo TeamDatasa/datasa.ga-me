@@ -1,11 +1,14 @@
 package datasa.service;
 
-import datasa.entity.Trip;
+import datasa.dto.TripDetailResponseDto;
+import datasa.dto.TripListResponseDto;
 import datasa.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,41 +21,46 @@ public class TripService {
      * - latest (기본): 최신순
      * - popular: 인기순
      */
-    public Page<Trip> getTripList(
+    public Page<TripListResponseDto> getTripList(
             String order,
             Pageable pageable
     ) {
-        // 인기순
         if ("popular".equalsIgnoreCase(order)) {
             return tripRepository.findPopularTrips(pageable);
         }
-
-        // 기본: 최신순
-        return tripRepository.findByStatus(
-                Trip.Status.OPEN,
-                pageable
-        );
+        return tripRepository.findLatestTrips(pageable);
     }
 
     /**
-     * U_002 여행 검색 (언어별,지역별,테마별)
+     * U_002 여행 검색
+     * - 언어(복수) / 지역 / 테마
      * - latest / popular 지원
      */
-    public Page<Trip> searchTrips(
-            String language,
+    public Page<TripListResponseDto> searchTrips(
+            List<String> languages,
             String region,
             String theme,
             String order,
             Pageable pageable
     ) {
-        if ("popular".equals(order)) {
+        if ("popular".equalsIgnoreCase(order)) {
             return tripRepository.searchByFiltersPopular(
-                    language, region, theme, pageable
+                    region, theme, languages, pageable
             );
         }
 
         return tripRepository.searchByFilters(
-                language, region, theme, pageable
+                region, theme, languages, pageable
         );
+    }
+
+    /**
+     * U_003 여행 상세 조회
+     */
+    public TripDetailResponseDto getTripDetail(Long tripId) {
+        return tripRepository.findTripDetail(tripId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("존재하지 않는 여행입니다.")
+                );
     }
 }

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Detail</title>
+</head>
+<body>
+
+<h2 th:text="${trip.title}">여행 제목</h2>
+
+<p><b>호스트:</b> <span th:text="${trip.hostName}"></span></p>
+<p><b>지역:</b> <span th:text="${trip.region}"></span></p>
+<p><b>테마:</b> <span th:text="${trip.theme}"></span></p>
+<p><b>설명:</b> <span th:text="${trip.description}"></span></p>
+<p><b>시작:</b> <span th:text="${trip.startAt}"></span></p>
+<p><b>종료:</b> <span th:text="${trip.endAt}"></span></p>
+<p><b>비용:</b> <span th:text="${trip.estimatedCost}"></span></p>
+<p><b>정원:</b> <span th:text="${trip.maxParticipants}"></span></p>
+
+<p><b>지원 언어:</b>
+    <span th:each="lang : ${trip.languages}"
+          th:text="${lang}"
+          style="margin-right:6px;"></span>
+</p>
+
+<hr/>
+
+<button onclick="applyTrip()">신청하기</button>
+<p id="status"></p>
+
+<a href="/trip-test.html">← 목록으로</a>
+
+<script th:inline="javascript">
+    const tripId = [[${trip.tripId}]];
+    const userId = 1; // 임시 로그인 사용자
+
+    function applyTrip() {
+      fetch(`/api/applications/trips/${tripId}?userId=${userId}`, {
+        method: 'POST'
+      }).then(res => {
+        if (res.ok) {
+          loadStatus();
+          alert('신청 완료!');
+        } else {
+          res.text().then(t => alert(t));
+        }
+      });
+    }
+
+    function loadStatus() {
+      fetch(`/api/applications/trips/${tripId}/status?userId=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('status').innerText =
+            data.status
+              ? `신청 상태: ${data.status}`
+              : '아직 신청하지 않았습니다.';
+        });
+    }
+
+    loadStatus();
+</script>
+
+</body>
+</html>
