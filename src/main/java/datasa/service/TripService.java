@@ -104,7 +104,8 @@ public class TripService {
 		trip.setDurationMinutes(request.getDurationMinutes());
 		trip.setStartAt(request.getStartAt());
 		trip.setEndAt(request.getEndAt());
-		trip.setStatus(Trip.Status.OPEN);
+		trip.setStatus(Trip.Status.OPEN); // 임의
+		trip.setTheme(request.getTheme());
 		
 		Trip saved = tripRepository.save(trip);
 		return saved.getTripId();

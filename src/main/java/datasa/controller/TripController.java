@@ -1,10 +1,11 @@
 package datasa.controller;
 
 import datasa.entity.Trip;
+import datasa.entity.User;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
+import domain.dto.TripListResponse;
 import domain.dto.TripWriteRequest;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,11 +14,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/trips")
+@RequestMapping("api/trip")
 @Slf4j
 public class TripController {
 	private final TripService tripService;
@@ -48,28 +50,41 @@ public class TripController {
 		);
 	}
 	
-	// 동식ver List
-	// @GetMapping("/list")
-	// public String list(Model model) {
-	// 	List<TripListResponse> boardList = tripService.getListAll();
-	// 	model.addAttribute("boardList", boardList);
-	// 	return "trips/list";
-	// }
+//	 동식ver List
+	 @GetMapping("/listAll")
+	 public String listAll(Model model) {
+	 	List<TripListResponse> boardList = tripService.getListAll();
+	 	model.addAttribute("boardList", boardList);
+	 	return "trip/listAll";
+	 }
 	
 	@GetMapping("/write")
-	public String write(@ModelAttribute TripWriteRequest request, Model model) {
+	public String wrtieForm(@ModelAttribute TripWriteRequest request, Model model) {
+		
+		if (request.getStartAt() == null) {
+			request.setStartAt(LocalDateTime.now());
+		}
+		if (request.getEndAt() == null) {
+			request.setEndAt(LocalDateTime.now().plusDays(3));
+		}
+		
 		model.addAttribute("request", request);
-		return "trips/writeForm";
+		
+		
+		return "trip/writeForm";
 	}
 	
 	@PostMapping("/write")
-	public String write(@ModelAttribute TripWriteRequest request) {
+	public String wrtie(@ModelAttribute TripWriteRequest request, Model model) {
 		try {
+			// 임시
+			// 1번 사용자가 임의로 글을 작성함
 			tripService.write(1L, request);
-			return "redirect:/trips/list";
+			return "redirect:/api/trip/listAll";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "trips/writeForm";
+			model.addAttribute("request", request);
+			return "trip/writeForm";
 		}
 	}
 	
@@ -84,11 +99,11 @@ public class TripController {
 			}
 			
 			model.addAttribute("request", response);
-			return "trips/updateForm";
+			return "trip/updateForm";
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "redirect:/trips/list";
+			return "redirect:/trip/listAll";
 		}
 	}
 	
@@ -96,17 +111,17 @@ public class TripController {
 	 * 게시글 수정 처리
 	 *
 	 */
-	@PostMapping("update")
+	@PostMapping("/update")
 	public String update(
 			@ModelAttribute("request") TripDetailResponse request, User user
 	) {
 		try {
 			tripService.update(request, user);
 			log.debug("수정이 완료 되었습니다.");
-			return "redirect:/trips/read/" + request.getTripId();
+			return "redirect:/trip/read/" + request.getTripId();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "redirect:/trips/list";
+			return "redirect:/trip/listAll";
 		}
 		
 	}

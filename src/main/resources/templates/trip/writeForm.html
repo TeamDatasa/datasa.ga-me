@@ -9,7 +9,7 @@
 <h1>여행 글 작성</h1>
 
 <!-- POST /write 로 전송 -->
-<form th:action="@{/trips/write}" method="post" th:object="${request}">
+<form th:action="@{/api/trip/write}" method="post" th:object="${request}">
 
     <div>
         <label for="title">제목</label><br/>
@@ -42,19 +42,32 @@
     <br/>
 
     <div>
-        <label for="startAt">시작 일시</label><br/>
-        <input id="startAt" type="datetime-local" th:field="*{startAt}" required />
+        <label for="theme">테마</label><br/>
+        <select id="theme" th:field="*{theme}" required>
+            <option value="" disabled selected>선택하세요</option>
+            <option value="FOOD">맛집</option>
+            <option value="NATURE">자연</option>
+            <option value="CITY">도시</option>
+            <option value="CULTURE">문화</option>
+            <option value="NIGHT">야경</option>
+        </select>
     </div>
     <br/>
 
-    <div>
-        <label for="endAt">종료 일시</label><br/>
-        <input id="endAt" type="datetime-local" th:field="*{endAt}" required />
-    </div>
-    <br/>
+
+    <input id="startAt" type="datetime-local"
+           th:field="*{startAt}"
+           th:value="${#temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm')}"
+           required />
+
+    <input id="endAt" type="datetime-local"
+           th:field="*{endAt}"
+           th:value="${#temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm')}"
+           required />
+
 
     <button type="submit">등록</button>
-    <a th:href="@{/trips/list}">취소</a>
+    <a th:href="@{/api/trip/listAll}">취소</a>
 </form>
 </body>
 </html>

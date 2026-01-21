@@ -30,6 +30,8 @@ public class TripWriteRequest {
 	
 	private Integer durationMinutes;
 	
+	private String theme;
+	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime startAt;
 	
