@@ -1,12 +1,9 @@
 package datasa.controller;
 
-import datasa.dto.SignupRequest;
-import datasa.entity.User;
-import datasa.repository.UserRepository;
+import domain.dto.SignupRequest;
 import datasa.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

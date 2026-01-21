@@ -1,7 +1,7 @@
 package datasa.repository;
 
-import datasa.entity.User;
-import datasa.entity.UserLanguage;
+import domain.entity.User;
+import domain.entity.UserLanguage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

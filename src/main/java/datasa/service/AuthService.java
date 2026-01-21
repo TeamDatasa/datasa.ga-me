@@ -1,7 +1,7 @@
 package datasa.service;
 
-import datasa.dto.SignupRequest;
-import datasa.entity.User;
+import domain.dto.SignupRequest;
+import domain.entity.User;
 import datasa.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

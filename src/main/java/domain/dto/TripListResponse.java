@@ -1,6 +1,6 @@
 package domain.dto;
 
-import datasa.entity.Trip;
+import domain.entity.Trip;
 import lombok.Builder;
 import lombok.Getter;
 

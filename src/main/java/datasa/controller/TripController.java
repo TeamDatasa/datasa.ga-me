@@ -1,10 +1,9 @@
 
 package datasa.controller;
 
-import datasa.entity.Trip;
-import datasa.entity.User;
-// import datasa.dto.TripDetailResponseDto;
-// import datasa.dto.TripListResponseDto;
+import domain.entity.Trip;
+// import domain.dto.TripDetailResponseDto;
+// import domain.dto.TripListResponseDto;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;

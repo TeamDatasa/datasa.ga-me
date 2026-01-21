@@ -1,4 +1,4 @@
-package datasa.dto;
+package domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

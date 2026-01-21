@@ -1,9 +1,9 @@
 package datasa.service;
 
-import datasa.entity.Trip;
-import datasa.entity.User;
-// import datasa.dto.TripDetailResponseDto;
-// import datasa.dto.TripListResponseDto;
+import domain.entity.Trip;
+import domain.entity.User;
+// import domain.dto.TripDetailResponseDto;
+// import domain.dto.TripListResponseDto;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import domain.dto.TripDetailResponse;
@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import java.util.List;
 
 @Service
