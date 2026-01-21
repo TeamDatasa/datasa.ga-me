@@ -34,13 +34,15 @@ public class TripController {
      * U_002: 여행 검색 (지역/언어/테마)
      */
     @GetMapping("/search")
-    public Page<Trip> search(
+    public Page<Trip> searchTrips(
             @RequestParam(required = false) String language,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String theme,
             @RequestParam(defaultValue = "latest") String order,
             Pageable pageable
     ) {
-        return tripService.searchByFilters(
-                language, order, pageable
+        return tripService.searchTrips(
+                language, region, theme, order, pageable
         );
     }
 }

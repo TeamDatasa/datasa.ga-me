@@ -47,6 +47,9 @@ public class Trip {
     @Column(name = "edit_lock_days", nullable = false)
     private Integer editLockDays = 7;
 
+    @Column(name = "theme", nullable = false)
+    private String theme;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.DRAFT;
@@ -67,6 +70,8 @@ public class Trip {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+
 
     /* ===== ENUM ===== */
     public enum Status {

@@ -35,26 +35,24 @@ public class TripService {
     }
 
     /**
-     * U_002 여행 검색 (언어 기반)
+     * U_002 여행 검색 (언어별,지역별,테마별)
      * - latest / popular 지원
      */
-    public Page<Trip> searchByFilters(
+    public Page<Trip> searchTrips(
             String language,
+            String region,
+            String theme,
             String order,
             Pageable pageable
     ) {
-        // 인기순 검색
-        if ("popular".equalsIgnoreCase(order)) {
+        if ("popular".equals(order)) {
             return tripRepository.searchByFiltersPopular(
-                    language,
-                    pageable
+                    language, region, theme, pageable
             );
         }
 
-        // 최신순 검색
         return tripRepository.searchByFilters(
-                language,
-                pageable
+                language, region, theme, pageable
         );
     }
 }
