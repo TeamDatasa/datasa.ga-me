@@ -35,7 +35,7 @@
     <thead>
     <tr>
         <th class="nowrap">ID</th>
-        <th>제목/설명</th>
+        <th>제목</th>
         <th class="nowrap">호스트</th>
         <th class="nowrap">상태</th>
         <th class="nowrap">시작</th>
@@ -47,12 +47,18 @@
     </tr>
     </thead>
 
+
     <tbody>
     <tr th:each="trip : ${boardList}">
         <td class="nowrap" th:text="${trip.tripId}">1</td>
 
         <td>
-            <div><strong th:text="${trip.title}">제목</strong></div>
+            <div>
+                <a th:href="@{/api/trip/read/{id}(id=${trip.tripId})}">
+                    <strong th:text="${trip.title}">제목</strong>
+                </a>
+            </div>
+
 
             <!-- description 안전 출력: null 처리 + 길이별 출력 분리 -->
             <div class="muted desc" th:if="${trip.description == null}">

@@ -121,8 +121,18 @@ public class TripController {
 			return "redirect:/trip/read/" + request.getTripId();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "redirect:/trip/listAll";
+			return "redirect:/api/trip/listAll";
 		}
 		
 	}
+	
+	
+//	게시글 (상세)읽기
+	@GetMapping("/read/{id}")
+	public String read(@PathVariable Long id, Model model) {
+		TripDetailResponse response = tripService.getTripDetail(id);
+		model.addAttribute("trip", response);
+		return "trip/read";
+	}
+	
 }

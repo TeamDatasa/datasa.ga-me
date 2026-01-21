@@ -1,6 +1,7 @@
 package domain.dto;
 
 
+import datasa.entity.Trip;
 import datasa.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,4 +35,11 @@ public class TripDetailResponse {
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime endAt;
+	
+	private Trip.Status status;
+	private String theme;
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
+	private Integer editLockDays;
+	
 }

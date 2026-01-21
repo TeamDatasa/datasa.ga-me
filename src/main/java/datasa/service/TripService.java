@@ -29,17 +29,23 @@ public class TripService {
 	public TripDetailResponse getTripDetail(Long boardNum) {
 		Trip entity = tripRepository.findById(boardNum).orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
 		
-		return new TripDetailResponse(
-				entity.getTripId(),
-				entity.getHostUser(),
-				entity.getTitle(),
-				entity.getDescription(),
-				entity.getEstimatedCost(),
-				entity.getMaxParticipants(),
-				entity.getDurationMinutes(),
-				entity.getStartAt(),
-				entity.getEndAt()
-		);
+		return TripDetailResponse.builder()
+				.tripId(entity.getTripId())
+				.hostUser(entity.getHostUser())
+				.title(entity.getTitle())
+				.description(entity.getDescription())
+				.estimatedCost(entity.getEstimatedCost())
+				.maxParticipants(entity.getMaxParticipants())
+				.durationMinutes(entity.getDurationMinutes())
+				.startAt(entity.getStartAt())
+				.endAt(entity.getEndAt())
+				.status(entity.getStatus())
+				.theme(entity.getTheme())
+				.createdAt(entity.getCreatedAt())
+				.updatedAt(entity.getUpdatedAt())
+				.editLockDays(entity.getEditLockDays())
+				.build();
+
 	}
 	
 	
