@@ -1,0 +1,98 @@
+/* ===== Signup Page ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f1f2f0;
+  font-family: system-ui, -apple-system, "Noto Sans KR", sans-serif;
+  color: #1c1f24;
+}
+
+.signup {
+  width: 100%;
+  max-width: 420px;
+  margin: 80px auto;
+  background: #fff;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.signup__title {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.signup__error {
+  margin-bottom: 16px;
+  color: #e54848;
+  font-weight: 700;
+  text-align: center;
+}
+
+.signup__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.field__input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(86,104,115,0.3);
+  font-size: 14px;
+}
+
+.field__input:focus {
+  outline: none;
+  border-color: #1675f2;
+  box-shadow: 0 0 0 3px rgba(22,117,242,0.15);
+}
+
+.field__error {
+  font-size: 12px;
+  color: #e54848;
+  font-weight: 600;
+}
+
+.signup__btn {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: #f2e96d;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.signup__btn:hover {
+  filter: brightness(0.97);
+}
+
+.signup__footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.signup__footer a {
+  color: #1675f2;
+  font-weight: 700;
+  text-decoration: none;
+}
