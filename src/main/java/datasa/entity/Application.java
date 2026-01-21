@@ -1,5 +1,7 @@
 package datasa.entity;
 
+
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

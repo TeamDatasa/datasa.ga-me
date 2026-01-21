@@ -1,5 +1,6 @@
 package datasa.controller;
 
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,13 +19,11 @@ public class MainController {
 
         boolean isLogin = (loginMemberId != null);
 
-//        List<Course> recommendCourses =
-//                CourseRepository.findTop5ByOrderByViewCountDesc();
 
         model.addAttribute("isLogin", isLogin);
-//        model.addAttribute("recommendCourses", recommendCourses);
 
-        return "main";
+        return "trip-test";
     }
+
 }
 
