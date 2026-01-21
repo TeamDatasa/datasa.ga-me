@@ -5,6 +5,7 @@ import datasa.entity.User;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;
+import domain.dto.TripUpdateRequest;
 import domain.dto.TripWriteRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,11 @@ import java.util.List;
 @RequestMapping("api/trip")
 @Slf4j
 public class TripController {
+	/**
+	 * 게시글 수정 처리
+	 *
+	 */
+	private static final Long TEST_USER_ID = 1L;
 	private final TripService tripService;
 	
 	/**
@@ -34,7 +40,6 @@ public class TripController {
 	) {
 		return tripService.getTripList(order, pageable);
 	}
-	
 	
 	/**
 	 * U_002: 여행 검색 (지역/언어/테마)
@@ -50,13 +55,13 @@ public class TripController {
 		);
 	}
 	
-//	 동식ver List
-	 @GetMapping("/listAll")
-	 public String listAll(Model model) {
-	 	List<TripListResponse> boardList = tripService.getListAll();
-	 	model.addAttribute("boardList", boardList);
-	 	return "trip/listAll";
-	 }
+	//	 동식ver List
+	@GetMapping("/listAll")
+	public String listAll(Model model) {
+		List<TripListResponse> boardList = tripService.getListAll();
+		model.addAttribute("boardList", boardList);
+		return "trip/listAll";
+	}
 	
 	@GetMapping("/write")
 	public String wrtieForm(@ModelAttribute TripWriteRequest request, Model model) {
@@ -89,45 +94,42 @@ public class TripController {
 	}
 	
 	
-	@PostMapping("update/{boardNum}")
-	public String update(Model model, @PathVariable Long boardNum, User user
-	) {
-		try {
-			TripDetailResponse response = tripService.getTripDetail(boardNum);
-			if (!user.getUserId().equals(response.getHostUser().getUserId())) {
-				throw new RuntimeException("수정권한이 없습니다.");
-			}
-			
-			model.addAttribute("request", response);
-			return "trip/updateForm";
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "redirect:/trip/listAll";
-		}
-	}
 	
-	/**
-	 * 게시글 수정 처리
-	 *
-	 */
-	@PostMapping("/update")
-	public String update(
-			@ModelAttribute("request") TripDetailResponse request, User user
-	) {
-		try {
-			tripService.update(request, user);
-			log.debug("수정이 완료 되었습니다.");
-			return "redirect:/trip/read/" + request.getTripId();
-		} catch (Exception e) {
-			e.printStackTrace();
+	@GetMapping("/update/{id}")
+	public String updateForm(@PathVariable Long id, Model model) {
+		
+		TripDetailResponse detail = tripService.getTripDetail(id);
+		
+		// 임시 로그인 유저
+		if (!detail.getHostUser().getUserId().equals(1L)) {
 			return "redirect:/api/trip/listAll";
 		}
 		
+		TripUpdateRequest req = new TripUpdateRequest();
+		req.setTripId(detail.getTripId());
+		req.setTitle(detail.getTitle());
+		req.setDescription(detail.getDescription());
+		req.setEstimatedCost(detail.getEstimatedCost());
+		req.setMaxParticipants(detail.getMaxParticipants());
+		req.setDurationMinutes(detail.getDurationMinutes());
+		req.setStartAt(detail.getStartAt());
+		req.setEndAt(detail.getEndAt());
+		req.setTheme(detail.getTheme());
+		
+		model.addAttribute("request", req);
+		return "trip/updateForm";
 	}
 	
 	
-//	게시글 (상세)읽기
+	@PostMapping("/update")
+	public String update(@ModelAttribute("request") TripUpdateRequest request) {
+		
+		tripService.updateTrip(request, 1L); // 임시 로그인 유저
+		return "redirect:/api/trip/read/" + request.getTripId();
+	}
+
+	
+	//	게시글 (상세)읽기
 	@GetMapping("/read/{id}")
 	public String read(@PathVariable Long id, Model model) {
 		TripDetailResponse response = tripService.getTripDetail(id);

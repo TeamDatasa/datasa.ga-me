@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>여행 글 수정</title>
+</head>
+<body>
+<h1>여행 글 수정</h1>
+
+<form th:action="@{/api/trip/update}" method="post" th:object="${request}">
+
+    <input type="hidden" th:field="*{tripId}" />
+
+    <input th:field="*{title}" />
+    <textarea th:field="*{description}"></textarea>
+
+    <input type="number" th:field="*{estimatedCost}" />
+    <input type="number" th:field="*{maxParticipants}" />
+    <input type="number" th:field="*{durationMinutes}" />
+
+    <input type="datetime-local" th:field="*{startAt}" />
+    <input type="datetime-local" th:field="*{endAt}" />
+
+    <input th:field="*{theme}" />
+
+    <button type="submit">수정</button>
+</form>
+
+</body>
+</html>

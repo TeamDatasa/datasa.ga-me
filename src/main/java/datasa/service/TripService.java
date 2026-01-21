@@ -6,6 +6,7 @@ import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;
+import domain.dto.TripUpdateRequest;
 import domain.dto.TripWriteRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -143,20 +144,27 @@ public class TripService {
 		return dtoList;
 	}
 	
-	public void update(TripDetailResponse request, User user) {
-		Trip tripEntity = tripRepository.findById(request.getTripId())
-				.orElseThrow(() -> new EntityNotFoundException("게시글 없습니다"));
+	@Transactional
+	public void updateTrip(TripUpdateRequest req, Long loginUserId) {
 		
-		if (!tripEntity.getHostUser().getUserId().equals(user.getUserId())) {
-			throw new RuntimeException("수정권한이 없습니다.");
+		Trip trip = tripRepository.findById(req.getTripId())
+				.orElseThrow(() -> new EntityNotFoundException("게시글 없습니다."));
+		
+		// 작성자 검증
+		if (!trip.getHostUser().getUserId().equals(loginUserId)) {
+			throw new RuntimeException("수정 권한이 없습니다.");
 		}
-		// 전달된 정보 수정
-		tripEntity.setTitle(request.getTitle());
-		tripEntity.setDescription(request.getDescription());
-		tripEntity.setEstimatedCost(request.getEstimatedCost());
-		tripEntity.setMaxParticipants(request.getMaxParticipants());
-		tripEntity.setDurationMinutes(request.getDurationMinutes());
-		tripEntity.setStartAt(request.getStartAt());
-		tripEntity.setEndAt(request.getEndAt());
+		
+		// 전체 수정
+		trip.setTitle(req.getTitle());
+		trip.setDescription(req.getDescription());
+		trip.setEstimatedCost(req.getEstimatedCost());
+		trip.setMaxParticipants(req.getMaxParticipants());
+		trip.setDurationMinutes(req.getDurationMinutes());
+		trip.setStartAt(req.getStartAt());
+		trip.setEndAt(req.getEndAt());
+		trip.setTheme(req.getTheme());
 	}
+
+	
 }
