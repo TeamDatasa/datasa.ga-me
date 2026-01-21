@@ -3,6 +3,7 @@ package datasa.controller;
 import datasa.dto.SignupRequest;
 import datasa.entity.User;
 import datasa.repository.UserRepository;
+import datasa.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,34 +18,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 public class AuthController {
 	
-	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final AuthService authService;
 	
 	@PostMapping("/signup")
 	public String signup(
-			@Valid SignupRequest request,
-			BindingResult bindingResult,
-			Model model
+			@Valid SignupRequest signupRequest,
+			BindingResult bindingResult
 			){
 				/* ===== 형식/길이 검증 ===== */
 				if (bindingResult.hasErrors()){
 					return "signup";
 				}
 				/* ===== 이메일 중복 체크 ===== */
-				if (userRepository.existsByEmail(request.getEmail())){
-					model.addAttribute("error","이미 사용 중인 이메일입니다.");
+				try{
+					authService.signUp(signupRequest);
+					return "redirect:/login";
+				}catch (IllegalArgumentException e){
+					bindingResult.rejectValue("email", null, e.getMessage());
 					return "signup";
 				}
-				/* ===== 계정 생성 ===== */
-				User user = new User(
-						request.getEmail(),
-						passwordEncoder.encode(request.getPassword()),
-						request.getName()
-				);
-				userRepository.save(user);
-				
-				return "redirect:/login";
-		
 	}
 	
 	@GetMapping("/signup")
