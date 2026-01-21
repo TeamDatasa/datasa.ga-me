@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Trip List</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 24px; }
@@ -22,7 +22,7 @@
 
 <div class="top-bar">
     <h1>전체 작성글 리스트</h1>
-    <a th:href="@{/trips/write}">게시글 작성</a>
+    <a th:href="@{/api/trip/write}">게시글 작성</a>
 </div>
 
 <!-- 목록이 비었을 때 -->
@@ -93,11 +93,19 @@
         <td class="nowrap" th:text="${trip.maxParticipants}">10</td>
         <td class="nowrap" th:text="${trip.durationMinutes}">120</td>
 
-        <td class="nowrap" th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">
+        <td class="nowrap"
+            th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">
             -
         </td>
 
         <td class="nowrap" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">-</td>
+        <td>
+            <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
+                  onsubmit="return confirm('삭제하시겠습니까?');"
+                  style="display:inline;">
+                <button type="submit">삭제</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

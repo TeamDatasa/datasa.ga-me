@@ -165,6 +165,20 @@ public class TripService {
 		trip.setEndAt(req.getEndAt());
 		trip.setTheme(req.getTheme());
 	}
-
+	
+	
+	@Transactional
+	public void deleteTrip(Long tripId, Long loginUserId) {
+		Trip trip = tripRepository.findById(tripId)
+				.orElseThrow(() -> new EntityNotFoundException("게시글 없습니다. id=" + tripId));
+		
+		Long hostId = trip.getHostUser().getUserId();
+		if (!hostId.equals(loginUserId)) {
+			throw new RuntimeException("삭제 권한이 없습니다.");
+		}
+		
+		tripRepository.delete(trip);
+	}
+	
 	
 }

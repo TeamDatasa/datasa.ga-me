@@ -64,5 +64,12 @@
 &nbsp;|&nbsp;
 <a th:href="@{/api/trip/update/{id}(id=${trip.tripId})}">수정</a>
 
+<form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
+      onsubmit="return confirm('정말 삭제하시겠습니까?');"
+      style="display:inline;">
+    <button type="submit">삭제</button>
+</form>
+
+
 </body>
 </html>

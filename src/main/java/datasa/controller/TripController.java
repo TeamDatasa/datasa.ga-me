@@ -137,4 +137,15 @@ public class TripController {
 		return "trip/read";
 	}
 	
+	@PostMapping("/delete/{id}")
+	public String delete(@PathVariable Long id) {
+		try {
+			tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
+			return "redirect:/api/trip/listAll";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/api/trip/read/" + id;
+		}
+	}
+	
 }
