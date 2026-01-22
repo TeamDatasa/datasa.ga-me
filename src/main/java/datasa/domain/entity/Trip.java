@@ -1,4 +1,4 @@
-package domain.entity;
+package datasa.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,6 +29,9 @@ public class Trip {
 	
 	@Column(name = "description", nullable = false, columnDefinition = "TEXT")
 	private String description;
+	
+	@Column(name = "region", nullable = false)
+	private String region;
 	
 	@Column(name = "estimated_cost")
 	private Integer estimatedCost; // KRW

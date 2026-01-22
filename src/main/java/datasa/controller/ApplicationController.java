@@ -1,7 +1,7 @@
 package datasa.controller;
 
-import domain.dto.ApplicationCreateResponseDto;
-import domain.dto.ApplicationStatusResponseDto;
+import datasa.domain.dto.ApplicationCreateResponseDto;
+import datasa.domain.dto.ApplicationStatusResponseDto;
 import datasa.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,8 @@ public class ApplicationController {
             @PathVariable Long tripId,
             @RequestParam Long userId
     ) {
-        return applicationService.getMyApplicationStatus(tripId, userId);
+        // return applicationService.getMyApplicationStatus(tripId, userId);
+		return null;
     }
 }
 

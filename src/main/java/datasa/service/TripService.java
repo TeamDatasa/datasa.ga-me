@@ -1,10 +1,10 @@
 package datasa.service;
 
-import domain.dto.*;
+import datasa.domain.dto.*;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
-import domain.entity.Trip;
-import domain.entity.User;
+import datasa.domain.entity.Trip;
+import datasa.domain.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,9 +54,11 @@ public class TripService {
 	  */
 	public Page<TripListResponseDto> getTripList(String order, Pageable pageable) {
 		if ("popular".equalsIgnoreCase(order)) {
-			return tripRepository.findPopularTrips(pageable);
+			// return tripRepository.findPopularTrips(pageable);
+			return null;
 		}
-		return tripRepository.findLatestTrips(pageable);
+		// return tripRepository.findLatestTrips(pageable);
+		return null;
 	}
 	
 	 /**
@@ -71,9 +73,11 @@ public class TripService {
 			 Pageable pageable
 	 ) {
 		 if ("popular".equalsIgnoreCase(order)) {
-			 return tripRepository.searchByFiltersPopular(region, theme, languages, pageable);
+//			 return tripRepository.searchByFiltersPopular(region, theme, languages, pageable);
+			 return null;
 		 }
-		 return tripRepository.searchByFilters(region, theme, languages, pageable);
+		 // return tripRepository.searchByFilters(region, theme, languages, pageable);
+		 return null;
 	 }
 	 // bjh
 	 @Transactional
@@ -189,14 +193,16 @@ public class TripService {
             Pageable pageable
     ) {
         if ("popular".equalsIgnoreCase(order)) {
-            return tripRepository.searchByFiltersPopular(
-                    region, theme, languages, pageable
-            );
+			return null;
+//            return tripRepository.searchByFiltersPopular(
+//                    region, theme, languages, pageable
+//            );
         }
 
-        return tripRepository.searchByFilters(
-                region, theme, languages, pageable
-        );
+		return  null;
+//        return tripRepository.searchByFilters(
+//                region, theme, languages, pageable
+//        );
     }
 
     /**

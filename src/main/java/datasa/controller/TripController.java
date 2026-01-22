@@ -1,14 +1,12 @@
 
 package datasa.controller;
 
-import domain.dto.TripDetailResponseDto;
-import domain.dto.TripListResponseDto;
+import datasa.domain.dto.TripListResponseDto;
 import datasa.service.TripService;
-import domain.dto.TripDetailResponse;
-import domain.dto.TripListResponse;
-import domain.dto.TripUpdateRequest;
-import domain.dto.TripWriteRequest;
-import domain.entity.Trip;
+import datasa.domain.dto.TripDetailResponse;
+import datasa.domain.dto.TripListResponse;
+import datasa.domain.dto.TripUpdateRequest;
+import datasa.domain.dto.TripWriteRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -57,22 +55,22 @@ public class TripController {
 //		);
 //	}
 	
-	@GetMapping("/search")
-	public Page<TripListResponseDto> search(
-			@RequestParam(required = false) String language,
-			@RequestParam(required = false) String region,
-			@RequestParam(required = false) String theme,
-			@RequestParam(defaultValue = "latest") String order,
-			Pageable pageable
-	) {
-		List<String> languages = (language == null || language.isBlank())
-				? null
-				: List.of(language);
-		
-		return tripService.searchTrips(
-				languages, region, theme, order, pageable
-		);
-	}
+//	@GetMapping("/search")
+//	public Page<TripListResponseDto> search(
+//			@RequestParam(required = false) String language,
+//			@RequestParam(required = false) String region,
+//			@RequestParam(required = false) String theme,
+//			@RequestParam(defaultValue = "latest") String order,
+//			Pageable pageable
+//	) {
+//		List<String> languages = (language == null || language.isBlank())
+//				? null
+//				: List.of(language);
+//
+//		return tripService.searchTrips(
+//				languages, region, theme, order, pageable
+//		);
+//	}
 	
 	//	 동식ver List
 	@GetMapping("/listAll")
