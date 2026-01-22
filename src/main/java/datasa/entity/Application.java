@@ -5,9 +5,9 @@ package datasa.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
-
 
 @Entity
 @Table(
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 )
 @Getter
 @NoArgsConstructor
+@Setter
 public class Application {
 
     @Id
@@ -51,6 +52,8 @@ public class Application {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+
 
     /* ===== ENUM ===== */
     public enum Status {

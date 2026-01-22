@@ -1,7 +1,8 @@
+
 package datasa.controller;
 
-import datasa.entity.Trip;
-import datasa.entity.User;
+import datasa.dto.TripDetailResponseDto;
+import datasa.dto.TripListResponseDto;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,23 +131,63 @@ public class TripController {
 	}
 
 	
-	//	게시글 (상세)읽기
-	@GetMapping("/read/{id}")
-	public String read(@PathVariable Long id, Model model) {
-		TripDetailResponse response = tripService.getTripDetail(id);
-		model.addAttribute("trip", response);
-		return "trip/read";
-	}
+	// //	게시글 (상세)읽기
+	// @GetMapping("/read/{id}")
+	// public String read(@PathVariable Long id, Model model) {
+	// 	TripDetailResponse response = tripService.getTripDetail(id);
+	// 	model.addAttribute("trip", response);
+	// 	return "trip/read";
+	// }
 	
-	@PostMapping("/delete/{id}")
-	public String delete(@PathVariable Long id) {
-		try {
-			tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
-			return "redirect:/api/trip/listAll";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "redirect:/api/trip/read/" + id;
-		}
-	}
+	// @PostMapping("/delete/{id}")
+	// public String delete(@PathVariable Long id) {
+	// 	try {
+	// 		tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
+	// 		return "redirect:/api/trip/listAll";
+	// 	} catch (Exception e) {
+	// 		e.printStackTrace();
+	// 		return "redirect:/api/trip/read/" + id;
+	// 	}
+	// }
 	
+    private final TripService tripService;
+
+    /**
+     * U_001 여행 목록 조회
+     * - latest / popular
+     */
+    @GetMapping
+    public Page<TripListResponseDto> list(
+            @RequestParam(defaultValue = "latest") String order,
+            Pageable pageable
+    ) {
+        return tripService.getTripList(order, pageable);
+    }
+
+    /**
+     * U_002 여행 검색
+     * - 언어(복수) / 지역 / 테마
+     */
+    @GetMapping("/search")
+    public Page<TripListResponseDto> searchTrips(
+            @RequestParam(required = false) List<String> languages,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String theme,
+            @RequestParam(defaultValue = "latest") String order,
+            Pageable pageable
+    ) {
+        return tripService.searchTrips(
+                languages, region, theme, order, pageable
+        );
+    }
+
+    /**
+     * U_003 여행 상세 (API)
+     */
+    @GetMapping("/{tripId}")
+    public TripDetailResponseDto getTripDetail(
+            @PathVariable Long tripId
+    ) {
+        return tripService.getTripDetail(tripId);
+    }
 }
