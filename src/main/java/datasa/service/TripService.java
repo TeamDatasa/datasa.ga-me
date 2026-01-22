@@ -1,7 +1,7 @@
 package datasa.service;
 
-import domain.dto.TripDetailResponseDto;
-import domain.dto.TripListResponseDto;
+import datasa.domain.dto.TripDetailResponseDto;
+import datasa.domain.dto.TripListResponseDto;
 import datasa.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

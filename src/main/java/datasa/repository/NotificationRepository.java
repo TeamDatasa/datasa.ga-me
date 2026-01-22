@@ -1,7 +1,7 @@
 package datasa.repository;
 
-import domain.entity.Notification;
-import domain.entity.User;
+import datasa.domain.entity.Notification;
+import datasa.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

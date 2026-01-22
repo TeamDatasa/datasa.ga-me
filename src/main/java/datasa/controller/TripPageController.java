@@ -1,6 +1,6 @@
 package datasa.controller;
 
-import domain.dto.TripDetailResponseDto;
+import datasa.domain.dto.TripDetailResponseDto;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

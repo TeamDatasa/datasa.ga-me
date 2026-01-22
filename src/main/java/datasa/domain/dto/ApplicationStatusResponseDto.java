@@ -1,6 +1,6 @@
-package domain.dto;
+package datasa.domain.dto;
 
-import domain.entity.Application;
+import datasa.domain.entity.Application;
 
 
 public class ApplicationStatusResponseDto {
