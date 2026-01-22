@@ -1,24 +1,16 @@
 package datasa.service;
 
-import datasa.dto.TripDetailResponseDto;
-import datasa.dto.TripListResponseDto;
+import domain.dto.TripDetailResponseDto;
+import domain.dto.TripListResponseDto;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import domain.dto.TripDetailResponse;
-import domain.dto.TripListResponse;
-import domain.dto.TripUpdateRequest;
-import domain.dto.TripWriteRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import java.util.List;
 

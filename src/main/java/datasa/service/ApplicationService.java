@@ -1,10 +1,10 @@
 package datasa.service;
 
-import datasa.dto.ApplicationCreateResponseDto;
-import datasa.dto.ApplicationStatusResponseDto;
-import datasa.entity.Application;
-import datasa.entity.Trip;
-import datasa.entity.User;
+import domain.dto.ApplicationCreateResponseDto;
+import domain.dto.ApplicationStatusResponseDto;
+import domain.entity.Application;
+import domain.entity.Trip;
+import domain.entity.User;
 import datasa.repository.ApplicationRepository;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;

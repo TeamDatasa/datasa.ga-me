@@ -1,4 +1,4 @@
-package datasa.entity;
+package domain.entity;
 
 
 

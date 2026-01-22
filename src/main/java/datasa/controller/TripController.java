@@ -1,8 +1,8 @@
 
 package datasa.controller;
 
-import datasa.dto.TripDetailResponseDto;
-import datasa.dto.TripListResponseDto;
+import domain.dto.TripDetailResponseDto;
+import domain.dto.TripListResponseDto;
 import datasa.service.TripService;
 import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor

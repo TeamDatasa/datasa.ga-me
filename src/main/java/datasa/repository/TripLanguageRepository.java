@@ -1,8 +1,8 @@
 package datasa.repository;
 
 
-import datasa.entity.Trip;
-import datasa.entity.TripLanguage;
+import domain.entity.Trip;
+import domain.entity.TripLanguage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
