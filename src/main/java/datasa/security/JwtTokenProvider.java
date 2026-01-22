@@ -1,6 +1,6 @@
 package datasa.security;
 
-import datasa.entity.User;
+import datasa.domain.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

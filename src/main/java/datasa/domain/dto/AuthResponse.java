@@ -1,6 +1,6 @@
-package datasa.dto;
+package datasa.domain.dto;
 
-import datasa.entity.User;
+import datasa.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

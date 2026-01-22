@@ -1,6 +1,8 @@
 package datasa.controller;
 
-import datasa.dto.*;
+import datasa.domain.dto.AuthResponse;
+import datasa.domain.dto.SignupRequest;
+import datasa.domain.dto.*;
 import datasa.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ public class AuthController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+	public ResponseEntity<AuthResponse> login(@Valid @RequestBody datasa.dto.LoginRequest request) {
 		return ResponseEntity.ok(authService.login(request));
 	}
 }

@@ -1,6 +1,6 @@
 package datasa.security;
 
-import datasa.entity.User;
+import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

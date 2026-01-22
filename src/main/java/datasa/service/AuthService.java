@@ -1,9 +1,9 @@
 package datasa.service;
 
-import datasa.dto.AuthResponse;
+import datasa.domain.dto.AuthResponse;
 import datasa.dto.LoginRequest;
-import datasa.dto.SignupRequest;
-import datasa.entity.User;
+import datasa.domain.dto.SignupRequest;
+import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import datasa.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
