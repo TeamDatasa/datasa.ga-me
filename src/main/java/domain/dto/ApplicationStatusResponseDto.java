@@ -1,8 +1,6 @@
-package datasa.domain.dto;
+package domain.dto;
 
-import datasa.domain.entity.Application;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import domain.entity.Application;
 
 
 public class ApplicationStatusResponseDto {

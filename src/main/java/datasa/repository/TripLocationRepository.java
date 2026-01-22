@@ -1,8 +1,8 @@
 package datasa.repository;
 
 
-import datasa.domain.entity.Trip;
-import datasa.domain.entity.TripLocation;
+import domain.entity.Trip;
+import domain.entity.TripLocation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

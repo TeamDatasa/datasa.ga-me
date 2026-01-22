@@ -1,7 +1,7 @@
 package datasa.controller;
 
-import datasa.domain.dto.ApplicationCreateResponseDto;
-import datasa.domain.dto.ApplicationStatusResponseDto;
+import domain.dto.ApplicationCreateResponseDto;
+import domain.dto.ApplicationStatusResponseDto;
 import datasa.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

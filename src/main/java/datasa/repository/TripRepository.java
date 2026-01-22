@@ -1,8 +1,8 @@
 package datasa.repository;
 
-import datasa.domain.dto.TripDetailResponseDto;
-import datasa.domain.dto.TripListResponseDto;
-import datasa.domain.entity.Trip;
+import domain.dto.TripDetailResponseDto;
+import domain.dto.TripListResponseDto;
+import domain.entity.Trip;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

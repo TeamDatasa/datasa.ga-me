@@ -1,9 +1,8 @@
 
 package datasa.controller;
 
-import datasa.domain.dto.TripDetailResponseDto;
-import datasa.domain.dto.TripListResponseDto;
-import datasa.domain.dto.*;
+import domain.dto.TripDetailResponseDto;
+import domain.dto.TripListResponseDto;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

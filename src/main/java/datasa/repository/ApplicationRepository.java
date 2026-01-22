@@ -1,7 +1,7 @@
 package datasa.repository;
 
-import datasa.domain.dto.ApplicationStatusResponseDto;
-import datasa.domain.entity.Application;
+import domain.dto.ApplicationStatusResponseDto;
+import domain.entity.Application;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
