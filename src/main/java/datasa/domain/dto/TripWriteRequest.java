@@ -22,6 +22,8 @@ public class TripWriteRequest {
 	
 	private String description;
 	
+	private String region;
+	
 	private Integer estimatedCost; // KRW
 	
 	private Integer maxParticipants; // 정원

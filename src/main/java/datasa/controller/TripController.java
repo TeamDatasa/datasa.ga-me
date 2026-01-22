@@ -91,25 +91,22 @@ public class TripController {
 		}
 		
 		model.addAttribute("request", request);
-		
-		
 		return "trip/writeForm";
 	}
-	
-	// 임시
-//	@PostMapping("/write")
-//	public String wrtie(@ModelAttribute TripWriteRequest request, Model model) {
-//		try {
-//			// 임시
-//			// 1번 사용자가 임의로 글을 작성함
-//			tripService.wrtie(1L, request);
-//			return "redirect:/api/trip/listAll";
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			model.addAttribute("request", request);
-//			return "trip/writeForm";
-//		}
-//	}
+
+	@PostMapping("/write")
+	public String write(@ModelAttribute TripWriteRequest request, Model model) {
+		try {
+			// 임시
+			// 1번 사용자가 임의로 글을 작성함
+			tripService.write(1L, request);
+			return "redirect:/api/trip/listAll";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("request", request);
+			return "trip/writeForm";
+		}
+	}
 	
 	
 	
