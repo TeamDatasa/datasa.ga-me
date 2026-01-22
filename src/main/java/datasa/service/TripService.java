@@ -2,8 +2,9 @@ package datasa.service;
 
 
 import datasa.domain.dto.*;
-import datasa.repository.TripRepository;
-import datasa.repository.UserRepository;
+import datasa.domain.entity.Application;
+import datasa.domain.entity.TripLanguage;
+import datasa.repository.*;
 import datasa.domain.entity.Trip;
 import datasa.domain.entity.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,7 +25,10 @@ import java.util.List;
 public class TripService {
 	private final TripRepository tripRepository;
 	private final UserRepository userRepository;
-	
+    private final ApplicationRepository applicationRepository;
+    private final TripLanguageRepository tripLanguageRepository;
+	private final TripLocationRepository tripLocationRepository;
+
 	public TripDetailResponse getTripDetail(Long boardNum) {
 		Trip entity = tripRepository.findById(boardNum).orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
 		
@@ -45,40 +49,6 @@ public class TripService {
 				.editLockDays(entity.getEditLockDays())
 				.build();
 		
-	}
-	
-	
-	/**
-	 * U_001 여행 목록 조회
-	 * - latest (기본): 최신순
-	 * - popular: 인기순
-	 */
-	public Page<TripListResponseDto> getTripList(String order, Pageable pageable) {
-		if ("popular".equalsIgnoreCase(order)) {
-			// return tripRepository.findPopularTrips(pageable);
-			return null;
-		}
-		// return tripRepository.findLatestTrips(pageable);
-		return null;
-	}
-	
-	/**
-	 * U_002 여행 검색 (언어 기반)
-	 * - latest / popular 지원
-	 */
-	public Page<TripListResponseDto> searchByFilters(
-			List<String> languages,
-			String region,
-			String theme,
-			String order,
-			Pageable pageable
-	) {
-		if ("popular".equalsIgnoreCase(order)) {
-//			 return tripRepository.searchByFiltersPopular(region, theme, languages, pageable);
-			return null;
-		}
-		// return tripRepository.searchByFilters(region, theme, languages, pageable);
-		return null;
 	}
 	
 	// bjh
@@ -173,15 +143,15 @@ public class TripService {
 	 * - latest (기본): 최신순
 	 * - popular: 인기순
 	 */
-//    public Page<TripListResponseDto> getTripList(
-//            String order,
-//            Pageable pageable
-//    ) {
-//        if ("popular".equalsIgnoreCase(order)) {
-//            return tripRepository.findPopularTrips(pageable);
-//        }
-//        return tripRepository.findLatestTrips(pageable);
-//    }
+    public Page<TripListResponseDto> getTripList(
+            String order,
+            Pageable pageable
+    ) {
+        if ("popular".equalsIgnoreCase(order)) {
+            return tripRepository.findPopularTrips(pageable);
+        }
+        return tripRepository.findLatestTrips(pageable);
+   }
 	
 	/**
 	 * U_002 여행 검색
@@ -196,25 +166,55 @@ public class TripService {
 			Pageable pageable
 	) {
 		if ("popular".equalsIgnoreCase(order)) {
-			return null;
-//            return tripRepository.searchByFiltersPopular(
-//                    region, theme, languages, pageable
-//            );
+
+            return tripRepository.searchByFiltersPopular(
+                 region, theme, languages, pageable
+          );
 		}
-		
-		return null;
-//        return tripRepository.searchByFilters(
-//                region, theme, languages, pageable
-//        );
+
+        return tripRepository.searchByFilters(
+                region, theme, languages, pageable
+       );
 	}
-	
-	/**
-	 * U_003 여행 상세 조회
-	 */
-//    public TripDetailResponseDto getTripDetail(Long tripId) {
-//        return tripRepository.findTripDetail(tripId)
-//                .orElseThrow(() ->
-//                        new IllegalArgumentException("존재하지 않는 여행입니다.")
-//                );
-//    }
-}
+
+    /**
+     * 여행 상세페이지에서 언어랑 승인인원
+     * 및 신청
+     *
+     */
+        public TripDetailResponseDto getTripDetailview(Long tripId) {
+            Trip trip = tripRepository.findById(tripId)
+                    .orElseThrow(() ->
+                            new EntityNotFoundException("해당 여행이 존재하지 않습니다.")
+                    );
+
+            long approvedCount =
+                    applicationRepository.countByTrip_TripIdAndStatus(
+                            tripId,
+                            Application.Status.APPROVED
+                    );
+
+            List<String> languages =
+                    tripLanguageRepository.findByTrip_TripId(tripId)
+                            .stream()
+                            .map(TripLanguage::getLanguageCode)
+                            .toList();
+
+            return new TripDetailResponseDto(
+                    trip.getTripId(),
+                    trip.getTitle(),
+                    trip.getDescription(),
+                    trip.getRegion(),
+                    trip.getTheme(),
+                    trip.getMaxParticipants(),
+                    trip.getEstimatedCost(),
+                    trip.getStartAt(),
+                    trip.getEndAt(),
+                    trip.getHostUser().getName(),
+                    approvedCount,
+                    languages
+            );
+        }
+    }
+
+

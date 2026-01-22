@@ -21,5 +21,7 @@ public class TripDetailResponseDto {
     private LocalDateTime endAt;
 
     private String hostName;
+    private Long approvedCount;
     private List<String> languages;
+
 }

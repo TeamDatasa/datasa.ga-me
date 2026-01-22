@@ -17,7 +17,7 @@ import java.util.Date;
 public class JwtTokenProvider {
 	private final Key key;
 	private final long validityMs;
-	
+
 	public JwtTokenProvider(
 			@Value("${jwt.secret}") String secret,
 			@Value("${jwt.validity-ms:3600000}") long validityMs
@@ -25,11 +25,11 @@ public class JwtTokenProvider {
 		this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 		this.validityMs = validityMs;
 	}
-	
+
 	public String createToken(String email, User.Role role) {
 		Date now = new Date();
 		Date exp = new Date(now.getTime() + validityMs);
-		
+
 		return Jwts.builder()
 				.setSubject(email)
 				.claim("role", role.name())
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
 				.signWith(key, SignatureAlgorithm.HS256)
 				.compact();
 	}
-	
+
 	public boolean validate(String token) {
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -47,16 +47,16 @@ public class JwtTokenProvider {
 			return false;
 		}
 	}
-	
+
 	public String getEmail(String token) {
 		return getClaims(token).getSubject();
 	}
-	
+
 	public String getRole(String token) {
 		Object role = getClaims(token).get("role");
 		return role == null ? null : role.toString();
 	}
-	
+
 	private Claims getClaims(String token) {
 		return Jwts.parserBuilder().setSigningKey(key).build()
 				.parseClaimsJws(token)

@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("api/trip")
+@RequestMapping("/trip")
 @Slf4j
 public class TripController {
 	/**
@@ -33,48 +33,19 @@ public class TripController {
 	 */
 	private static final Long TEST_USER_ID = 1L;
 	private final TripService tripService;
-	
-	/**
-	 * 여행 목록
-	 */
-//	@GetMapping
-//	public Page<Trip> list(
-//			@RequestParam(defaultValue = "latest") String order,
-//			Pageable pageable
-//	) {
-//		return tripService.getTripList(order, pageable);
-//	}
-	
-	/**
-	 * U_002: 여행 검색 (지역/언어/테마)
-	 */
-//	@GetMapping("/search")
-//	public Page<Trip> search(
-//			@RequestParam(required = false) String language,
-//			@RequestParam(defaultValue = "latest") String order,
-//			Pageable pageable
-//	) {
-//		return tripService.searchTrips(
-//				language, order, pageable
-//		);
-//	}
-	
-//	@GetMapping("/search")
-//	public Page<TripListResponseDto> search(
-//			@RequestParam(required = false) String language,
-//			@RequestParam(required = false) String region,
-//			@RequestParam(required = false) String theme,
-//			@RequestParam(defaultValue = "latest") String order,
-//			Pageable pageable
-//	) {
-//		List<String> languages = (language == null || language.isBlank())
-//				? null
-//				: List.of(language);
-//
-//		return tripService.searchTrips(
-//				languages, region, theme, order, pageable
-//		);
-//	}
+
+// json api 여행리스트
+    @GetMapping("/mainList")
+    public String mainList() {
+        return "trip-test";
+    }
+//신청페이지 만든다고 만든 여행상세페이지
+    @GetMapping("/{tripId}")
+    public String detailView(@PathVariable Long tripId, Model model) {
+        model.addAttribute("tripId", tripId);
+        return "trip-detail"; // templates/trip-detail.html
+}
+
 	
 	//	 동식ver List
 	@GetMapping("/listAll")
@@ -167,43 +138,4 @@ public class TripController {
 	 	}
 	 }
 
-
-    /**
-     * U_001 여행 목록 조회
-     * - latest / popular
-     */
-    @GetMapping
-    public Page<TripListResponseDto> list(
-            @RequestParam(defaultValue = "latest") String order,
-            Pageable pageable
-    ) {
-        return tripService.getTripList(order, pageable);
-    }
-
-    /**
-     * U_002 여행 검색
-     * - 언어(복수) / 지역 / 테마
-     */
-    @GetMapping("/search")
-    public Page<TripListResponseDto> searchTrips(
-            @RequestParam(required = false) List<String> languages,
-            @RequestParam(required = false) String region,
-            @RequestParam(required = false) String theme,
-            @RequestParam(defaultValue = "latest") String order,
-            Pageable pageable
-    ) {
-        return tripService.searchTrips(
-                languages, region, theme, order, pageable
-        );
-    }
-
-    /**
-     * U_003 여행 상세 (API)
-     */
-    @GetMapping("/{tripId}")
-    public TripDetailResponse getTripDetail(
-            @PathVariable Long tripId
-    ) {
-        return tripService.getTripDetail(tripId);
-    }
 }

@@ -1,63 +1,158 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Trip Detail</title>
+    <title>여행 상세</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        .info p {
+            margin: 4px 0;
+        }
+        .lang span {
+            margin-right: 6px;
+            padding: 2px 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        button {
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<h2 th:text="${trip.title}">여행 제목</h2>
+<h2 id="title">로딩중...</h2>
 
-<p><b>호스트:</b> <span th:text="${trip.hostName}"></span></p>
-<p><b>지역:</b> <span th:text="${trip.region}"></span></p>
-<p><b>테마:</b> <span th:text="${trip.theme}"></span></p>
-<p><b>설명:</b> <span th:text="${trip.description}"></span></p>
-<p><b>시작:</b> <span th:text="${trip.startAt}"></span></p>
-<p><b>종료:</b> <span th:text="${trip.endAt}"></span></p>
-<p><b>비용:</b> <span th:text="${trip.estimatedCost}"></span></p>
-<p><b>정원:</b> <span th:text="${trip.maxParticipants}"></span></p>
+<div class="info">
+    <p><b>호스트:</b> <span id="hostName"></span></p>
+    <p><b>테마:</b> <span id="theme"></span></p>
+    <p><b>설명:</b> <span id="description"></span></p>
+    <p><b>기간:</b>
+        <span id="startAt"></span> ~ <span id="endAt"></span>
+    </p>
+    <p><b>비용:</b> <span id="estimatedCost"></span> 원</p>
+    <p><b>모집 인원:</b>
+        <span id="approvedCount"></span> /
+        <span id="maxParticipants"></span>
+    </p>
+</div>
 
-<p><b>지원 언어:</b>
-    <span th:each="lang : ${trip.languages}"
-          th:text="${lang}"
-          style="margin-right:6px;"></span>
+<p class="lang">
+    <b>지원 언어:</b>
+    <span id="languages"></span>
 </p>
 
 <hr/>
 
-<button onclick="applyTrip()">신청하기</button>
-<p id="status"></p>
+<button id="applyBtn" onclick="applyTrip()">신청하기</button>
+<p id="status" class="status"></p>
 
-<a href="/trip-test.html">← 목록으로</a>
+<hr/>
+
+<a href="/trip/mainList">← 목록으로</a>
 
 <script th:inline="javascript">
-    const tripId = [[${trip.tripId}]];
-    const userId = 1; // 임시 로그인 사용자
+    // View Controller에서 내려준 값
+    const tripId = [[${tripId}]];
 
-    function applyTrip() {
-      fetch(`/api/applications/trips/${tripId}?userId=${userId}`, {
-        method: 'POST'
-      }).then(res => {
-        if (res.ok) {
-          loadStatus();
-          alert('신청 완료!');
-        } else {
-          res.text().then(t => alert(t));
-        }
-      });
+    // 임시 로그인 사용자 (나중에 Security로 제거)
+    const userId = 1;
+
+    /* =========================
+       상세 정보 로딩
+    ========================= */
+    function loadTripDetail() {
+        fetch(`/api/trips/${tripId}`)
+            .then(res => res.json())
+            .then(trip => {
+                document.getElementById('title').innerText = trip.title;
+                document.getElementById('theme').innerText = trip.theme;
+                document.getElementById('description').innerText = trip.description;
+                document.getElementById('startAt').innerText = trip.startAt;
+                document.getElementById('endAt').innerText = trip.endAt;
+                document.getElementById('estimatedCost').innerText = trip.estimatedCost;
+                document.getElementById('maxParticipants').innerText = trip.maxParticipants;
+
+                // 승인 인원 (없으면 0)
+                document.getElementById('approvedCount').innerText =
+                    trip.approvedCount ?? 0;
+
+                // 언어
+                const langContainer = document.getElementById('languages');
+                langContainer.innerHTML = '';
+                (trip.languages || []).forEach(lang => {
+                    const span = document.createElement('span');
+                    span.innerText = lang;
+                    langContainer.appendChild(span);
+                });
+            })
+            .catch(() => {
+                alert('여행 정보를 불러오지 못했습니다.');
+            });
     }
 
+    /* =========================
+       신청 상태 조회
+    ========================= */
     function loadStatus() {
-      fetch(`/api/applications/trips/${tripId}/status?userId=${userId}`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('status').innerText =
-            data.status
-              ? `신청 상태: ${data.status}`
-              : '아직 신청하지 않았습니다.';
+        fetch(`/api/applications/trips/${tripId}/status?userId=${userId}`)
+            .then(res => {
+                if (!res.ok) return null;
+                return res.json();
+            })
+            .then(data => {
+                const statusEl = document.getElementById('status');
+                const btn = document.getElementById('applyBtn');
+
+                if (!data || !data.status) {
+                    statusEl.innerText = '아직 신청하지 않았습니다.';
+                    btn.disabled = false;
+                    return;
+                }
+
+                statusEl.innerText = `신청 상태: ${data.status}`;
+
+                if (data.status !== 'PENDING') {
+                    btn.disabled = true;
+                }
+            });
+    }
+
+    /* =========================
+       신청하기
+    ========================= */
+    function applyTrip() {
+        fetch(`/api/applications/trips/${tripId}?userId=${userId}`, {
+            method: 'POST'
+        })
+        .then(res => {
+            if (res.ok) {
+                alert('신청이 완료되었습니다.');
+                loadStatus();
+            } else {
+                return res.text().then(t => alert(t));
+            }
         });
     }
 
+    /* 초기 로딩 */
+    loadTripDetail();
     loadStatus();
 </script>
 

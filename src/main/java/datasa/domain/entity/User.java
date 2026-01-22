@@ -84,6 +84,8 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
+
+
     /* ===== ENUM ===== */
 
     public enum Gender {
