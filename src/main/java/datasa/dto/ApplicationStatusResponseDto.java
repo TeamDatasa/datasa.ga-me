@@ -1,11 +1,11 @@
 package datasa.dto;
 
+import datasa.entity.Application;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
 public class ApplicationStatusResponseDto {
-
-    private String status; // PENDING / APPROVED / REJECTED
+	private Application.Status status;
 }
