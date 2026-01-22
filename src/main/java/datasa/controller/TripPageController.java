@@ -1,5 +1,6 @@
 package datasa.controller;
 
+import domain.dto.TripDetailResponse;
 import domain.dto.TripDetailResponseDto;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class TripPageController {
             Model model
     )
     {
-        TripDetailResponseDto trip = tripService.getTripDetail(tripId);
+        TripDetailResponse trip = tripService.getTripDetail(tripId);
         model.addAttribute("trip", trip);
         return "trip-detail"; // templates/trip-detail.html
     }

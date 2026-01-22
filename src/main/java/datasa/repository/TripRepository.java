@@ -18,7 +18,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      * U_001 여행 목록 (최신순)
      * ========================= */
     @Query("""
-    select new datasa.dto.TripListResponseDto(
+    select new domain.dto.TripListResponseDto(
         t.tripId,
         t.title,
         t.region,
@@ -40,7 +40,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      * U_001 여행 목록 (인기순)
      * ========================= */
     @Query("""
-    select new datasa.dto.TripListResponseDto(
+    select new domain.dto.TripListResponseDto(
         t.tripId,
         t.title,
         t.region,
@@ -62,7 +62,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      * U_002 여행 검색 (최신순)
      * ========================= */
     @Query("""
-    select distinct new datasa.dto.TripListResponseDto(
+    select distinct new domain.dto.TripListResponseDto(
         t.tripId,
         t.title,
         t.region,
@@ -94,7 +94,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      * U_002 여행 검색 (인기순)
      * ========================= */
     @Query("""
-    select distinct new datasa.dto.TripListResponseDto(
+    select distinct new domain.dto.TripListResponseDto(
         t.tripId,
         t.title,
         t.region,
@@ -126,7 +126,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      * U_003 여행 상세 조회
      * ========================= */
     @Query("""
-    select new datasa.dto.TripDetailResponseDto(
+    select new domain.dto.TripDetailResponseDto(
         t.tripId,
         t.title,
         t.description,

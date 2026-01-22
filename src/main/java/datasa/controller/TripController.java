@@ -8,6 +8,7 @@ import domain.dto.TripDetailResponse;
 import domain.dto.TripListResponse;
 import domain.dto.TripUpdateRequest;
 import domain.dto.TripWriteRequest;
+import domain.entity.Trip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,25 +35,42 @@ public class TripController {
 	/**
 	 * 여행 목록
 	 */
-	@GetMapping
-	public Page<Trip> list(
-			@RequestParam(defaultValue = "latest") String order,
-			Pageable pageable
-	) {
-		return tripService.getTripList(order, pageable);
-	}
+//	@GetMapping
+//	public Page<Trip> list(
+//			@RequestParam(defaultValue = "latest") String order,
+//			Pageable pageable
+//	) {
+//		return tripService.getTripList(order, pageable);
+//	}
 	
 	/**
 	 * U_002: 여행 검색 (지역/언어/테마)
 	 */
+//	@GetMapping("/search")
+//	public Page<Trip> search(
+//			@RequestParam(required = false) String language,
+//			@RequestParam(defaultValue = "latest") String order,
+//			Pageable pageable
+//	) {
+//		return tripService.searchTrips(
+//				language, order, pageable
+//		);
+//	}
+	
 	@GetMapping("/search")
-	public Page<Trip> search(
+	public Page<TripListResponseDto> search(
 			@RequestParam(required = false) String language,
+			@RequestParam(required = false) String region,
+			@RequestParam(required = false) String theme,
 			@RequestParam(defaultValue = "latest") String order,
 			Pageable pageable
 	) {
-		return tripService.searchByFilters(
-				language, order, pageable
+		List<String> languages = (language == null || language.isBlank())
+				? null
+				: List.of(language);
+		
+		return tripService.searchTrips(
+				languages, region, theme, order, pageable
 		);
 	}
 	
@@ -80,19 +98,20 @@ public class TripController {
 		return "trip/writeForm";
 	}
 	
-	@PostMapping("/write")
-	public String wrtie(@ModelAttribute TripWriteRequest request, Model model) {
-		try {
-			// 임시
-			// 1번 사용자가 임의로 글을 작성함
-			tripService.write(1L, request);
-			return "redirect:/api/trip/listAll";
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("request", request);
-			return "trip/writeForm";
-		}
-	}
+	// 임시
+//	@PostMapping("/write")
+//	public String wrtie(@ModelAttribute TripWriteRequest request, Model model) {
+//		try {
+//			// 임시
+//			// 1번 사용자가 임의로 글을 작성함
+//			tripService.wrtie(1L, request);
+//			return "redirect:/api/trip/listAll";
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			model.addAttribute("request", request);
+//			return "trip/writeForm";
+//		}
+//	}
 	
 	
 	
@@ -130,26 +149,24 @@ public class TripController {
 	}
 
 	
-	// //	게시글 (상세)읽기
-	// @GetMapping("/read/{id}")
-	// public String read(@PathVariable Long id, Model model) {
-	// 	TripDetailResponse response = tripService.getTripDetail(id);
-	// 	model.addAttribute("trip", response);
-	// 	return "trip/read";
-	// }
+	 //	게시글 (상세)읽기
+	 @GetMapping("/read/{id}")
+	 public String read(@PathVariable Long id, Model model) {
+	 	TripDetailResponse response = tripService.getTripDetail(id);
+	 	model.addAttribute("trip", response);
+	 	return "trip/read";
+	 }
 	
-	// @PostMapping("/delete/{id}")
-	// public String delete(@PathVariable Long id) {
-	// 	try {
-	// 		tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
-	// 		return "redirect:/api/trip/listAll";
-	// 	} catch (Exception e) {
-	// 		e.printStackTrace();
-	// 		return "redirect:/api/trip/read/" + id;
-	// 	}
-	// }
-	
-    private final TripService tripService;
+	 @PostMapping("/delete/{id}")
+	 public String delete(@PathVariable Long id) {
+	 	try {
+	 		tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
+	 		return "redirect:/api/trip/listAll";
+	 	} catch (Exception e) {
+	 		e.printStackTrace();
+	 		return "redirect:/api/trip/read/" + id;
+	 	}
+	 }
 
     /**
      * U_001 여행 목록 조회
@@ -184,7 +201,7 @@ public class TripController {
      * U_003 여행 상세 (API)
      */
     @GetMapping("/{tripId}")
-    public TripDetailResponseDto getTripDetail(
+    public TripDetailResponse getTripDetail(
             @PathVariable Long tripId
     ) {
         return tripService.getTripDetail(tripId);
