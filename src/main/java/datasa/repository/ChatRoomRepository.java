@@ -1,8 +1,8 @@
 package datasa.repository;
 
 
-import datasa.entity.ChatRoom;
-import datasa.entity.Trip;
+import datasa.domain.entity.ChatRoom;
+import datasa.domain.entity.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package datasa.entity;
+package datasa.domain.entity;
 
 
 import jakarta.persistence.*;

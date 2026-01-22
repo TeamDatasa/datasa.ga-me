@@ -1,22 +1,31 @@
 
 package datasa.controller;
 
-import datasa.dto.TripDetailResponseDto;
-import datasa.dto.TripListResponseDto;
+import datasa.domain.dto.TripDetailResponseDto;
+import datasa.domain.dto.TripListResponseDto;
+import datasa.domain.dto.*;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/trips")
+@RequestMapping("api/trip")
+@Slf4j
 public class TripController {
+	/**
+	 * 게시글 수정 처리
+	 *
+	 */
+	private final TripService tripService;
 
-    private final TripService tripService;
+
 
     /**
      * U_001 여행 목록 조회
