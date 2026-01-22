@@ -2,8 +2,8 @@ package datasa.service;
 
 import domain.entity.Trip;
 import domain.entity.User;
-// import domain.dto.TripDetailResponseDto;
-// import domain.dto.TripListResponseDto;
+ import domain.dto.TripDetailResponseDto;
+ import domain.dto.TripListResponseDto;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import domain.dto.TripDetailResponse;
@@ -28,75 +28,7 @@ import java.util.List;
 public class TripService {
 	private final TripRepository tripRepository;
 	private final UserRepository userRepository;
-	
-	public TripDetailResponse getTripDetail(Long boardNum) {
-		Trip entity = tripRepository.findById(boardNum).orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
-		
-		return TripDetailResponse.builder()
-				.tripId(entity.getTripId())
-				.hostUser(entity.getHostUser())
-				.title(entity.getTitle())
-				.description(entity.getDescription())
-				.estimatedCost(entity.getEstimatedCost())
-				.maxParticipants(entity.getMaxParticipants())
-				.durationMinutes(entity.getDurationMinutes())
-				.startAt(entity.getStartAt())
-				.endAt(entity.getEndAt())
-				.status(entity.getStatus())
-				.theme(entity.getTheme())
-				.createdAt(entity.getCreatedAt())
-				.updatedAt(entity.getUpdatedAt())
-				.editLockDays(entity.getEditLockDays())
-				.build();
 
-	}
-	
-	
-	/**
-	 * U_001 여행 목록 조회
-	 * - latest (기본): 최신순
-	 * - popular: 인기순
-	 */
-	public Page<Trip> getTripList(
-			String order,
-			Pageable pageable
-	) {
-		// 인기순
-		if ("popular".equalsIgnoreCase(order)) {
-			return tripRepository.findPopularTrips(pageable);
-		}
-		
-		// 기본: 최신순
-		return tripRepository.findByStatus(
-				Trip.Status.OPEN,
-				pageable
-		);
-	}
-	
-	/**
-	 * U_002 여행 검색 (언어 기반)
-	 * - latest / popular 지원
-	 */
-	public Page<Trip> searchByFilters(
-			String language,
-			String order,
-			Pageable pageable
-	) {
-		// 인기순 검색
-		if ("popular".equalsIgnoreCase(order)) {
-			return tripRepository.searchByFiltersPopular(
-					language,
-					pageable
-			);
-		}
-		
-		// 최신순 검색
-		return tripRepository.searchByFilters(
-				language,
-				pageable
-		);
-	}
-	
 	// bjh
 	@Transactional
 	public Long write(Long hostUserId, TripWriteRequest request) {
@@ -181,9 +113,7 @@ public class TripService {
 		
 		tripRepository.delete(trip);
 	}
-	
-	
-    private final TripRepository tripRepository;
+
 
     /**
      * U_001 여행 목록 조회

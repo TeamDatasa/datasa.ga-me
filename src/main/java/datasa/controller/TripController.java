@@ -1,14 +1,11 @@
 
 package datasa.controller;
 
+import domain.dto.*;
 import domain.entity.Trip;
 // import domain.dto.TripDetailResponseDto;
 // import domain.dto.TripListResponseDto;
 import datasa.service.TripService;
-import domain.dto.TripDetailResponse;
-import domain.dto.TripListResponse;
-import domain.dto.TripUpdateRequest;
-import domain.dto.TripWriteRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -140,8 +137,7 @@ public class TripController {
 			return "redirect:/api/trip/read/" + id;
 		}
 	}
-	
-    private final TripService tripService;
+
 
     /**
      * U_001 여행 목록 조회

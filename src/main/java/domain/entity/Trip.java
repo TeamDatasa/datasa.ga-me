@@ -72,48 +72,9 @@ public class Trip {
 	}
 
 
-    @Column(name = "estimated_cost")
-    private Integer estimatedCost; // KRW
-
-    @Column(name = "max_participants", nullable = false)
-    private Integer maxParticipants;
-
-    @Column(name = "duration_minutes", nullable = false)
-    private Integer durationMinutes;
-
-    @Column(name = "start_at", nullable = false)
-    private LocalDateTime startAt;
-
-    @Column(name = "end_at", nullable = false)
-    private LocalDateTime endAt;
-
-    @Column(name = "edit_lock_days", nullable = false)
-    private Integer editLockDays = 7;
 
     @Column(name = "theme", nullable = false)
     private String theme;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private Status status = Status.DRAFT;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
 
 
     /* ===== ENUM ===== */
