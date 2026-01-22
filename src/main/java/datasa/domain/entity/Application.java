@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "APPLICATION",
+        name = "application",
         indexes = {
                 @Index(name = "idx_application_trip", columnList = "trip_id"),
                 @Index(name = "idx_application_user", columnList = "user_id")

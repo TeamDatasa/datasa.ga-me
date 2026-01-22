@@ -66,16 +66,17 @@ public class ApplicationService {
     /**
      * U_005 내 신청 상태 조회
      */
-    public ApplicationStatusResponseDto getMyApplicationStatus(Long tripId, Long userId) {
-
-        ApplicationStatusResponseDto dto =
-                applicationRepository.findStatus(tripId, userId);
-
-        // 신청 안 한 경우
-        if (dto == null) {
-            return new ApplicationStatusResponseDto(null);
-        }
-
-        return dto;
-    }
+	// repo 복원되면 이것도 수정 해야됨
+//    public ApplicationStatusResponseDto getMyApplicationStatus(Long tripId, Long userId) {
+//
+//        ApplicationStatusResponseDto dto =
+//                applicationRepository.findStatus(tripId, userId);
+//
+//        // 신청 안 한 경우
+//        if (dto == null) {
+//            return new ApplicationStatusResponseDto(null);
+//        }
+//
+//        return dto;
+//    }
 }

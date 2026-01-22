@@ -1,6 +1,5 @@
 package datasa.domain.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

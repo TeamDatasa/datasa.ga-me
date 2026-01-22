@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name = "NOTIFICATION",
+        name = "notification",
         indexes = {
                 @Index(name = "idx_notification_user", columnList = "user_id"),
                 @Index(name = "idx_notification_created", columnList = "created_at")

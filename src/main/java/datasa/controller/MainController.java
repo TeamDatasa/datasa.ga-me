@@ -22,7 +22,8 @@ public class MainController {
 
         model.addAttribute("isLogin", isLogin);
 
-        return "trip-test";
+        // return "trip-test";
+		return "main";
     }
 
 }

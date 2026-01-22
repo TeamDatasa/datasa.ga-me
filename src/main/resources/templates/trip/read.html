@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>여행 글 상세</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .row { margin: 10px 0; }
+        .label { font-weight: bold; display:inline-block; width: 140px; }
+        .box { padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
+        a { text-decoration: none; }
+
+        /* ===== 댓글 UI ===== */
+        .comment-wrap { margin-top: 24px; }
+        .comment-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .comment-header .hint { color:#666; font-size: 13px; }
+        .comment-form { border:1px solid #eee; border-radius:10px; padding:12px; margin-top:12px; background:#fafafa; }
+        .comment-form-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+        .comment-form input[type="number"] { width:140px; padding:8px; }
+        .comment-form textarea { width:100%; min-height:80px; padding:10px; resize: vertical; margin-top:10px; }
+        .comment-form button { padding:8px 12px; cursor:pointer; }
+
+        .comment-list { margin-top: 16px; display:flex; flex-direction:column; gap:10px; }
+        .comment-item { border:1px solid #eee; border-radius:10px; padding:12px; }
+        .comment-item.reply { margin-left: 28px; border-left: 4px solid #f0f0f0; }
+        .comment-meta { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+        .comment-meta .left { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+        .badge { font-size:12px; padding:3px 8px; border-radius:999px; background:#f3f3f3; color:#555; }
+        .comment-content { margin-top:8px; white-space:pre-wrap; line-height:1.45; }
+        .comment-actions { margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+        .comment-actions button { padding:6px 10px; cursor:pointer; }
+        .muted { color:#777; font-size: 13px; }
+        .danger { color:#b00020; }
+        .small { font-size: 12px; color:#666; }
+        .hidden { display:none !important; }
+        .edit-area { width:100%; min-height:70px; padding:10px; resize: vertical; margin-top:10px; }
+    </style>
+</head>
+<body>
+
+<h1>여행 글 상세</h1>
+
+<div class="row"><span class="label">글 ID</span><span th:text="${trip.tripId}">-</span></div>
+<div class="row"><span class="label">제목</span><span th:text="${trip.title}">-</span></div>
+
+<div class="row"><span class="label">호스트</span>
+    <span th:text="${trip.hostUser != null ? trip.hostUser.name : '-'}">-</span>
+</div>
+
+<div class="row"><span class="label">테마</span><span th:text="${trip.theme}">-</span></div>
+<div class="row"><span class="label">상태</span><span th:text="${trip.status}">-</span></div>
+
+<div class="row"><span class="label">예상 비용</span>
+    <span th:text="${trip.estimatedCost != null ? trip.estimatedCost : '-'}">-</span>
+</div>
+
+<div class="row"><span class="label">최대 인원</span><span th:text="${trip.maxParticipants}">-</span></div>
+<div class="row"><span class="label">소요 시간(분)</span><span th:text="${trip.durationMinutes}">-</span></div>
+
+<div class="row"><span class="label">시작</span>
+    <span th:text="${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')}">-</span>
+</div>
+
+<div class="row"><span class="label">종료</span>
+    <span th:text="${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')}">-</span>
+</div>
+
+<div class="row"><span class="label">작성일</span>
+    <span th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</span>
+</div>
+
+<div class="row"><span class="label">수정일</span>
+    <span th:text="${trip.updatedAt != null ? #temporals.format(trip.updatedAt, 'yyyy-MM-dd HH:mm') : '-'}">-</span>
+</div>
+
+<div class="row"><span class="label">수정 제한(일)</span>
+    <span th:text="${trip.editLockDays}">-</span>
+</div>
+
+<div class="box">
+    <div class="label">설명</div>
+    <div th:text="${trip.description}">-</div>
+</div>
+
+<br/>
+
+<a th:href="@{/api/trip/listAll}">목록으로</a>
+&nbsp;|&nbsp;
+<a th:href="@{/api/trip/update/{id}(id=${trip.tripId})}">수정</a>
+
+<form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
+      onsubmit="return confirm('정말 삭제하시겠습니까?');"
+      style="display:inline;">
+    <button type="submit">삭제</button>
+</form>
+
+<!-- ===== 댓글 영역 추가 ===== -->
+<hr style="margin:24px 0;"/>
+
+<div class="comment-wrap">
+    <div class="comment-header">
+        <div>
+            <h2 style="margin:0;">댓글</h2>
+            <div class="hint">로그인이 없으므로 userId(1~10)를 더미로 입력해서 테스트합니다.</div>
+        </div>
+        <div class="small" id="commentCountText"></div>
+    </div>
+
+    <!-- 댓글 작성 폼 (최상위/대댓글 공용) -->
+    <div class="comment-form">
+        <div class="comment-form-row">
+            <label class="muted" for="dummyUserId">userId</label>
+            <input id="dummyUserId" type="number" min="1" max="10" value="1" />
+            <span class="muted" id="replyTargetText">최상위 댓글 작성</span>
+            <button type="button" id="cancelReplyBtn" class="hidden">대댓글 취소</button>
+        </div>
+
+        <input type="hidden" id="parentCommentId" value="" />
+        <textarea id="commentContent" placeholder="댓글 내용을 입력하세요"></textarea>
+
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" id="submitCommentBtn">댓글 등록</button>
+            <span class="muted" id="formMsg"></span>
+        </div>
+    </div>
+
+    <!-- 댓글 목록 -->
+    <div class="comment-list" id="commentList"></div>
+</div>
+
+<script th:inline="javascript">
+    const tripId = [[${trip.tripId}]];
+</script>
+
+<script>
+    const elUserId = document.getElementById('dummyUserId');
+    const elParentId = document.getElementById('parentCommentId');
+    const elContent = document.getElementById('commentContent');
+    const elList = document.getElementById('commentList');
+    const elFormMsg = document.getElementById('formMsg');
+    const elReplyTargetText = document.getElementById('replyTargetText');
+    const elCancelReplyBtn = document.getElementById('cancelReplyBtn');
+    const elCountText = document.getElementById('commentCountText');
+
+    document.getElementById('submitCommentBtn').addEventListener('click', submitComment);
+    elCancelReplyBtn.addEventListener('click', () => setReplyTarget(null));
+
+    function getUserId() {
+        const v = Number(elUserId.value);
+        if (!Number.isInteger(v) || v < 1 || v > 10) return null;
+        return v;
+    }
+
+    function showMsg(msg, isError = false) {
+        elFormMsg.textContent = msg || '';
+        elFormMsg.className = isError ? 'danger' : 'muted';
+    }
+
+    function setReplyTarget(parentId) {
+        if (parentId == null) {
+            elParentId.value = '';
+            elReplyTargetText.textContent = '최상위 댓글 작성';
+            elCancelReplyBtn.classList.add('hidden');
+        } else {
+            elParentId.value = String(parentId);
+            elReplyTargetText.textContent = `대댓글 작성 (부모댓글 ID: ${parentId})`;
+            elCancelReplyBtn.classList.remove('hidden');
+        }
+    }
+
+    async function loadComments() {
+        elList.innerHTML = '';
+        elCountText.textContent = '';
+
+        try {
+            const res = await fetch(`/api/trips/${tripId}/comments`, { method: 'GET' });
+            if (!res.ok) throw new Error(`목록 조회 실패 (${res.status})`);
+            const items = await res.json();
+
+            elCountText.textContent = `총 ${items.length}개`;
+            renderThread(items);
+        } catch (e) {
+            elList.innerHTML = `<div class="danger">댓글 목록을 불러오지 못했습니다. (${escapeHtml(e.message)})</div>`;
+        }
+    }
+
+    function renderThread(items) {
+        // items: flat 배열 (parentCommentId 포함)
+        const byParent = new Map(); // parentId(null/number) -> []
+        for (const c of items) {
+            const key = (c.parentCommentId == null) ? null : c.parentCommentId;
+            if (!byParent.has(key)) byParent.set(key, []);
+            byParent.get(key).push(c);
+        }
+
+        const roots = byParent.get(null) || [];
+        const frag = document.createDocumentFragment();
+        roots.forEach(root => {
+            frag.appendChild(renderCommentNode(root, byParent, 0));
+        });
+
+        elList.appendChild(frag);
+    }
+
+    function renderCommentNode(c, byParent, depth) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'comment-item' + (depth > 0 ? ' reply' : '');
+        wrapper.dataset.commentId = c.commentId;
+
+        const createdAt = c.createdAt ? c.createdAt.replace('T', ' ') : '-';
+        const updatedAt = c.updatedAt ? c.updatedAt.replace('T', ' ') : '-';
+        const status = c.status || 'ACTIVE';
+        const isDeleted = status === 'DELETED';
+
+        wrapper.innerHTML = `
+            <div class="comment-meta">
+                <div class="left">
+                    <span class="badge">#${c.commentId}</span>
+                    <span class="muted">작성자: ${escapeHtml(c.userName || '')} (userId: ${c.userId})</span>
+                    <span class="badge">${escapeHtml(status)}</span>
+                    <span class="small">작성: ${escapeHtml(createdAt)} / 수정: ${escapeHtml(updatedAt)}</span>
+                </div>
+                <div class="left">
+                    <span class="muted">좋아요 <b id="likeCount-${c.commentId}">${c.likeCount ?? 0}</b></span>
+                </div>
+            </div>
+
+            <div class="comment-content" id="content-${c.commentId}">${escapeHtml(c.content || '')}</div>
+
+            <textarea class="edit-area hidden" id="edit-${c.commentId}"></textarea>
+
+            <div class="comment-actions">
+                <button type="button" data-act="reply" ${isDeleted ? 'disabled' : ''}>답글</button>
+                <button type="button" data-act="like">좋아요</button>
+                <button type="button" data-act="edit" ${isDeleted ? 'disabled' : ''}>수정</button>
+                <button type="button" data-act="delete" class="danger" ${isDeleted ? 'disabled' : ''}>삭제</button>
+                <button type="button" data-act="save" class="hidden">저장</button>
+                <button type="button" data-act="cancel" class="hidden">취소</button>
+                <span class="muted" id="msg-${c.commentId}"></span>
+            </div>
+        `;
+
+        wrapper.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const act = btn.dataset.act;
+            if (!act) return;
+
+            const commentId = c.commentId;
+
+            if (act === 'reply') {
+                setReplyTarget(commentId);
+                elContent.focus();
+            }
+
+            if (act === 'like') {
+                await toggleLike(commentId);
+            }
+
+            if (act === 'edit') {
+                openEdit(commentId, c.content || '');
+            }
+
+            if (act === 'cancel') {
+                closeEdit(commentId);
+            }
+
+            if (act === 'save') {
+                await saveEdit(commentId);
+            }
+
+            if (act === 'delete') {
+                await deleteComment(commentId);
+            }
+        });
+
+        const children = byParent.get(c.commentId) || [];
+        if (children.length > 0) {
+            children.forEach(child => {
+                wrapper.appendChild(renderCommentNode(child, byParent, depth + 1));
+            });
+        }
+        return wrapper;
+    }
+
+    function openEdit(commentId, current) {
+        const ta = document.getElementById(`edit-${commentId}`);
+        const contentDiv = document.getElementById(`content-${commentId}`);
+        const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+
+        ta.value = current;
+        ta.classList.remove('hidden');
+        contentDiv.classList.add('hidden');
+
+        setButtons(item, true);
+    }
+
+    function closeEdit(commentId) {
+        const ta = document.getElementById(`edit-${commentId}`);
+        const contentDiv = document.getElementById(`content-${commentId}`);
+        const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
+
+        ta.classList.add('hidden');
+        contentDiv.classList.remove('hidden');
+
+        setButtons(item, false);
+        setItemMsg(commentId, '');
+    }
+
+    function setButtons(item, editing) {
+        const btnEdit = item.querySelector('button[data-act="edit"]');
+        const btnDel = item.querySelector('button[data-act="delete"]');
+        const btnReply = item.querySelector('button[data-act="reply"]');
+        const btnSave = item.querySelector('button[data-act="save"]');
+        const btnCancel = item.querySelector('button[data-act="cancel"]');
+
+        if (editing) {
+            btnEdit.classList.add('hidden');
+            btnDel.classList.add('hidden');
+            btnReply.classList.add('hidden');
+            btnSave.classList.remove('hidden');
+            btnCancel.classList.remove('hidden');
+        } else {
+            btnEdit.classList.remove('hidden');
+            btnDel.classList.remove('hidden');
+            btnReply.classList.remove('hidden');
+            btnSave.classList.add('hidden');
+            btnCancel.classList.add('hidden');
+        }
+    }
+
+    function setItemMsg(commentId, msg, isError = false) {
+        const el = document.getElementById(`msg-${commentId}`);
+        el.textContent = msg || '';
+        el.className = isError ? 'danger' : 'muted';
+    }
+
+    async function submitComment() {
+        const userId = getUserId();
+        if (userId == null) {
+            showMsg('userId는 1~10만 가능합니다.', true);
+            return;
+        }
+
+        const content = (elContent.value || '').trim();
+        if (!content) {
+            showMsg('댓글 내용을 입력해주세요.', true);
+            return;
+        }
+
+        const parent = elParentId.value ? Number(elParentId.value) : null;
+
+        showMsg('등록 중...');
+        try {
+            const res = await fetch(`/api/trips/${tripId}/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    parentCommentId: parent,
+                    content
+                })
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`등록 실패 (${res.status}) ${text}`);
+            }
+
+            elContent.value = '';
+            setReplyTarget(null);
+            showMsg('등록 완료');
+            await loadComments();
+        } catch (e) {
+            showMsg(e.message, true);
+        }
+    }
+
+    async function saveEdit(commentId) {
+        const userId = getUserId();
+        if (userId == null) {
+            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
+            return;
+        }
+
+        const ta = document.getElementById(`edit-${commentId}`);
+        const newContent = (ta.value || '').trim();
+        if (!newContent) {
+            setItemMsg(commentId, '내용을 입력해주세요.', true);
+            return;
+        }
+
+        setItemMsg(commentId, '수정 중...');
+        try {
+            const res = await fetch(`/api/comments/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, content: newContent })
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`수정 실패 (${res.status}) ${text}`);
+            }
+
+            closeEdit(commentId);
+            await loadComments();
+        } catch (e) {
+            setItemMsg(commentId, e.message, true);
+        }
+    }
+
+    async function deleteComment(commentId) {
+        const userId = getUserId();
+        if (userId == null) {
+            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
+            return;
+        }
+
+        if (!confirm('정말 삭제하시겠습니까? (대댓글이 있으면 본 댓글만 삭제 처리됩니다)')) return;
+
+        setItemMsg(commentId, '삭제 중...');
+        try {
+            const res = await fetch(`/api/comments/${commentId}?userId=${userId}`, {
+                method: 'DELETE'
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`삭제 실패 (${res.status}) ${text}`);
+            }
+
+            await loadComments();
+        } catch (e) {
+            setItemMsg(commentId, e.message, true);
+        }
+    }
+
+    async function toggleLike(commentId) {
+        const userId = getUserId();
+        if (userId == null) {
+            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
+            return;
+        }
+
+        setItemMsg(commentId, '처리 중...');
+        try {
+            const res = await fetch(`/api/comments/${commentId}/like?userId=${userId}`, {
+                method: 'POST'
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`좋아요 실패 (${res.status}) ${text}`);
+            }
+
+            const likeCount = await res.json();
+            const el = document.getElementById(`likeCount-${commentId}`);
+            if (el) el.textContent = String(likeCount);
+
+            setItemMsg(commentId, '완료');
+            setTimeout(() => setItemMsg(commentId, ''), 800);
+        } catch (e) {
+            setItemMsg(commentId, e.message, true);
+        }
+    }
+
+    function escapeHtml(s) {
+        return String(s)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    // 초기 로드
+    loadComments();
+</script>
+
+</body>
+</html>

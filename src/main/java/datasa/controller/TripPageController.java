@@ -1,6 +1,7 @@
 package datasa.controller;
 
-import datasa.domain.dto.TripDetailResponseDto;
+
+import datasa.domain.dto.TripDetailResponse;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,7 +21,7 @@ public class TripPageController {
             Model model
     )
     {
-        TripDetailResponseDto trip = tripService.getTripDetail(tripId);
+        TripDetailResponse trip = tripService.getTripDetail(tripId);
         model.addAttribute("trip", trip);
         return "trip-detail"; // templates/trip-detail.html
     }

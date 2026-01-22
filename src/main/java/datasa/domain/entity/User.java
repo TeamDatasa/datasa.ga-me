@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "user")
 @Getter
 @NoArgsConstructor
 public class User {
@@ -97,4 +97,14 @@ public class User {
     public enum Status {
         ACTIVE, INACTIVE, SUSPENDED
     }
+	
+	public static User create(String email, String passwordHash, String name, Role role) {
+		User user = new User();
+		user.email = email;
+		user.passwordHash = passwordHash;
+		user.name = name;
+		user.role = role;
+		return user;
+	}
+	
 }

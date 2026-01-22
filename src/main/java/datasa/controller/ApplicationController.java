@@ -32,7 +32,8 @@ public class ApplicationController {
             @PathVariable Long tripId,
             @RequestParam Long userId
     ) {
-        return applicationService.getMyApplicationStatus(tripId, userId);
+        // return applicationService.getMyApplicationStatus(tripId, userId);
+		return null;
     }
 }
 

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>여행 글 작성</title>
+</head>
+<body>
+<h1>여행 글 작성</h1>
+
+<!-- POST /write 로 전송 -->
+<form th:action="@{/api/trip/write}" method="post" th:object="${request}">
+
+    <div>
+        <label for="title">제목</label><br/>
+        <input id="title" type="text" th:field="*{title}" maxlength="120" required />
+    </div>
+    <br/>
+
+    <div>
+        <label for="description">설명</label><br/>
+        <textarea id="description" th:field="*{description}" rows="6" cols="60" required></textarea>
+    </div>
+    <br/>
+
+    <div>
+        <label for="region">지역(시)</label><br/>
+        <select id="region" th:field="*{region}" required>
+            <option value="" disabled selected>선택하세요</option>
+
+            <!-- 오름차순 정렬된 시 목록 -->
+            <option value="가평">가평</option>
+            <option value="강릉">강릉</option>
+            <option value="거제">거제</option>
+            <option value="경주">경주</option>
+            <option value="고성">고성</option>
+            <option value="공주">공주</option>
+            <option value="광양">광양</option>
+            <option value="광주">광주</option>
+            <option value="구미">구미</option>
+            <option value="군산">군산</option>
+            <option value="김천">김천</option>
+            <option value="김포">김포</option>
+            <option value="김해">김해</option>
+            <option value="나주">나주</option>
+            <option value="남양주">남양주</option>
+            <option value="남원">남원</option>
+            <option value="논산">논산</option>
+            <option value="당진">당진</option>
+            <option value="대구">대구</option>
+            <option value="대전">대전</option>
+            <option value="동두천">동두천</option>
+            <option value="동해">동해</option>
+            <option value="목포">목포</option>
+            <option value="무안">무안</option>
+            <option value="밀양">밀양</option>
+            <option value="보령">보령</option>
+            <option value="보성">보성</option>
+            <option value="부산">부산</option>
+            <option value="부여">부여</option>
+            <option value="부천">부천</option>
+            <option value="사천">사천</option>
+            <option value="상주">상주</option>
+            <option value="서귀포">서귀포</option>
+            <option value="서울">서울</option>
+            <option value="서산">서산</option>
+            <option value="성남">성남</option>
+            <option value="세종">세종</option>
+            <option value="속초">속초</option>
+            <option value="수원">수원</option>
+            <option value="순천">순천</option>
+            <option value="시흥">시흥</option>
+            <option value="안동">안동</option>
+            <option value="안산">안산</option>
+            <option value="안성">안성</option>
+            <option value="안양">안양</option>
+            <option value="양산">양산</option>
+            <option value="양양">양양</option>
+            <option value="여수">여수</option>
+            <option value="연천">연천</option>
+            <option value="영월">영월</option>
+            <option value="영주">영주</option>
+            <option value="영천">영천</option>
+            <option value="오산">오산</option>
+            <option value="완도">완도</option>
+            <option value="용인">용인</option>
+            <option value="울산">울산</option>
+            <option value="원주">원주</option>
+            <option value="익산">익산</option>
+            <option value="인천">인천</option>
+            <option value="전주">전주</option>
+            <option value="정선">정선</option>
+            <option value="제주">제주</option>
+            <option value="제천">제천</option>
+            <option value="창원">창원</option>
+            <option value="천안">천안</option>
+            <option value="청주">청주</option>
+            <option value="춘천">춘천</option>
+            <option value="충주">충주</option>
+            <option value="통영">통영</option>
+            <option value="파주">파주</option>
+            <option value="포항">포항</option>
+            <option value="하남">하남</option>
+            <option value="화성">화성</option>
+        </select>
+    </div>
+    <br/>
+
+
+    <div>
+        <label for="estimatedCost">예상 비용(KRW)</label><br/>
+        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000" />
+    </div>
+    <br/>
+
+    <div>
+        <label for="maxParticipants">최대 인원</label><br/>
+        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required />
+    </div>
+    <br/>
+
+    <div>
+        <label for="durationMinutes">소요 시간(분)</label><br/>
+        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required />
+    </div>
+    <br/>
+
+    <div>
+        <label for="theme">테마</label><br/>
+        <select id="theme" th:field="*{theme}" required>
+            <option value="" disabled selected>선택하세요</option>
+            <option value="FOOD">맛집</option>
+            <option value="NATURE">자연</option>
+            <option value="CITY">도시</option>
+            <option value="CULTURE">문화</option>
+            <option value="NIGHT">야경</option>
+        </select>
+    </div>
+    <br/>
+
+
+    <input id="startAt" type="datetime-local"
+           th:field="*{startAt}"
+           th:value="${#temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm')}"
+           required />
+
+    <input id="endAt" type="datetime-local"
+           th:field="*{endAt}"
+           th:value="${#temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm')}"
+           required />
+
+
+    <button type="submit">등록</button>
+    <a th:href="@{/api/trip/listAll}">취소</a>
+</form>
+</body>
+</html>
