@@ -1,36 +1,39 @@
-package datasa.domain.entity;
+
+package domain.entity;
+
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "TRIP")
-@Getter
+@Table(name = "trip")
+@Data
 @NoArgsConstructor
 public class Trip {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trip_id")
-    private Long tripId;
-
-    /** 가이드(호스트) */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_user_id", nullable = false)
-    private User hostUser;
-
-    @Column(name = "title", nullable = false, length = 120)
-    private String title;
-
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "estimated_cost")
-    private Integer estimatedCost; // KRW
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "trip_id")
+	private Long tripId;
+	
+	/**
+	 * 가이드(호스트)
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "host_user_id", nullable = false)
+	private User hostUser;
+	
+	@Column(name = "title", nullable = false, length = 120)
+	private String title;
+	
+	@Column(name = "description", nullable = false, columnDefinition = "TEXT")
+	private String description;
+	
+	@Column(name = "estimated_cost")
+	private Integer estimatedCost; // KRW
 
     @Column(name = "max_participants", nullable = false)
     private Integer maxParticipants;
@@ -74,7 +77,7 @@ public class Trip {
 
 
     /* ===== ENUM ===== */
-    public enum Status {
-        DRAFT, OPEN, CLOSED
-    }
+	public enum Status {
+		DRAFT, OPEN, CLOSED
+	}
 }

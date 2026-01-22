@@ -1,4 +1,6 @@
-package datasa.domain.entity;
+
+package domain.entity;
+
 
 
 import jakarta.persistence.*;
@@ -9,7 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "USER")
+@Table(name = "user")
 @Getter
 @NoArgsConstructor
 public class User {

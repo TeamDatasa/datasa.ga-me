@@ -1,9 +1,9 @@
 package datasa.repository;
 
 
-import datasa.domain.entity.ChatMember;
-import datasa.domain.entity.ChatRoom;
-import datasa.domain.entity.User;
+import datasa.entity.ChatMember;
+import datasa.entity.ChatRoom;
+import datasa.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

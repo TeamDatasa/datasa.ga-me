@@ -2,7 +2,7 @@ package datasa.repository;
 
 
 
-import datasa.domain.entity.Location;
+import datasa.entity.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
