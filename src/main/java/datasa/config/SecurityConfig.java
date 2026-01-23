@@ -27,7 +27,8 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/", "/login", "/signup",
 								"/css/**", "/js/**", "/images/**",
-								"/api/auth/**"
+								"/api/auth/**",
+								"/api/map/main"
 						).permitAll()
 						.anyRequest().authenticated()
 				)

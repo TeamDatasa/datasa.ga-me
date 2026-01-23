@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>map api test</title>
+    <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverMapsClientId}"></script>
+    <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=' + ${naverMapsClientId} + '&submodules=geocoder'"></script>
+
+</head>
+<body>
+<!-- 지도 표시 영역 -->
+<div style="margin-top:16px;">
+    <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 선택</label>
+
+    <div id="map" style="width: 100%; max-width: 900px; height: 360px; border: 1px solid #ddd; border-radius: 10px;"></div>
+
+    <!-- 서버로 함께 전송할 좌표/주소 -->
+    <input type="hidden" name="lat" id="lat" />
+    <input type="hidden" name="lng" id="lng" />
+    <input type="hidden" name="address" id="address" />
+
+    <div style="margin-top:8px; color:#666; font-size:13px;">
+        선택된 위치: <span id="pickedText">아직 선택되지 않았습니다.</span>
+    </div>
+</div>
+
+</body>
+
+<script>
+    // 기본 중심좌표
+    const defaultCenter = new naver.maps.LatLng(37.5665, 126.9780);
+
+    const map = new naver.maps.Map('map', {
+        center: defaultCenter,
+        zoom: 14
+    });
+
+    let marker = new naver.maps.Marker({
+        position: defaultCenter,
+        map: map
+    });
+
+    // 초기 값 세팅
+    setPicked(defaultCenter.lat(), defaultCenter.lng(), '');
+
+    // 지도 클릭 시 마커 이동 + hidden input 저장
+    naver.maps.Event.addListener(map, 'click', function (e) {
+        const lat = e.coord.lat();
+        const lng = e.coord.lng();
+
+        marker.setPosition(e.coord);
+        setPicked(lat, lng, '');
+
+        // 주소까지 얻고 싶으면 geocoder 서브모듈 필요함
+        // head에서 maps.js에 &submodules=geocoder 붙였을 때만 동작
+        if (naver.maps.Service && naver.maps.Service.reverseGeocode) {
+            naver.maps.Service.reverseGeocode({
+                coords: e.coord,
+                orders: [
+                    naver.maps.Service.OrderType.ROAD_ADDR,
+                    naver.maps.Service.OrderType.ADDR
+                ].join(',')
+            }, function (status, response) {
+                if (status !== naver.maps.Service.Status.OK) return;
+
+                const result = response.v2?.addresses?.[0];
+                const addr = result?.roadAddress || result?.jibunAddress || '';
+                setPicked(lat, lng, addr);
+            });
+        }
+    });
+
+    function setPicked(lat, lng, addr) {
+        document.getElementById('lat').value = String(lat);
+        document.getElementById('lng').value = String(lng);
+        document.getElementById('address').value = addr || '';
+
+        const text = addr
+            ? `${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`
+            : `lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)}`;
+
+        document.getElementById('pickedText').textContent = text;
+    }
+</script>
+
+</html>

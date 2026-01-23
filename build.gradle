@@ -40,6 +40,9 @@ dependencies {
 
     // json data 주고 받기 위해서 추가
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 환경변수 사용
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.named('test') {
