@@ -23,13 +23,15 @@
 <nav class="quick-menu">
     <a href="/">홈</a>
 
+    <a th:unless="${isLogin}" th:href="@{/auth/login}">로그인</a>
+    <a th:unless="${isLogin}" th:href="@{/auth/signup}">회원가입</a>
+
     <a th:if="${isLogin}" href="/course/create">코스 등록</a>
     <a th:if="${isLogin}" href="/mypage">마이페이지</a>
 
-    <a th:unless="${isLogin}" href="/login">로그인</a>
 
-    <a th:href="@{api/trip/write}">게시글 작성</a>
-    <a th:href="@{api/map/main}">지도</a>
+    <a th:href="@{/api/trip/write}">게시글 작성</a>
+    <a th:href="@{/api/map/main}">지도</a>
 
 </nav>
 
