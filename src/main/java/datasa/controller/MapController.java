@@ -1,5 +1,6 @@
 package datasa.controller;
 
+import datasa.config.KakaoMapsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,15 +15,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class MapController {
 	
+	private final KakaoMapsProperties kakaoMapsProperties;
+	
 	@Value("${naver.maps.client-id}")
 	private String naverMapsClientId;
 	
-	@GetMapping("/main")
-	public String mapMain(Model model, @Value("${naver.maps.client-id}") String clientId)
+	@GetMapping("/naver")
+	public String naverMap(Model model, @Value("${naver.maps.client-id}") String clientId)
 	{
 		model.addAttribute("naverMapsClientId", clientId);
-		return "map/main";
+		return "map/naverMap";
 	}
-
 	
+	@GetMapping("/kakao")
+	public String kakaoMap(Model model)
+	{
+		model.addAttribute("jsKey", kakaoMapsProperties.jsKey());
+		return "map/kakaoMap";
+	}
+	
+
 }

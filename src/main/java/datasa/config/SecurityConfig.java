@@ -28,8 +28,9 @@ public class SecurityConfig {
 								"/", "/login", "/signup",
 								"/css/**", "/js/**", "/images/**",
 								"/api/auth/**",
-								"/api/map/main",
-								"/api/map/places"
+								"/api/map/naver",
+								"/api/map/places",
+								"/api/map/kakao"
 						).permitAll()
 						.anyRequest().authenticated()
 				)

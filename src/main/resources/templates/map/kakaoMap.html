@@ -1,0 +1,28 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kakao map</title>
+</head>
+<body>
+<div id="map" style="width:100%;height:400px;"></div>
+
+<!--kakao js key-->
+<script type="text/javascript"
+        th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${jsKey} + '&libraries=services'">
+</script>
+
+
+<!--js로 지도 생성-->
+<script>
+    var container = document.getElementById('map');
+    var options = {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 3
+    };
+    var map = new kakao.maps.Map(container, options);
+</script>
+
+</body>
+</html>

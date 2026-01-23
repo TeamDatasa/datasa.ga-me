@@ -1,5 +1,6 @@
 package datasa;
 
+import datasa.config.KakaoMapsProperties;
 import datasa.config.NaverMapsProperties;
 import datasa.config.NaverSearchProperties;
 import org.springframework.boot.CommandLineRunner;
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ NaverMapsProperties.class, NaverSearchProperties.class }) // naver map, search api
+@EnableConfigurationProperties({ NaverMapsProperties.class, NaverSearchProperties.class, KakaoMapsProperties.class}) // naver map, search api
 public class GaMeApplication {
 	
 	public static void main(String[] args) {
@@ -23,8 +24,10 @@ public class GaMeApplication {
 	CommandLineRunner envCheck() {
 		return args -> {
 			System.out.println("NAVER_MAPS_CLIENT_ID=" + System.getenv("NAVER_MAPS_CLIENT_ID"));
+			System.out.println("KAKAO_MAPS_JS_ID=" + System.getenv("KAKAO_MAPS_JS_KEY"));
 		};
 	}
+	
 	
 }
     
