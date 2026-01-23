@@ -18,7 +18,7 @@ public class MapController {
 	private String naverMapsClientId;
 	
 	@GetMapping("/main")
-	public String mapMain(Model model, @Value("${naver.maps.client.id}") String clientId)
+	public String mapMain(Model model, @Value("${naver.maps.client-id}") String clientId)
 	{
 		model.addAttribute("naverMapsClientId", clientId);
 		return "map/main";

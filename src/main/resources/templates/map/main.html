@@ -1,87 +1,151 @@
+<!-- 파일: src/main/resources/templates/map/main.html -->
 <!doctype html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>map api test</title>
-    <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverMapsClientId}"></script>
-    <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=' + ${naverMapsClientId} + '&submodules=geocoder'"></script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>장소 선택</title>
 
+    <!-- Naver Maps JS (1줄만 유지) -->
+    <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverMapsClientId} + '&submodules=geocoder'"></script>
+
+    <style>
+        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+        .wrap { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+        h1 { font-size: 20px; margin: 0 0 12px; }
+        .search-bar { display: flex; gap: 10px; margin: 12px 0; }
+        #q {
+          flex: 1;
+          padding: 12px 14px;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          outline: none;
+          font-size: 14px;
+        }
+        #btnSearch {
+          padding: 12px 16px;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          background: #fff;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        #searchResult { font-size: 13px; color: #444; margin: 6px 0 10px; min-height: 18px; }
+        #map { width: 100%; height: 520px; border-radius: 14px; overflow: hidden; border: 1px solid #eee; }
+        .picked { margin-top: 10px; font-size: 13px; color: #333; }
+        .muted { color: #777; }
+    </style>
 </head>
+
 <body>
-<!-- 지도 표시 영역 -->
-<div style="margin-top:16px;">
-    <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 선택</label>
+<div class="wrap">
+    <h1>장소 선택</h1>
 
-    <div id="map" style="width: 100%; max-width: 900px; height: 360px; border: 1px solid #ddd; border-radius: 10px;"></div>
+    <div class="search-bar">
+        <input id="q" type="text" placeholder="주소를 입력하세요 (예: 광화문, 서울특별시청)"/>
+        <button id="btnSearch" type="button">검색</button>
+    </div>
 
-    <!-- 서버로 함께 전송할 좌표/주소 -->
-    <input type="hidden" name="lat" id="lat" />
-    <input type="hidden" name="lng" id="lng" />
-    <input type="hidden" name="address" id="address" />
+    <div id="searchResult" class="muted"></div>
 
-    <div style="margin-top:8px; color:#666; font-size:13px;">
-        선택된 위치: <span id="pickedText">아직 선택되지 않았습니다.</span>
+    <div id="map"></div>
+
+    <div class="picked">
+        <div id="pickedText" class="muted">선택된 위치: -</div>
+        <!-- 필요 시 폼 전송용 hidden -->
+        <input type="hidden" id="pickedLat" name="lat"/>
+        <input type="hidden" id="pickedLng" name="lng"/>
+        <input type="hidden" id="pickedAddr" name="address"/>
     </div>
 </div>
 
-</body>
-
 <script>
-    // 기본 중심좌표
-    const defaultCenter = new naver.maps.LatLng(37.5665, 126.9780);
+    // ---- 지도 초기 좌표(서울시청 근처) ----
+    const initLat = 37.5665;
+    const initLng = 126.9780;
 
+    // ---- 지도 생성 ----
     const map = new naver.maps.Map('map', {
-        center: defaultCenter,
-        zoom: 14
+      center: new naver.maps.LatLng(initLat, initLng),
+      zoom: 14
     });
 
-    let marker = new naver.maps.Marker({
-        position: defaultCenter,
-        map: map
+    // ---- 마커 ----
+    const marker = new naver.maps.Marker({
+      position: new naver.maps.LatLng(initLat, initLng),
+      map: map
     });
 
-    // 초기 값 세팅
-    setPicked(defaultCenter.lat(), defaultCenter.lng(), '');
-
-    // 지도 클릭 시 마커 이동 + hidden input 저장
-    naver.maps.Event.addListener(map, 'click', function (e) {
-        const lat = e.coord.lat();
-        const lng = e.coord.lng();
-
-        marker.setPosition(e.coord);
-        setPicked(lat, lng, '');
-
-        // 주소까지 얻고 싶으면 geocoder 서브모듈 필요함
-        // head에서 maps.js에 &submodules=geocoder 붙였을 때만 동작
-        if (naver.maps.Service && naver.maps.Service.reverseGeocode) {
-            naver.maps.Service.reverseGeocode({
-                coords: e.coord,
-                orders: [
-                    naver.maps.Service.OrderType.ROAD_ADDR,
-                    naver.maps.Service.OrderType.ADDR
-                ].join(',')
-            }, function (status, response) {
-                if (status !== naver.maps.Service.Status.OK) return;
-
-                const result = response.v2?.addresses?.[0];
-                const addr = result?.roadAddress || result?.jibunAddress || '';
-                setPicked(lat, lng, addr);
-            });
-        }
-    });
-
+    // ---- 선택값 반영 ----
     function setPicked(lat, lng, addr) {
-        document.getElementById('lat').value = String(lat);
-        document.getElementById('lng').value = String(lng);
-        document.getElementById('address').value = addr || '';
+      document.getElementById('pickedLat').value = lat;
+      document.getElementById('pickedLng').value = lng;
+      document.getElementById('pickedAddr').value = addr || '';
 
-        const text = addr
-            ? `${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`
-            : `lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)}`;
+      const addrText = addr ? `, addr=${addr}` : '';
+      document.getElementById('pickedText').textContent =
+        `선택된 위치: lat=${Number(lat).toFixed(6)}, lng=${Number(lng).toFixed(6)}${addrText}`;
+    }
 
-        document.getElementById('pickedText').textContent = text;
+    // 초기 표시
+    setPicked(initLat, initLng, '');
+
+    // ---- 지도 클릭 시 좌표 선택 ----
+    naver.maps.Event.addListener(map, 'click', function(e) {
+      const lat = e.coord.y;
+      const lng = e.coord.x;
+      const coord = new naver.maps.LatLng(lat, lng);
+
+      marker.setPosition(coord);
+      map.setCenter(coord);
+      setPicked(lat, lng, '');
+    });
+
+    // ---- 검색 바인딩 ----
+    document.getElementById('btnSearch').addEventListener('click', doGeocode);
+    document.getElementById('q').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doGeocode();
+    });
+
+    // ---- 주소 검색(Geocode) ----
+    function doGeocode() {
+      const query = document.getElementById('q').value.trim();
+      if (!query) return;
+
+      if (!naver.maps.Service || !naver.maps.Service.geocode) {
+        document.getElementById('searchResult').textContent = 'Geocoder 모듈이 로드되지 않았습니다.';
+        return;
+      }
+
+        naver.maps.Service.geocode({ query }, (status, response) => {
+          console.log("[GEOCODE RAW]", status, response);
+
+          if (status !== naver.maps.Service.Status.OK) {
+            const dump = (response ? JSON.stringify(response) : "null");
+            document.getElementById('searchResult').textContent =
+              `검색 실패: status=${status}, response=${dump}`;
+            return;
+          }
+
+        const item = response.v2?.addresses?.[0];
+        if (!item) {
+          document.getElementById('searchResult').textContent = '검색 결과가 없습니다.';
+          return;
+        }
+
+        const lat = parseFloat(item.y);
+        const lng = parseFloat(item.x);
+        const addr = item.roadAddress || item.jibunAddress || query;
+
+        const coord = new naver.maps.LatLng(lat, lng);
+        map.setCenter(coord);
+        marker.setPosition(coord);
+        setPicked(lat, lng, addr);
+
+        document.getElementById('searchResult').textContent =
+          `검색 성공: ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
+      });
     }
 </script>
-
+</body>
 </html>
