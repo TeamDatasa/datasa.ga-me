@@ -43,6 +43,9 @@ dependencies {
 
     // 환경변수 사용
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    // naver map
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 tasks.named('test') {

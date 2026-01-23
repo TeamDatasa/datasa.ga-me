@@ -28,7 +28,8 @@ public class SecurityConfig {
 								"/", "/login", "/signup",
 								"/css/**", "/js/**", "/images/**",
 								"/api/auth/**",
-								"/api/map/main"
+								"/api/map/main",
+								"/api/map/places"
 						).permitAll()
 						.anyRequest().authenticated()
 				)

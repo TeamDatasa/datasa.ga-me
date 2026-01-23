@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>장소 선택</title>
 
-    <!-- Naver Maps JS (1줄만 유지) -->
+    <!-- Naver Maps JS: 한 번만 로드 (geocoder 포함) -->
     <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverMapsClientId} + '&submodules=geocoder'"></script>
 
     <style>
-        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-        .wrap { max-width: 1100px; margin: 20px auto; padding: 0 16px; }
+        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#fff; }
+        .wrap { max-width: 1280px; margin: 20px auto; padding: 0 16px; }
         h1 { font-size: 20px; margin: 0 0 12px; }
+
         .search-bar { display: flex; gap: 10px; margin: 12px 0; }
         #q {
           flex: 1;
@@ -29,11 +30,66 @@
           background: #fff;
           cursor: pointer;
           font-size: 14px;
+          white-space: nowrap;
         }
-        #searchResult { font-size: 13px; color: #444; margin: 6px 0 10px; min-height: 18px; }
-        #map { width: 100%; height: 520px; border-radius: 14px; overflow: hidden; border: 1px solid #eee; }
-        .picked { margin-top: 10px; font-size: 13px; color: #333; }
-        .muted { color: #777; }
+        #searchResult { font-size: 13px; color: #444; margin: 6px 0 14px; min-height: 18px; }
+
+        .layout { display: grid; grid-template-columns: 1fr 360px; gap: 14px; align-items: start; }
+        @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+        #map { width: 100%; height: 620px; border-radius: 14px; overflow: hidden; border: 1px solid #eee; background:#fafafa; }
+
+        .side {
+          border: 1px solid #eee;
+          border-radius: 14px;
+          padding: 12px;
+          background: #fff;
+          max-height: 620px;
+          overflow: auto;
+        }
+        .side h2 { margin: 0 0 10px; font-size: 14px; }
+        .muted { color:#777; font-size: 12px; }
+
+        .picked {
+          margin-top: 12px;
+          border-top: 1px solid #eee;
+          padding-top: 12px;
+          font-size: 13px;
+          color:#333;
+        }
+        .kv { display:grid; grid-template-columns: 90px 1fr; gap: 6px 10px; margin-top: 10px; }
+        .btn {
+          padding: 10px 12px;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          background: #fff;
+          cursor: pointer;
+          font-size: 13px;
+        }
+        .actions { display:flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+        .list { list-style: none; padding: 0; margin: 0; }
+        .item {
+          border: 1px solid #eee;
+          border-radius: 12px;
+          padding: 10px;
+          margin-bottom: 10px;
+          cursor: pointer;
+        }
+        .item:hover { background: #fafafa; }
+        .title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .meta { font-size: 12px; color:#555; line-height: 1.4; }
+        .badge {
+          display:inline-block;
+          font-size: 11px;
+          padding: 2px 8px;
+          border: 1px solid #eee;
+          border-radius: 999px;
+          margin-right: 6px;
+          color:#555;
+          background:#fff;
+        }
+        .smalllink { font-size: 12px; }
     </style>
 </head>
 
@@ -42,109 +98,408 @@
     <h1>장소 선택</h1>
 
     <div class="search-bar">
-        <input id="q" type="text" placeholder="주소를 입력하세요 (예: 광화문, 서울특별시청)"/>
+        <input id="q" type="text" placeholder="주소/지역/장소/시설을 입력하세요 (예: 서울, 김해공항, 스타벅스 광화문)"/>
         <button id="btnSearch" type="button">검색</button>
     </div>
 
     <div id="searchResult" class="muted"></div>
 
-    <div id="map"></div>
+    <div class="layout">
+        <div id="map"></div>
 
-    <div class="picked">
-        <div id="pickedText" class="muted">선택된 위치: -</div>
-        <!-- 필요 시 폼 전송용 hidden -->
-        <input type="hidden" id="pickedLat" name="lat"/>
-        <input type="hidden" id="pickedLng" name="lng"/>
-        <input type="hidden" id="pickedAddr" name="address"/>
+        <aside class="side">
+            <h2>장소 후보</h2>
+            <div class="muted" id="placeHint">
+                검색하면 오른쪽에 장소/시설 후보가 표시됩니다. 항목을 클릭하면 지도에서 해당 위치로 이동합니다.
+            </div>
+
+            <ul id="placeList" class="list" style="margin-top:10px;"></ul>
+
+            <div class="picked">
+                <div class="muted">선택된 위치</div>
+                <div id="pickedText" class="muted" style="margin-top:6px;">-</div>
+
+                <!-- 필요 시 폼 전송용 hidden -->
+                <input type="hidden" id="pickedLat" name="lat"/>
+                <input type="hidden" id="pickedLng" name="lng"/>
+                <input type="hidden" id="pickedAddr" name="address"/>
+                <input type="hidden" id="pickedPlaceName" name="placeName"/>
+                <input type="hidden" id="pickedPhone" name="phone"/>
+                <input type="hidden" id="pickedCategory" name="category"/>
+                <input type="hidden" id="pickedLink" name="link"/>
+
+                <div class="actions">
+                    <button class="btn" type="button" id="btnReverse">좌표→주소 갱신</button>
+                    <button class="btn" type="button" id="btnClearList">장소 후보 지우기</button>
+                </div>
+
+                <div class="kv">
+                    <div class="muted">lat</div><div id="kvLat">-</div>
+                    <div class="muted">lng</div><div id="kvLng">-</div>
+                    <div class="muted">address</div><div id="kvAddr">-</div>
+                    <div class="muted">place</div><div id="kvPlace">-</div>
+                </div>
+            </div>
+        </aside>
     </div>
 </div>
 
 <script>
-    // ---- 지도 초기 좌표(서울시청 근처) ----
+    // =========================
+    // 0) 기본 설정 / 상태
+    // =========================
     const initLat = 37.5665;
     const initLng = 126.9780;
 
-    // ---- 지도 생성 ----
+    const picked = {
+      lat: initLat,
+      lng: initLng,
+      addr: '',
+      placeName: '',
+      phone: '',
+      category: '',
+      link: ''
+    };
+
+    // =========================
+    // 1) 지도 초기화
+    // =========================
     const map = new naver.maps.Map('map', {
       center: new naver.maps.LatLng(initLat, initLng),
       zoom: 14
     });
 
-    // ---- 마커 ----
     const marker = new naver.maps.Marker({
       position: new naver.maps.LatLng(initLat, initLng),
       map: map
     });
 
-    // ---- 선택값 반영 ----
-    function setPicked(lat, lng, addr) {
-      document.getElementById('pickedLat').value = lat;
-      document.getElementById('pickedLng').value = lng;
-      document.getElementById('pickedAddr').value = addr || '';
+    // ===== InfoWindow(선택한 장소 간략 정보) =====
+    const infoWindow = new naver.maps.InfoWindow({
+      content: '',
+      backgroundColor: '#fff',
+      borderColor: '#e5e7eb',
+      borderWidth: 1,
+      anchorSize: new naver.maps.Size(10, 10),
+      anchorSkew: true
+    });
 
-      const addrText = addr ? `, addr=${addr}` : '';
-      document.getElementById('pickedText').textContent =
-        `선택된 위치: lat=${Number(lat).toFixed(6)}, lng=${Number(lng).toFixed(6)}${addrText}`;
+    function buildInfoHtml() {
+      const title = picked.placeName || '선택한 위치';
+      const addr = picked.addr || '';
+      const phone = picked.phone || '';
+      const category = picked.category || '';
+      const link = picked.link || '';
+
+      return `
+        <div style="padding:12px;max-width:260px;">
+          <div style="font-weight:700;font-size:14px;margin-bottom:6px;">
+            ${escapeHtml(title)}
+          </div>
+          ${category ? `<div style="font-size:12px;color:#555;margin-bottom:6px;">${escapeHtml(category)}</div>` : ''}
+          ${addr ? `<div style="font-size:12px;color:#333;margin-bottom:6px;">${escapeHtml(addr)}</div>` : ''}
+          ${phone ? `<div style="font-size:12px;color:#333;margin-bottom:6px;">☎ ${escapeHtml(phone)}</div>` : ''}
+          ${link ? `<div style="font-size:12px;"><a href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">링크</a></div>` : ''}
+        </div>
+      `;
     }
 
-    // 초기 표시
-    setPicked(initLat, initLng, '');
+    function openInfoWindow() {
+      infoWindow.setContent(buildInfoHtml());
+      infoWindow.open(map, marker);
+    }
 
-    // ---- 지도 클릭 시 좌표 선택 ----
+    // 마커 클릭 시 토글
+    naver.maps.Event.addListener(marker, 'click', () => {
+      if (infoWindow.getMap()) infoWindow.close();
+      else openInfoWindow();
+    });
+
+    // =========================
+    // 2) 선택 상태 반영
+    // =========================
+    function setPicked(lat, lng, addr, placeName, phone, category, link) {
+      picked.lat = lat;
+      picked.lng = lng;
+      if (addr !== undefined) picked.addr = addr || '';
+      if (placeName !== undefined) picked.placeName = placeName || '';
+      if (phone !== undefined) picked.phone = phone || '';
+      if (category !== undefined) picked.category = category || '';
+      if (link !== undefined) picked.link = link || '';
+
+      document.getElementById('pickedLat').value = picked.lat;
+      document.getElementById('pickedLng').value = picked.lng;
+      document.getElementById('pickedAddr').value = picked.addr;
+      document.getElementById('pickedPlaceName').value = picked.placeName;
+      document.getElementById('pickedPhone').value = picked.phone;
+      document.getElementById('pickedCategory').value = picked.category;
+      document.getElementById('pickedLink').value = picked.link;
+
+      const parts = [];
+      parts.push(`lat=${Number(picked.lat).toFixed(6)}`);
+      parts.push(`lng=${Number(picked.lng).toFixed(6)}`);
+      if (picked.addr) parts.push(`addr=${picked.addr}`);
+      if (picked.placeName) parts.push(`place=${picked.placeName}`);
+      document.getElementById('pickedText').textContent = parts.join(', ');
+
+      document.getElementById('kvLat').textContent = Number(picked.lat).toFixed(6);
+      document.getElementById('kvLng').textContent = Number(picked.lng).toFixed(6);
+      document.getElementById('kvAddr').textContent = picked.addr || '-';
+      document.getElementById('kvPlace').textContent = picked.placeName || '-';
+    }
+
+    setPicked(initLat, initLng, '', '', '', '', '');
+
+    // 지도 클릭 → 마커 이동 + reverse geocode로 주소 갱신 (장소명은 초기화)
     naver.maps.Event.addListener(map, 'click', function(e) {
       const lat = e.coord.y;
       const lng = e.coord.x;
-      const coord = new naver.maps.LatLng(lat, lng);
 
+      const coord = new naver.maps.LatLng(lat, lng);
       marker.setPosition(coord);
       map.setCenter(coord);
-      setPicked(lat, lng, '');
+
+      setPicked(lat, lng, '', '', '', '', '');
+      loadAddressByCoord(lat, lng);
+
+      if (infoWindow.getMap()) infoWindow.close();
     });
 
-    // ---- 검색 바인딩 ----
-    document.getElementById('btnSearch').addEventListener('click', doGeocode);
+    // =========================
+    // 3) Reverse Geocode (좌표 → 주소)
+    // =========================
+    function loadAddressByCoord(lat, lng) {
+      if (!naver.maps.Service || !naver.maps.Service.reverseGeocode) return;
+
+      naver.maps.Service.reverseGeocode({
+        coords: new naver.maps.LatLng(lat, lng),
+        orders: [
+          naver.maps.Service.OrderType.ROAD_ADDR,
+          naver.maps.Service.OrderType.ADDR
+        ].join(',')
+      }, (status, response) => {
+        if (status !== naver.maps.Service.Status.OK) return;
+
+        const results = response?.v2?.results || [];
+        const road = results.find(r => r.name === 'roadaddr');
+        const jibun = results.find(r => r.name === 'addr');
+
+        const addr = buildAddrText(road) || buildAddrText(jibun) || '';
+        setPicked(lat, lng, addr, picked.placeName, picked.phone, picked.category, picked.link);
+
+        // 주소만 갱신해도 내용이 바뀌므로 열려있으면 업데이트
+        if (infoWindow.getMap()) openInfoWindow();
+      });
+    }
+
+    function buildAddrText(r) {
+      if (!r || !r.land) return '';
+      const land = r.land;
+      const name = land.name || '';
+      const n1 = land.number1 || '';
+      const n2 = land.number2 ? `-${land.number2}` : '';
+      const addition = land.addition0?.value ? ` ${land.addition0.value}` : '';
+      return `${name}${n1 ? ' ' + n1 : ''}${n2}${addition}`.trim();
+    }
+
+    document.getElementById('btnReverse').addEventListener('click', () => {
+      loadAddressByCoord(picked.lat, picked.lng);
+    });
+
+    // =========================
+    // 4) 검색: 장소/시설(지역검색) + 주소(지오코딩)
+    // =========================
+    document.getElementById('btnSearch').addEventListener('click', onSearch);
     document.getElementById('q').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') doGeocode();
+      if (e.key === 'Enter') onSearch();
     });
 
-    // ---- 주소 검색(Geocode) ----
-    function doGeocode() {
+    async function onSearch() {
       const query = document.getElementById('q').value.trim();
       if (!query) return;
 
-      if (!naver.maps.Service || !naver.maps.Service.geocode) {
-        document.getElementById('searchResult').textContent = 'Geocoder 모듈이 로드되지 않았습니다.';
+      const place = await loadPlacesFromServer(query);
+
+      // 장소 후보가 있고 첫 결과로 이동했으면 종료
+      if (place.count > 0 && place.firstMoved) {
+        document.getElementById('searchResult').textContent =
+          `장소/시설 검색 결과 ${place.count}건 (첫 결과로 이동)`;
         return;
       }
 
+      // 장소 후보가 없거나(또는 이동 실패) 주소/지역 지오코딩 시도
+      const moved = await tryGeocodeMove(query);
+
+      if (place.count > 0) {
+        document.getElementById('searchResult').textContent =
+          `장소/시설 후보 ${place.count}건 (클릭하여 선택)`;
+        return;
+      }
+
+      document.getElementById('searchResult').textContent =
+        moved ? '주소/지역 검색으로 지도 이동 성공' : '검색 결과가 없습니다(주소/장소 모두 실패)';
+    }
+
+    function tryGeocodeMove(query) {
+      return new Promise((resolve) => {
+        if (!naver.maps.Service || !naver.maps.Service.geocode) return resolve(false);
+
         naver.maps.Service.geocode({ query }, (status, response) => {
-          console.log("[GEOCODE RAW]", status, response);
+          if (status !== naver.maps.Service.Status.OK) return resolve(false);
 
-          if (status !== naver.maps.Service.Status.OK) {
-            const dump = (response ? JSON.stringify(response) : "null");
-            document.getElementById('searchResult').textContent =
-              `검색 실패: status=${status}, response=${dump}`;
-            return;
-          }
+          const item = response.v2?.addresses?.[0];
+          if (!item) return resolve(false);
 
-        const item = response.v2?.addresses?.[0];
-        if (!item) {
-          document.getElementById('searchResult').textContent = '검색 결과가 없습니다.';
-          return;
+          const lat = parseFloat(item.y);
+          const lng = parseFloat(item.x);
+          const addr = item.roadAddress || item.jibunAddress || query;
+
+          const coord = new naver.maps.LatLng(lat, lng);
+          marker.setPosition(coord);
+          map.setCenter(coord);
+
+          // 주소 검색 성공 시: place 정보는 초기화
+          setPicked(lat, lng, addr, '', '', '', '');
+          loadAddressByCoord(lat, lng);
+
+          // 주소 기반 이동이면 인포윈도우는 닫아둠(원하면 openInfoWindow로 변경)
+          if (infoWindow.getMap()) infoWindow.close();
+
+          resolve(true);
+        });
+      });
+    }
+
+    // =========================
+    // 5) 장소/시설 후보 리스트 (서버 프록시)
+    //    GET /api/map/places?query=...&display=5
+    // =========================
+    async function loadPlacesFromServer(query) {
+      const listEl = document.getElementById('placeList');
+      listEl.innerHTML = '';
+      document.getElementById('placeHint').textContent = '장소 후보를 불러오는 중입니다...';
+
+      try {
+        const res = await fetch(`/api/map/places?query=${encodeURIComponent(query)}&display=5`, {
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.log("[PLACES] http error", res.status, text);
+          document.getElementById('placeHint').textContent = `장소 후보 조회 실패 (HTTP ${res.status})`;
+          return { count: 0, firstMoved: false };
         }
 
-        const lat = parseFloat(item.y);
-        const lng = parseFloat(item.x);
-        const addr = item.roadAddress || item.jibunAddress || query;
+        const json = await res.json();
+        const items = json.items || [];
 
-        const coord = new naver.maps.LatLng(lat, lng);
-        map.setCenter(coord);
-        marker.setPosition(coord);
-        setPicked(lat, lng, addr);
+        if (!items.length) {
+          document.getElementById('placeHint').textContent = '장소 후보가 없습니다.';
+          return { count: 0, firstMoved: false };
+        }
 
-        document.getElementById('searchResult').textContent =
-          `검색 성공: ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
-      });
+        document.getElementById('placeHint').textContent = `장소 후보 ${items.length}건`;
+
+        items.forEach((it, idx) => {
+          const title = stripHtml(it.title || '');
+          const category = it.category || '';
+          const tel = it.telephone || '';
+          const addr = it.roadAddress || it.address || '';
+          const link = it.link || '';
+
+          const li = document.createElement('li');
+          li.className = 'item';
+          li.innerHTML = `
+            <div class="title">${idx + 1}. ${escapeHtml(title)}</div>
+            <div class="meta">
+              ${category ? `<span class="badge">${escapeHtml(category)}</span>` : ''}
+              ${tel ? `<span class="badge">${escapeHtml(tel)}</span>` : ''}
+              <div style="margin-top:6px;">${escapeHtml(addr)}</div>
+              ${link ? `<div style="margin-top:6px;"><a class="smalllink" href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">링크</a></div>` : ''}
+              <div style="margin-top:8px;" class="muted">클릭하면 해당 장소로 이동합니다.</div>
+            </div>
+          `;
+
+          li.addEventListener('click', () => {
+            const moved = moveToPlaceItem(it);
+            document.getElementById('searchResult').textContent =
+              moved ? `선택됨: ${title}` : `좌표 변환 실패: ${title}`;
+          });
+
+          listEl.appendChild(li);
+        });
+
+        // 첫 결과 자동 이동(원치 않으면 주석 처리)
+        const firstMoved = moveToPlaceItem(items[0]);
+
+        return { count: items.length, firstMoved };
+
+      } catch (e) {
+        console.log("[PLACES] exception", e);
+        document.getElementById('placeHint').textContent = '장소 후보 조회 중 예외가 발생했습니다.';
+        return { count: 0, firstMoved: false };
+      }
+    }
+
+    function moveToPlaceItem(item) {
+      const mapx = Number(item.mapx);
+      const mapy = Number(item.mapy);
+      if (!Number.isFinite(mapx) || !Number.isFinite(mapy)) return false;
+
+      if (!naver.maps.TransCoord || !naver.maps.Point) return false;
+
+      const tm128 = new naver.maps.Point(mapx, mapy);
+      const latLng = naver.maps.TransCoord.fromTM128ToLatLng(tm128);
+
+      marker.setPosition(latLng);
+      map.setCenter(latLng);
+
+      const title = stripHtml(item.title || '');
+      const addr = item.roadAddress || item.address || title;
+
+      setPicked(
+        latLng.lat(),
+        latLng.lng(),
+        addr,
+        title,
+        item.telephone || '',
+        item.category || '',
+        item.link || ''
+      );
+
+      // 주소 보정(선택)
+      loadAddressByCoord(latLng.lat(), latLng.lng());
+
+      // 장소 선택 직후 인포윈도우 표시
+      openInfoWindow();
+
+      return true;
+    }
+
+    document.getElementById('btnClearList').addEventListener('click', () => {
+      document.getElementById('placeList').innerHTML = '';
+      document.getElementById('placeHint').textContent = '장소 후보를 지웠습니다.';
+    });
+
+    // =========================
+    // 6) 유틸
+    // =========================
+    function stripHtml(s) {
+      return (s || '').replace(/<[^>]*>/g, '');
+    }
+
+    function escapeHtml(s) {
+      return (s || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function escapeHtmlAttr(s) {
+      return escapeHtml(s).replaceAll('`', '&#96;');
     }
 </script>
 </body>
