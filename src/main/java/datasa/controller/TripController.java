@@ -11,6 +11,7 @@ import datasa.domain.dto.TripUpdateRequest;
 import datasa.domain.dto.TripWriteRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -18,15 +19,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
+
+import java.io.Console;
 import java.util.List;
 
 import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/trip")
+@RequestMapping("/api/trip")
 @Slf4j
 public class TripController {
+	
+	@Value("${kakao.maps.js-key}")
+	private String kakaoJsKey;
+	
 	/**
 	 * 게시글 수정 처리
 	 *
@@ -66,6 +73,7 @@ public class TripController {
 		}
 		
 		model.addAttribute("request", request);
+		model.addAttribute("jsKey", kakaoJsKey);
 		return "trip/writeForm";
 	}
 
@@ -75,6 +83,12 @@ public class TripController {
 			// 임시
 			// 1번 사용자가 임의로 글을 작성함
 			tripService.write(1L, request);
+			
+			log.debug(String.valueOf(request.getLat()));
+			log.debug(String.valueOf(request.getLng()));
+			log.debug(request.getAddress());
+			log.debug(request.getPlaceName());
+			
 			return "redirect:/api/trip/listAll";
 		} catch (Exception e) {
 			e.printStackTrace();

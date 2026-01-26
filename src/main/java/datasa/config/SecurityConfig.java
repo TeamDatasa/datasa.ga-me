@@ -15,9 +15,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+	
 	private final JwtAuthFilter jwtAuthFilter;
-
+	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
@@ -30,20 +30,24 @@ public class SecurityConfig {
 								"/api/auth/**",
 								"/api/map/naver",
 								"/api/map/places",
-								"/api/map/kakao"
+								"/api/map/kakao",
+								"/api/trip/write"
 						).permitAll()
 						.anyRequest().authenticated()
+				
 				)
+				
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
+		
+		
 		return http.build();
 	}
-
+	
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
+	
 	// (선택) 나중에 AuthenticationManager 필요하면 사용
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

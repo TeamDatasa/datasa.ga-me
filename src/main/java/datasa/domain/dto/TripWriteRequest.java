@@ -37,4 +37,10 @@ public class TripWriteRequest {
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime endAt;
+	
+	// kakao map
+	private Double lat;
+	private Double lng;
+	private String address;
+	private String placeName;
 }

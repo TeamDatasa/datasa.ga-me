@@ -1,10 +1,18 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>여행 글 작성</title>
+
+
+    <!--kakao js key & service liv-->
+    <script type="text/javascript"
+            th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${jsKey} + '&libraries=services'">
+    </script>
 </head>
+
+
 <body>
 <h1>여행 글 작성</h1>
 
@@ -13,7 +21,7 @@
 
     <div>
         <label for="title">제목</label><br/>
-        <input id="title" type="text" th:field="*{title}" maxlength="120" required />
+        <input id="title" type="text" th:field="*{title}" maxlength="120" required/>
     </div>
     <br/>
 
@@ -109,19 +117,19 @@
 
     <div>
         <label for="estimatedCost">예상 비용(KRW)</label><br/>
-        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000" />
+        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
     </div>
     <br/>
 
     <div>
         <label for="maxParticipants">최대 인원</label><br/>
-        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required />
+        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
     </div>
     <br/>
 
     <div>
         <label for="durationMinutes">소요 시간(분)</label><br/>
-        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required />
+        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required/>
     </div>
     <br/>
 
@@ -142,16 +150,186 @@
     <input id="startAt" type="datetime-local"
            th:field="*{startAt}"
            th:value="${#temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm')}"
-           required />
+           required/>
 
     <input id="endAt" type="datetime-local"
            th:field="*{endAt}"
            th:value="${#temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm')}"
-           required />
+           required/>
+
+
+    <!--map-->
+    <div style="margin-top:16px;">
+        <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 검색</label>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input id="keyword" type="text"
+                   placeholder="예: 부산역"
+                   style="padding:8px; width:280px;"
+                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchPlaces(); }">
+            <button type="button" onclick="searchPlaces()" style="padding:8px 12px; cursor:pointer;">검색</button>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+            <div id="map" style="width: 640px; height: 360px; border:1px solid #ddd; border-radius:10px;"></div>
+
+            <div style="width: 320px; max-height:360px; overflow:auto; border:1px solid #eee; border-radius:10px; padding:10px;">
+                <div style="font-weight:bold; margin-bottom:8px;">검색 결과</div>
+                <ul id="placesList"
+                    style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;"></ul>
+                <div id="pagination" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- 선택된 장소를 서버로 제출할 hidden input (form 안에 있어야 전송됨) -->
+        <input type="hidden" name="placeName" id="placeName">
+        <input type="hidden" name="placeId" id="placeId">
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lng" id="lng">
+        <input type="hidden" name="address" id="address">
+
+        <div style="margin-top:8px; color:#666; font-size:13px;">
+            선택된 장소: <span id="pickedText">아직 선택되지 않았습니다.</span>
+        </div>
+    </div>
 
 
     <button type="submit">등록</button>
     <a th:href="@{/api/trip/listAll}">취소</a>
 </form>
+
+<script>
+    let map, ps, infowindow;
+    let markers = [];
+
+    function initKakaoMap() {
+      map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+        level: 3
+      });
+
+      ps = new kakao.maps.services.Places(map);
+      infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+    }
+
+    // ✅ SDK 로드 완료 후에만 초기화
+    kakao.maps.load(function () {
+      initKakaoMap();
+    });
+
+    function searchPlaces() {
+      const keyword = document.getElementById('keyword').value.trim();
+      if (!keyword) return;
+
+      ps.keywordSearch(keyword, placesSearchCB);
+    }
+
+    function placesSearchCB(data, status, pagination) {
+      if (status !== kakao.maps.services.Status.OK) {
+        clearResults();
+        return;
+      }
+      displayPlaces(data);
+      displayPagination(pagination);
+    }
+
+    function displayPlaces(places) {
+      const listEl = document.getElementById('placesList');
+      const bounds = new kakao.maps.LatLngBounds();
+
+      clearMarkers();
+      listEl.innerHTML = '';
+
+      places.forEach((place, idx) => {
+        const position = new kakao.maps.LatLng(place.y, place.x);
+        bounds.extend(position);
+
+        const marker = addMarker(position);
+        const itemEl = makeListItem(place);
+
+        itemEl.addEventListener('click', () => selectPlace(place, position));
+        kakao.maps.event.addListener(marker, 'click', () => selectPlace(place, position));
+
+        listEl.appendChild(itemEl);
+      });
+
+      map.setBounds(bounds);
+    }
+
+    function makeListItem(place) {
+      const li = document.createElement('li');
+      li.style.border = '1px solid #eee';
+      li.style.borderRadius = '10px';
+      li.style.padding = '10px';
+      li.style.cursor = 'pointer';
+
+      const addr = place.road_address_name || place.address_name || '';
+      li.innerHTML = `
+        <div style="font-weight:bold;">${escapeHtml(place.place_name)}</div>
+        <div style="font-size:12px; color:#666; margin-top:4px;">${escapeHtml(addr)}</div>
+      `;
+      return li;
+    }
+
+    function addMarker(position) {
+      const marker = new kakao.maps.Marker({ position, map });
+      markers.push(marker);
+      return marker;
+    }
+
+    function selectPlace(place, position) {
+      const lat = position.getLat();
+      const lng = position.getLng();
+      const addr = place.road_address_name || place.address_name || '';
+
+      document.getElementById('placeName').value = place.place_name || '';
+      document.getElementById('placeId').value = place.id || '';
+      document.getElementById('lat').value = String(lat);
+      document.getElementById('lng').value = String(lng);
+      document.getElementById('address').value = addr;
+
+      document.getElementById('pickedText').textContent =
+        `${place.place_name} / ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
+    }
+
+    function displayPagination(pagination) {
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+
+      for (let i = 1; i <= pagination.last; i++) {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = i;
+        a.style.marginRight = '8px';
+        a.onclick = (function(i) {
+          return function() { pagination.gotoPage(i); return false; }
+        })(i);
+
+        paginationEl.appendChild(a);
+      }
+    }
+
+    function clearMarkers() {
+      markers.forEach(m => m.setMap(null));
+      markers = [];
+    }
+
+    function clearResults() {
+      clearMarkers();
+      document.getElementById('placesList').innerHTML = '';
+      document.getElementById('pagination').innerHTML = '';
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+</script>
 </body>
+
+
 </html>
