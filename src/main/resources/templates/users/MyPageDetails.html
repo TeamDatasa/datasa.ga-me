@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Page Details</title>
+    <link rel="stylesheet" href="/css/mypage.css" />
+</head>
+<body>
+<div class="mypage-container">
+
+    <header class="mypage-header">
+        <div class="brand">ga-me</div>
+        <div class="header-actions">
+            <a class="btn btn-ghost" href="/mypage">Back</a>
+        </div>
+    </header>
+
+    <section class="panel">
+        <h3>Details</h3>
+        <p class="hint">This page will show different content depending on your role.</p>
+
+        <div class="grid">
+            <a class="card" href="/auth/forgot-password">Reset Password</a>
+        </div>
+
+        <div id="detailsRoleHint" class="hint"></div>
+    </section>
+
+</div>
+
+<script src="/js/mypage-details.js"></script>
+</body>
+</html>

@@ -7,9 +7,11 @@ import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import datasa.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,22 +33,34 @@ public class AuthService {
 				request.getEmail(),
 				hashed,
 				request.getName(),
-				request.getRole() // USER / HOST
+				request.getRole()
 		);
 
 		userRepository.save(user);
 	}
-
+	
 	public AuthResponse login(LoginRequest request) {
 		User user = userRepository.findByEmail(request.getEmail())
-				.orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
-
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.UNAUTHORIZED, "Invalid email or password."
+				));
+		
 		if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-			throw new IllegalArgumentException("Invalid email or password.");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password.");
 		}
-
-		String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
-
-		return new AuthResponse(token, user.getUserId(), user.getEmail(), user.getRole());
+		
+		if (user.getStatus() != User.Status.ACTIVE) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Inactive user.");
+		}
+		
+		String accessToken = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+		
+		return new AuthResponse(
+				accessToken,
+				user.getUserId(),
+				user.getEmail(),
+				user.getRole()
+		);
 	}
+	
 }

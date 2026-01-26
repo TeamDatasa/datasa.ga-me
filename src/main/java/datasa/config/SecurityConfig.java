@@ -28,7 +28,8 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/", "/auth/**", "/error",
 								"/css/**", "/js/**", "/images/**",
-								"/api/auth/**",
+								"/mypage", "/mypage/details",
+								"/api/auth/**", "/api/auth/password/**",
 								"/api/map/main"
 						).permitAll()
 						.anyRequest().authenticated()

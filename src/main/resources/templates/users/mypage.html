@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Page</title>
+    <link rel="stylesheet" href="/css/mypage.css" />
+</head>
+<body>
+<div class="mypage-container">
+
+    <!-- Header -->
+    <header class="mypage-header">
+        <div class="brand">ga-me</div>
+
+        <div class="header-actions">
+            <button id="logoutBtn" class="btn btn-ghost">Log out</button>
+        </div>
+    </header>
+
+    <div class="mypage-grid">
+
+        <div class="mypage-main">
+
+            <section class="profile-card">
+                <div class="profile-left">
+                    <div class="avatar" id="avatar"></div>
+                    <div class="profile-text">
+                        <h2 id="displayName">-</h2>
+                        <p class="sub" id="displayMeta">-</p>
+                        <span class="badge" id="roleBadge">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h3>Edit Basic Information</h3>
+
+                <form id="profileForm" class="form">
+                    <div class="row">
+                        <label>Name *</label>
+                        <input type="text" id="name" required maxlength="50"/>
+                    </div>
+
+                    <div class="row">
+                        <label>Date of Birth *</label>
+                        <input type="date" id="birthDate" required />
+                    </div>
+
+                    <div class="row">
+                        <label>Gender *</label>
+                        <select id="gender" required>
+                            <option value="">Select</option>
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <label>Country</label>
+                        <input type="text" id="country" placeholder="Korea" />
+                    </div>
+
+                    <div class="row">
+                        <label>Region *</label>
+                        <input type="text" id="region" required maxlength="100"/>
+                    </div>
+
+                    <div class="row">
+                        <label>MBTI</label>
+                        <input type="text" id="mbti" placeholder="INFP" maxlength="4"/>
+                    </div>
+
+                    <div class="row">
+                        <label>Smoking</label>
+                        <select id="smoking">
+                            <option value="">Select</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <label>Drinking</label>
+                        <select id="drinking">
+                            <option value="">Select</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <label>Bio</label>
+                        <textarea id="bio" maxlength="500"
+                                  placeholder="Write a short introduction about yourself"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">Save</button>
+                    <p class="hint" id="saveHint"></p>
+                </form>
+            </section>
+
+            <section class="panel" id="hostPanel" style="display:none;">
+                <h3>Guide Menu</h3>
+                <div class="grid">
+                    <a class="card" href="/host/trips">Manage My Tours</a>
+                    <a class="card" href="/host/applications">Manage Applications</a>
+                </div>
+            </section>
+
+            <section class="panel" id="userPanel" style="display:none;">
+                <h3>Traveler Menu</h3>
+                <div class="grid">
+                    <a class="card" href="/user/applications">My Applications</a>
+                    <a class="card" href="/user/bookmarks">Saved Tours</a>
+                </div>
+            </section>
+
+            <section class="panel danger">
+                <h3>Account Settings</h3>
+                <button id="deactivateBtn" class="btn btn-danger">Delete Account</button>
+                <p class="hint">After deletion, you will no longer be able to log in.</p>
+            </section>
+
+        </div>
+
+        <aside class="mypage-side">
+            <a class="side-card side-link" href="/mypage/details">
+                <div class="side-top">
+                    <h3>Details</h3>
+                    <span class="chev">›</span>
+                </div>
+                <p class="side-desc">View account details and settings.</p>
+            </a>
+        </aside>
+
+
+    </div>
+</div>
+
+<script src="/js/mypage.js"></script>
+</body>
+</html>
