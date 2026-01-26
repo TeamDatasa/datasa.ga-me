@@ -1,8 +1,12 @@
 package datasa.service;
 
 import datasa.domain.dto.ApplicationCreateResponseDto;
-import datasa.domain.dto.ApplicationStatusResponseDto;
+import datasa.domain.dto.ApplicationListResponseDto;
 import datasa.domain.entity.Application;
+import datasa.repository.ChatMemberRepository;
+import datasa.repository.ChatRoomRepository;
+import datasa.domain.entity.ChatMember;
+import datasa.domain.entity.ChatRoom;
 import datasa.domain.entity.Trip;
 import datasa.domain.entity.User;
 import datasa.repository.ApplicationRepository;
@@ -12,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ApplicationService {
@@ -19,6 +26,9 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMemberRepository chatMemberRepository;
+
 
     /**
      * U_004 여행 신청
@@ -66,17 +76,104 @@ public class ApplicationService {
     /**
      * U_005 내 신청 상태 조회
      */
-	// repo 복원되면 이것도 수정 해야됨
-//    public ApplicationStatusResponseDto getMyApplicationStatus(Long tripId, Long userId) {
-//
-//        ApplicationStatusResponseDto dto =
-//                applicationRepository.findStatus(tripId, userId);
-//
-//        // 신청 안 한 경우
-//        if (dto == null) {
-//            return new ApplicationStatusResponseDto(null);
-//        }
-//
-//        return dto;
-//    }
+    @Transactional(readOnly = true)
+    public  List<ApplicationListResponseDto> getApplicationsByTrip(Long tripId) {
+
+        return applicationRepository.findByTrip_TripId(tripId)
+                .stream()
+                .map(app -> new ApplicationListResponseDto(
+                        app.getApplicationId(),
+                        app.getUser().getUserId(),
+                        app.getUser().getName(),
+                        app.getStatus().name(),
+                        app.getCreatedAt()
+                ))
+                .toList();
+    }
+
+    // 신청 승인
+    @Transactional
+    public void approve(Long applicationId, Long hostUserId) {
+
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("신청이 존재하지 않습니다."));
+
+        Trip trip = app.getTrip();
+
+        // 1) 호스트만 승인 가능
+        if (!trip.getHostUser().getUserId().equals(hostUserId)) {
+            throw new IllegalStateException("호스트만 승인할 수 있습니다.");
+        }
+
+        // 2) PENDING만 처리
+        if (app.getStatus() != Application.Status.PENDING) {
+            throw new IllegalStateException("이미 처리된 신청입니다.");
+        }
+
+        // 3) 정원 체크(승인 전)
+        long approvedCount = applicationRepository.countByTrip_TripIdAndStatus(
+                trip.getTripId(), Application.Status.APPROVED
+        );
+        if (approvedCount >= trip.getMaxParticipants()) {
+            throw new IllegalStateException("정원이 초과되었습니다.");
+        }
+
+        // 4) 승인 처리
+        app.setStatus(Application.Status.APPROVED);
+
+        // ==========================
+        // 5) 승인 시 채팅방 생성/참여
+        // ==========================
+        ChatRoom room = chatRoomRepository.findByTrip(trip)
+                .orElseGet(() -> {
+                    ChatRoom newRoom = chatRoomRepository.save(new ChatRoom(trip));
+
+                    // 호스트 자동 참여
+                    chatMemberRepository.save(new ChatMember(newRoom, trip.getHostUser()));
+                    return newRoom;
+                });
+
+        // 승인된 신청자 참여(중복 방지)
+        chatMemberRepository.findByChatRoomAndUser(room, app.getUser())
+                .orElseGet(() -> chatMemberRepository.save(new ChatMember(room, app.getUser())));
+
+        // ==========================
+        // 6) 승인 후 정원 도달 시 CLOSED
+        // ==========================
+        long afterApprovedCount = approvedCount + 1;
+        if (afterApprovedCount >= trip.getMaxParticipants()) {
+            trip.setStatus(Trip.Status.CLOSED);
+        }
+    }
+
+
+
+
+
+
+    //신청 거절
+    @Transactional
+    public void reject(Long applicationId, Long hostUserId) {
+
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("신청이 존재하지 않습니다."));
+
+        // 1️⃣ 호스트 권한 체크
+        Long realHostId = app.getTrip().getHostUser().getUserId();
+        if (!realHostId.equals(hostUserId)) {
+            throw new IllegalStateException("호스트만 거절할 수 있습니다.");
+        }
+
+        // 2️⃣ 상태 체크
+        if (app.getStatus() != Application.Status.PENDING) {
+            throw new IllegalStateException("이미 처리된 신청입니다.");
+        }
+
+        // 3️⃣ 거절 처리
+        app.setStatus(Application.Status.REJECTED);
+        app.setDecidedAt(LocalDateTime.now());
+    }
+
+
+
 }

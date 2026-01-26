@@ -36,4 +36,8 @@ public class ChatRoom {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public ChatRoom(Trip trip) {
+        this.trip = trip;
+    }
 }

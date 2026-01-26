@@ -24,4 +24,6 @@ public class TripDetailResponseDto {
     private Long approvedCount;
     private List<String> languages;
 
+    private String applicationStatus;
+
 }
