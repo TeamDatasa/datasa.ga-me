@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 로그인 성공 처리
       alert("Signed in successfully!");
-      window.location.href = "/";
+      window.location.href = "/mypage";
 
     } catch (error) {
       alert(error?.message || "Sign in failed.");

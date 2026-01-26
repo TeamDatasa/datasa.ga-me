@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -25,14 +26,16 @@ public class SecurityConfig {
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(
-								"/", "/login", "/signup",
+								"/", "/auth/**", "/error",
 								"/css/**", "/js/**", "/images/**",
 								"/api/auth/**",
+								"/api/auth/password/**",
 								"/api/map/naver",
 								"/api/map/places",
 								"/api/map/kakao", // 임시 : 테스트용
-								"/api/trip/**"
-								
+								"/api/trip/**",
+								"/mypage", "/mypage/details",
+								"/api/map/main"
 						).permitAll()
 						.anyRequest().authenticated()
 				

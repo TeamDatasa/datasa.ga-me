@@ -109,4 +109,35 @@ public class User {
 		return user;
 	}
 	
+	public void deactivate() {
+		this.status = Status.INACTIVE;
+	}
+	
+	public void updateProfile(
+			String name,
+			LocalDate birthDate,
+			Gender gender,
+			String countryCode,
+			String region,
+			String mbti,
+			Boolean smoking,
+			Boolean drinking,
+			String bio
+	) {
+		this.name = name;
+		this.birthDate = birthDate;
+		this.gender = gender;
+		this.countryCode = countryCode;
+		this.region = region;
+		this.mbti = mbti;
+		this.smoking = smoking;
+		this.drinking = drinking;
+		this.bio = bio;
+	}
+	
+	// 비번 변경 메서드
+	public void changePassword(String passwordHash) {
+		this.passwordHash = passwordHash;
+	}
+	
 }

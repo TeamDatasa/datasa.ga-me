@@ -3,51 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
 
-<h2>Sign Up</h2>
+<div class="auth-container">
+    <h1>Sign Up</h1>
+    <p>Create your account</p>
 
-<form id="signupForm">
-    <!-- Email -->
-    <div>
+    <form id="signupForm" class="auth-form">
         <label>Email</label>
         <input type="email" id="email" required />
-    </div>
 
-    <!-- Password -->
-    <div>
         <label>Password</label>
         <input type="password" id="password" required />
-    </div>
 
-    <!-- Password Confirm -->
-    <div>
         <label>Confirm Password</label>
         <input type="password" id="passwordConfirm" required />
-    </div>
 
-    <!-- Nickname -->
-    <div>
-        <label>Nickname</label>
-        <input type="text" id="name" required />
-    </div>
+        <label>Name</label>
+        <input type="text" id="name" name="name" required />
 
-    <!-- Role -->
-    <div>
         <label>User Type</label>
-        <label>
-            <input type="radio" name="role" value="USER" checked />
-            Traveler
-        </label>
-        <label>
-            <input type="radio" name="role" value="HOST" />
-            Guide
-        </label>
-    </div>
+        <div class="role-group">
+            <label class="role-option">
+                <input type="radio" name="role" value="USER" checked>
+                Traveler
+            </label>
 
-    <button type="submit">Sign Up</button>
-</form>
+            <label class="role-option">
+                <input type="radio" name="role" value="HOST">
+                Guide
+            </label>
+        </div>
+
+
+        <button type="submit" class="auth-btn">Sign Up</button>
+    </form>
+
+    <div class="auth-footer">
+        Already have an account?
+        <a href="/auth/login">Sign In</a>
+    </div>
+</div>
 
 <script src="/js/signup.js"></script>
 </body>

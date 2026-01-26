@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = document.getElementById("email")?.value?.trim();
     const password = document.getElementById("password")?.value ?? "";
     const passwordConfirm = document.getElementById("passwordConfirm")?.value ?? "";
-    const nickname = document.getElementById("nickname")?.value?.trim();
+    const name = document.getElementById("name")?.value?.trim();
     const roleElement = document.querySelector('input[name="role"]:checked');
     const role = roleElement ? roleElement.value : null;
 
@@ -16,13 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!password) return alert("Please enter your password.");
     if (!passwordConfirm) return alert("Please confirm your password.");
     if (password !== passwordConfirm) return alert("Passwords do not match.");
-    if (!nickname) return alert("Please enter your nickname.");
+    if (!name) return alert("Please enter your name.");
     if (!role) return alert("Please select a user role.");
 
     const payload = {
       email: email,
       password: password,
-      nickname: nickname,
+      name: name,
       role: role,
     };
 
