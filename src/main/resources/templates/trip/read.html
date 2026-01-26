@@ -83,6 +83,31 @@
     <div th:text="${trip.description}">-</div>
 </div>
 
+<!-- ===== 일정(장소) 표시 ===== -->
+<div class="box" style="margin-top:14px;">
+    <div class="label">일정(장소)</div>
+    <div th:if="${trip.locations == null or #lists.isEmpty(trip.locations)}" class="muted">
+        등록된 장소가 없습니다.
+    </div>
+
+    <div th:if="${trip.locations != null and !#lists.isEmpty(trip.locations)}">
+        <ul style="list-style:none; padding:0; margin:10px 0 0 0; display:flex; flex-direction:column; gap:10px;">
+            <li th:each="loc : ${trip.locations}"
+                style="border:1px solid #eee; border-radius:10px; padding:10px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <span class="badge" th:text="${loc.orderNo}">1</span>
+                    <span style="font-weight:bold;" th:text="${loc.placeName}">장소명</span>
+                </div>
+                <div style="margin-top:6px; color:#666; font-size:13px;" th:text="${loc.address}">주소</div>
+                <div class="small" style="margin-top:6px;" th:if="${loc.lat != null and loc.lng != null}">
+                    <span th:text="'lat=' + ${#numbers.formatDecimal(loc.lat, 1, 'POINT', 6, 'NONE')}"></span>
+                    <span th:text="', lng=' + ${#numbers.formatDecimal(loc.lng, 1, 'POINT', 6, 'NONE')}"></span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
 <br/>
 
 <a th:href="@{/api/trip/listAll}">목록으로</a>
@@ -186,8 +211,7 @@
     }
 
     function renderThread(items) {
-        // items: flat 배열 (parentCommentId 포함)
-        const byParent = new Map(); // parentId(null/number) -> []
+        const byParent = new Map();
         for (const c of items) {
             const key = (c.parentCommentId == null) ? null : c.parentCommentId;
             if (!byParent.has(key)) byParent.set(key, []);
@@ -199,155 +223,74 @@
         roots.forEach(root => {
             frag.appendChild(renderCommentNode(root, byParent, 0));
         });
-
         elList.appendChild(frag);
     }
 
     function renderCommentNode(c, byParent, depth) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'comment-item' + (depth > 0 ? ' reply' : '');
-        wrapper.dataset.commentId = c.commentId;
+        const div = document.createElement('div');
+        div.className = 'comment-item' + (depth > 0 ? ' reply' : '');
+        div.dataset.commentId = c.commentId;
 
-        const createdAt = c.createdAt ? c.createdAt.replace('T', ' ') : '-';
-        const updatedAt = c.updatedAt ? c.updatedAt.replace('T', ' ') : '-';
-        const status = c.status || 'ACTIVE';
-        const isDeleted = status === 'DELETED';
+        const meta = document.createElement('div');
+        meta.className = 'comment-meta';
 
-        wrapper.innerHTML = `
-            <div class="comment-meta">
-                <div class="left">
-                    <span class="badge">#${c.commentId}</span>
-                    <span class="muted">작성자: ${escapeHtml(c.userName || '')} (userId: ${c.userId})</span>
-                    <span class="badge">${escapeHtml(status)}</span>
-                    <span class="small">작성: ${escapeHtml(createdAt)} / 수정: ${escapeHtml(updatedAt)}</span>
-                </div>
-                <div class="left">
-                    <span class="muted">좋아요 <b id="likeCount-${c.commentId}">${c.likeCount ?? 0}</b></span>
-                </div>
-            </div>
-
-            <div class="comment-content" id="content-${c.commentId}">${escapeHtml(c.content || '')}</div>
-
-            <textarea class="edit-area hidden" id="edit-${c.commentId}"></textarea>
-
-            <div class="comment-actions">
-                <button type="button" data-act="reply" ${isDeleted ? 'disabled' : ''}>답글</button>
-                <button type="button" data-act="like">좋아요</button>
-                <button type="button" data-act="edit" ${isDeleted ? 'disabled' : ''}>수정</button>
-                <button type="button" data-act="delete" class="danger" ${isDeleted ? 'disabled' : ''}>삭제</button>
-                <button type="button" data-act="save" class="hidden">저장</button>
-                <button type="button" data-act="cancel" class="hidden">취소</button>
-                <span class="muted" id="msg-${c.commentId}"></span>
-            </div>
+        const left = document.createElement('div');
+        left.className = 'left';
+        left.innerHTML = `
+          <span class="badge">ID: ${c.commentId}</span>
+          <span class="badge">userId: ${c.userId}</span>
+          <span class="small">${escapeHtml(c.createdAt || '')}</span>
         `;
 
-        wrapper.addEventListener('click', async (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const act = btn.dataset.act;
-            if (!act) return;
+        const right = document.createElement('div');
+        right.className = 'small';
+        right.textContent = c.updatedAt ? `수정: ${c.updatedAt}` : '';
 
-            const commentId = c.commentId;
+        meta.appendChild(left);
+        meta.appendChild(right);
 
-            if (act === 'reply') {
-                setReplyTarget(commentId);
-                elContent.focus();
-            }
+        const content = document.createElement('div');
+        content.className = 'comment-content';
+        content.textContent = c.content || '';
 
-            if (act === 'like') {
-                await toggleLike(commentId);
-            }
+        const actions = document.createElement('div');
+        actions.className = 'comment-actions';
 
-            if (act === 'edit') {
-                openEdit(commentId, c.content || '');
-            }
+        const btnReply = document.createElement('button');
+        btnReply.type = 'button';
+        btnReply.textContent = '대댓글';
+        btnReply.onclick = () => setReplyTarget(c.commentId);
 
-            if (act === 'cancel') {
-                closeEdit(commentId);
-            }
+        const btnEdit = document.createElement('button');
+        btnEdit.type = 'button';
+        btnEdit.textContent = '수정';
+        btnEdit.onclick = () => openEdit(div, c);
 
-            if (act === 'save') {
-                await saveEdit(commentId);
-            }
+        const btnDel = document.createElement('button');
+        btnDel.type = 'button';
+        btnDel.textContent = '삭제';
+        btnDel.onclick = () => deleteComment(c.commentId);
 
-            if (act === 'delete') {
-                await deleteComment(commentId);
-            }
-        });
+        actions.appendChild(btnReply);
+        actions.appendChild(btnEdit);
+        actions.appendChild(btnDel);
+
+        div.appendChild(meta);
+        div.appendChild(content);
+        div.appendChild(actions);
 
         const children = byParent.get(c.commentId) || [];
-        if (children.length > 0) {
-            children.forEach(child => {
-                wrapper.appendChild(renderCommentNode(child, byParent, depth + 1));
-            });
-        }
-        return wrapper;
-    }
+        children.forEach(ch => div.appendChild(renderCommentNode(ch, byParent, depth + 1)));
 
-    function openEdit(commentId, current) {
-        const ta = document.getElementById(`edit-${commentId}`);
-        const contentDiv = document.getElementById(`content-${commentId}`);
-        const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
-
-        ta.value = current;
-        ta.classList.remove('hidden');
-        contentDiv.classList.add('hidden');
-
-        setButtons(item, true);
-    }
-
-    function closeEdit(commentId) {
-        const ta = document.getElementById(`edit-${commentId}`);
-        const contentDiv = document.getElementById(`content-${commentId}`);
-        const item = document.querySelector(`.comment-item[data-comment-id="${commentId}"]`);
-
-        ta.classList.add('hidden');
-        contentDiv.classList.remove('hidden');
-
-        setButtons(item, false);
-        setItemMsg(commentId, '');
-    }
-
-    function setButtons(item, editing) {
-        const btnEdit = item.querySelector('button[data-act="edit"]');
-        const btnDel = item.querySelector('button[data-act="delete"]');
-        const btnReply = item.querySelector('button[data-act="reply"]');
-        const btnSave = item.querySelector('button[data-act="save"]');
-        const btnCancel = item.querySelector('button[data-act="cancel"]');
-
-        if (editing) {
-            btnEdit.classList.add('hidden');
-            btnDel.classList.add('hidden');
-            btnReply.classList.add('hidden');
-            btnSave.classList.remove('hidden');
-            btnCancel.classList.remove('hidden');
-        } else {
-            btnEdit.classList.remove('hidden');
-            btnDel.classList.remove('hidden');
-            btnReply.classList.remove('hidden');
-            btnSave.classList.add('hidden');
-            btnCancel.classList.add('hidden');
-        }
-    }
-
-    function setItemMsg(commentId, msg, isError = false) {
-        const el = document.getElementById(`msg-${commentId}`);
-        el.textContent = msg || '';
-        el.className = isError ? 'danger' : 'muted';
+        return div;
     }
 
     async function submitComment() {
         const userId = getUserId();
-        if (userId == null) {
-            showMsg('userId는 1~10만 가능합니다.', true);
-            return;
-        }
+        if (!userId) return showMsg('userId는 1~10 숫자만 가능합니다.', true);
 
-        const content = (elContent.value || '').trim();
-        if (!content) {
-            showMsg('댓글 내용을 입력해주세요.', true);
-            return;
-        }
+        const content = elContent.value.trim();
+        if (!content) return showMsg('내용을 입력하세요.', true);
 
         const parent = elParentId.value ? Number(elParentId.value) : null;
 
@@ -356,16 +299,9 @@
             const res = await fetch(`/api/trips/${tripId}/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId,
-                    parentCommentId: parent,
-                    content
-                })
+                body: JSON.stringify({ userId, content, parentCommentId: parent })
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`등록 실패 (${res.status}) ${text}`);
-            }
+            if (!res.ok) throw new Error(`등록 실패 (${res.status})`);
 
             elContent.value = '';
             setReplyTarget(null);
@@ -376,89 +312,75 @@
         }
     }
 
-    async function saveEdit(commentId) {
+    function openEdit(container, c) {
+        const old = container.querySelector('.comment-content');
+        const actions = container.querySelector('.comment-actions');
+        if (!old || !actions) return;
+
+        if (container.querySelector('textarea.edit-area')) return;
+
+        const ta = document.createElement('textarea');
+        ta.className = 'edit-area';
+        ta.value = c.content || '';
+
+        const btnSave = document.createElement('button');
+        btnSave.type = 'button';
+        btnSave.textContent = '저장';
+        btnSave.onclick = () => updateComment(c.commentId, ta.value);
+
+        const btnCancel = document.createElement('button');
+        btnCancel.type = 'button';
+        btnCancel.textContent = '취소';
+        btnCancel.onclick = () => {
+            ta.remove();
+            btnSave.remove();
+            btnCancel.remove();
+        };
+
+        old.after(ta);
+        actions.appendChild(btnSave);
+        actions.appendChild(btnCancel);
+    }
+
+    async function updateComment(commentId, content) {
         const userId = getUserId();
-        if (userId == null) {
-            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
-            return;
-        }
+        if (!userId) return showMsg('userId는 1~10 숫자만 가능합니다.', true);
 
-        const ta = document.getElementById(`edit-${commentId}`);
-        const newContent = (ta.value || '').trim();
-        if (!newContent) {
-            setItemMsg(commentId, '내용을 입력해주세요.', true);
-            return;
-        }
+        const v = (content || '').trim();
+        if (!v) return showMsg('내용이 비었습니다.', true);
 
-        setItemMsg(commentId, '수정 중...');
+        showMsg('수정 중...');
         try {
-            const res = await fetch(`/api/comments/${commentId}`, {
+            const res = await fetch(`/api/trips/${tripId}/comments/${commentId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, content: newContent })
+                body: JSON.stringify({ userId, content: v })
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`수정 실패 (${res.status}) ${text}`);
-            }
+            if (!res.ok) throw new Error(`수정 실패 (${res.status})`);
 
-            closeEdit(commentId);
+            showMsg('수정 완료');
             await loadComments();
         } catch (e) {
-            setItemMsg(commentId, e.message, true);
+            showMsg(e.message, true);
         }
     }
 
     async function deleteComment(commentId) {
         const userId = getUserId();
-        if (userId == null) {
-            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
-            return;
-        }
+        if (!userId) return showMsg('userId는 1~10 숫자만 가능합니다.', true);
+        if (!confirm('삭제하시겠습니까?')) return;
 
-        if (!confirm('정말 삭제하시겠습니까? (대댓글이 있으면 본 댓글만 삭제 처리됩니다)')) return;
-
-        setItemMsg(commentId, '삭제 중...');
+        showMsg('삭제 중...');
         try {
-            const res = await fetch(`/api/comments/${commentId}?userId=${userId}`, {
+            const res = await fetch(`/api/trips/${tripId}/comments/${commentId}?userId=${userId}`, {
                 method: 'DELETE'
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`삭제 실패 (${res.status}) ${text}`);
-            }
+            if (!res.ok) throw new Error(`삭제 실패 (${res.status})`);
 
+            showMsg('삭제 완료');
             await loadComments();
         } catch (e) {
-            setItemMsg(commentId, e.message, true);
-        }
-    }
-
-    async function toggleLike(commentId) {
-        const userId = getUserId();
-        if (userId == null) {
-            setItemMsg(commentId, 'userId는 1~10만 가능합니다.', true);
-            return;
-        }
-
-        setItemMsg(commentId, '처리 중...');
-        try {
-            const res = await fetch(`/api/comments/${commentId}/like?userId=${userId}`, {
-                method: 'POST'
-            });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`좋아요 실패 (${res.status}) ${text}`);
-            }
-
-            const likeCount = await res.json();
-            const el = document.getElementById(`likeCount-${commentId}`);
-            if (el) el.textContent = String(likeCount);
-
-            setItemMsg(commentId, '완료');
-            setTimeout(() => setItemMsg(commentId, ''), 800);
-        } catch (e) {
-            setItemMsg(commentId, e.message, true);
+            showMsg(e.message, true);
         }
     }
 
@@ -471,7 +393,6 @@
             .replaceAll("'", '&#039;');
     }
 
-    // 초기 로드
     loadComments();
 </script>
 

@@ -13,4 +13,7 @@ public interface TripLocationRepository extends JpaRepository<TripLocation, Long
     List<TripLocation> findByTripOrderByOrderNoAsc(Trip trip);
 
     Remapper findFirstByTrip_TripId(Long tripId);
+	
+	
+	List<TripLocation> findByTrip_TripIdOrderByOrderNoAsc(Long tripId);
 }

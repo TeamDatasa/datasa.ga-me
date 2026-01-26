@@ -30,8 +30,9 @@ public class SecurityConfig {
 								"/api/auth/**",
 								"/api/map/naver",
 								"/api/map/places",
-								"/api/map/kakao",
-								"/api/trip/write"
+								"/api/map/kakao", // 임시 : 테스트용
+								"/api/trip/**"
+								
 						).permitAll()
 						.anyRequest().authenticated()
 				

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -43,4 +44,8 @@ public class TripWriteRequest {
 	private Double lng;
 	private String address;
 	private String placeName;
+	
+	// write form에서 입력된 일정을 다중값으로 받기
+	// schedulePlaces[0].placeId 형태로 바인딩
+	private List<TripWriteSchedulePlaceRequest> schedulePlaces;
 }

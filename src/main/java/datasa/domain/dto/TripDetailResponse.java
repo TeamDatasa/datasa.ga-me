@@ -42,7 +42,7 @@ public class TripDetailResponse {
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private Integer editLockDays;
-
-
+	
+	private List<TripLocationItemResponse> locations;
 
 }

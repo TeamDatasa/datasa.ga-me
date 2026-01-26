@@ -76,23 +76,25 @@ public class TripController {
 		model.addAttribute("jsKey", kakaoJsKey);
 		return "trip/writeForm";
 	}
-
+	
 	@PostMapping("/write")
 	public String write(@ModelAttribute TripWriteRequest request, Model model) {
 		try {
-			// 임시
-			// 1번 사용자가 임의로 글을 작성함
+			// 임시 : 유저 1번이 글을 작성하도록
 			tripService.write(1L, request);
-			
-			log.debug(String.valueOf(request.getLat()));
-			log.debug(String.valueOf(request.getLng()));
-			log.debug(request.getAddress());
-			log.debug(request.getPlaceName());
-			
 			return "redirect:/api/trip/listAll";
 		} catch (Exception e) {
 			e.printStackTrace();
+			
+			if (request.getStartAt() == null) {
+				request.setStartAt(LocalDateTime.now());
+			}
+			if (request.getEndAt() == null) {
+				request.setEndAt(LocalDateTime.now().plusDays(3));
+			}
+			
 			model.addAttribute("request", request);
+			model.addAttribute("jsKey", kakaoJsKey);
 			return "trip/writeForm";
 		}
 	}

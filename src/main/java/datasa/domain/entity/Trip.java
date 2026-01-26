@@ -63,6 +63,8 @@ public class Trip {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+	
+	
 
     @PrePersist
     protected void onCreate() {
@@ -74,8 +76,6 @@ public class Trip {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
 
     /* ===== ENUM ===== */
 	public enum Status {
