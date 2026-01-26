@@ -1,6 +1,7 @@
 package datasa.controller;
 
 import datasa.domain.dto.TripDetailResponse;
+import datasa.domain.dto.TripDetailResponseDto;
 import datasa.domain.dto.TripListResponseDto;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
@@ -44,10 +45,11 @@ public class TripApiController {
      * U_003 여행 상세 (API)
      */
     @GetMapping("/{tripId}")
-    public TripDetailResponse getTripDetail(
-            @PathVariable Long tripId
+    public TripDetailResponseDto getTripDetail(
+            @PathVariable Long tripId,
+            @RequestParam Long userId
     ) {
-        return tripService.getTripDetail(tripId);
+        return tripService.getTripDetail(tripId, userId);
     }
 
 }

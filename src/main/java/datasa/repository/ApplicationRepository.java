@@ -1,11 +1,9 @@
 package datasa.repository;
 
-import datasa.domain.dto.ApplicationStatusResponseDto;
 import datasa.domain.entity.Application;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
@@ -15,19 +13,17 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	
 	// 승인 인원 수
 	long countByTrip_TripIdAndStatus(Long tripId, Application.Status status);
-	
-//	// 신청 상태 조회 (DTO)
-//	@Query("""
-//			select new datasa.domain.dto.ApplicationStatusResponseDto(a.status)
-//			from Application a
-//			where a.trip.tripId = :tripId
-//			  and a.user.userId = :userId
-//			""")
-//	ApplicationStatusResponseDto findStatus(@Param("tripId") Long tripId,
-//											@Param("userId") Long userId);
-	
-	
+
+
+    // 내 신청 상태 조회
+    Optional<Application> findByTrip_TripIdAndUser_UserId(
+            Long tripId,
+            Long userId
+    );
+
 	// (다음 단계: 승인/거절용)
 	Optional<Application> findById(Long applicationId);
+
+    List<Application> findByTrip_TripId(Long tripId);
 }
 

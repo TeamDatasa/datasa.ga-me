@@ -28,9 +28,20 @@ public class SecurityConfig {
 								"/", "/login", "/signup",
 								"/css/**", "/js/**", "/images/**",
 								"/api/auth/**",
-								"/api/map/main"
+								"/api/map/main",
+                                "/trip",
+                                "/chat",
+                                "/api/trips/**",
+                                "/api/chat/**",
+                                "/api/application/**",
+                                "/host/**"
 						).permitAll()
-						.anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/api/application/**",
+                                "/api/chat/**")
+						.authenticated()
+                        .anyRequest().permitAll()
 				)
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

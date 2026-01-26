@@ -1,0 +1,20 @@
+<!-- host-application.html -->
+<button onclick="approve(5)">승인</button>
+<button onclick="reject(5)">거절</button>
+
+<script>
+    const hostUserId = 2; // 테스트용 호스트
+    const applicationId = 32; // DB에서 확인한 값
+
+    function approve(id) {
+      fetch(`/api/applications/${id}/approve?hostUserId=${hostUserId}`, {
+        method: "POST"
+      }).then(() => alert("승인 완료"));
+    }
+
+    function reject(id) {
+      fetch(`/api/applications/${id}/reject?hostUserId=${hostUserId}`, {
+        method: "POST"
+      }).then(() => alert("거절 완료"));
+    }
+</script>

@@ -182,39 +182,52 @@ public class TripService {
      * 및 신청
      *
      */
-        public TripDetailResponseDto getTripDetailview(Long tripId) {
-            Trip trip = tripRepository.findById(tripId)
-                    .orElseThrow(() ->
-                            new EntityNotFoundException("해당 여행이 존재하지 않습니다.")
-                    );
+    public TripDetailResponseDto getTripDetail(Long tripId, Long userId) {
 
-            long approvedCount =
-                    applicationRepository.countByTrip_TripIdAndStatus(
-                            tripId,
-                            Application.Status.APPROVED
-                    );
+        // 1️⃣ 여행 조회
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("해당 여행이 존재하지 않습니다.")
+                );
 
-            List<String> languages =
-                    tripLanguageRepository.findByTrip_TripId(tripId)
-                            .stream()
-                            .map(TripLanguage::getLanguageCode)
-                            .toList();
+        // 2️⃣ 승인 인원 수
+        long approvedCount =
+                applicationRepository.countByTrip_TripIdAndStatus(
+                        tripId,
+                        Application.Status.APPROVED
+                );
 
-            return new TripDetailResponseDto(
-                    trip.getTripId(),
-                    trip.getTitle(),
-                    trip.getDescription(),
-                    trip.getRegion(),
-                    trip.getTheme(),
-                    trip.getMaxParticipants(),
-                    trip.getEstimatedCost(),
-                    trip.getStartAt(),
-                    trip.getEndAt(),
-                    trip.getHostUser().getName(),
-                    approvedCount,
-                    languages
-            );
-        }
+        // 3️⃣ 언어 목록
+        List<String> languages =
+                tripLanguageRepository.findByTrip_TripId(tripId)
+                        .stream()
+                        .map(TripLanguage::getLanguageCode)
+                        .toList();
+
+        // 4️⃣ 내 신청 상태
+        String applicationStatus =
+                applicationRepository
+                        .findByTrip_TripIdAndUser_UserId(tripId, userId)
+                        .map(app -> app.getStatus().name())
+                        .orElse(null); // 아직 신청 안 함
+
+        // 5️⃣ DTO 조립
+        return new TripDetailResponseDto(
+                trip.getTripId(),
+                trip.getTitle(),
+                trip.getDescription(),
+                trip.getRegion(),
+                trip.getTheme(),
+                trip.getMaxParticipants(),
+                trip.getEstimatedCost(),
+                trip.getStartAt(),
+                trip.getEndAt(),
+                trip.getHostUser().getName(),
+                approvedCount,
+                languages,
+                applicationStatus
+        );
+    }
     }
 
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅방</title>
+    <style>
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<h3>채팅방</h3>
+
+<div id="messages"></div>
+
+<input id="msg" placeholder="메시지 입력"/>
+<button onclick="send()">전송</button>
+<button onclick="leave()">나가기</button>
+
+<script th:inline="javascript">
+    const tripId = [[${tripId}]];
+    const userId = 2; // 임시
+    let roomId = null;
+
+    // 1️⃣ 채팅방 ID 조회 (Trip 기준 1:1)
+    fetch(`/api/chat/room-id?tripId=${tripId}`)
+      .then(res => res.json())
+      .then(id => {
+        roomId = id;
+        loadMessages();
+        markRead();
+      });
+
+    function loadMessages() {
+      fetch(`/api/chat/rooms/${roomId}/messages?userId=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          messages.innerHTML = '';
+          data.content.forEach(m => {
+            const div = document.createElement('div');
+            div.innerText = m.sender.name + ': ' + (m.translatedText ?? m.originalText);
+            messages.appendChild(div);
+          });
+        });
+    }
+
+    function send() {
+      fetch(`/api/chat/rooms/${roomId}/messages?userId=${userId}&message=${msg.value}`, {
+        method: 'POST'
+      }).then(() => {
+        msg.value = '';
+        loadMessages();
+      });
+    }
+
+    function markRead() {
+      fetch(`/api/chat/rooms/${roomId}/read?userId=${userId}`, { method: 'POST' });
+    }
+
+    function leave() {
+      fetch(`/api/chat/rooms/${roomId}/leave?userId=${userId}`, { method: 'POST' })
+        .then(() => location.href = '/');
+    }
+</script>
+
+</body>
+</html>

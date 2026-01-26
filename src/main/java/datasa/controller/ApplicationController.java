@@ -1,10 +1,12 @@
 package datasa.controller;
 
 import datasa.domain.dto.ApplicationCreateResponseDto;
-import datasa.domain.dto.ApplicationStatusResponseDto;
+import datasa.domain.dto.ApplicationListResponseDto;
 import datasa.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,16 +26,30 @@ public class ApplicationController {
         return applicationService.applyTrip(tripId, userId);
     }
 
-    /**
-     * U_005 내 신청 상태 조회
-     */
-    @GetMapping("/trips/{tripId}/status")
-    public ApplicationStatusResponseDto myStatus(
-            @PathVariable Long tripId,
-            @RequestParam Long userId
+    @GetMapping("/trips/{tripId}")
+    public List<ApplicationListResponseDto> list(
+            @PathVariable Long tripId
     ) {
-        // return applicationService.getMyApplicationStatus(tripId, userId);
-		return null;
+        return applicationService.getApplicationsByTrip(tripId);
     }
+
+
+    @PostMapping("/{applicationId}/approve")
+    public void approve(
+            @PathVariable Long applicationId,
+            @RequestParam Long hostUserId
+    ) {
+        applicationService.approve(applicationId, hostUserId);
+    }
+
+    @PostMapping("/{applicationId}/reject")
+    public void reject(
+            @PathVariable Long applicationId,
+            @RequestParam Long hostUserId
+    ) {
+        applicationService.reject(applicationId, hostUserId);
+    }
+
+
 }
 

@@ -48,4 +48,16 @@ public class ChatMessage {
     protected void onSend() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public ChatMessage(ChatRoom chatRoom, User sender, String originalText) {
+        this.chatRoom = chatRoom;
+        this.sender = sender;
+        this.originalText = originalText;
+    }
+
+    public void applyTranslation(String translatedText, String targetLanguage) {
+        this.translatedText = translatedText;
+        this.targetLanguage = targetLanguage;
+    }
+
 }

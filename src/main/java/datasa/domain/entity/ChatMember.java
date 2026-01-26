@@ -47,4 +47,20 @@ public class ChatMember {
     public boolean isActive() {
         return leftAt == null;
     }
+
+    public ChatMember(ChatRoom chatRoom, User user) {
+        this.chatRoom = chatRoom;
+        this.user = user;
+    }
+
+    public void leave() {
+        this.leftAt = LocalDateTime.now();
+    }
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
+
+    public void markAsRead() {
+        this.readAt = LocalDateTime.now();
+    }
+
 }
