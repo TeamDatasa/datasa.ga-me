@@ -15,6 +15,22 @@
         .badge { display:inline-block; padding: 2px 8px; border: 1px solid #ccc; border-radius: 999px; font-size: 12px; }
         .desc { max-width: 420px; }
         .nowrap { white-space: nowrap; }
+
+        /* 좋아요 UI */
+        .like-btn {
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 999px;
+            padding: 4px 10px;
+            cursor: pointer;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
+        .like-btn[data-liked="false"] .heart { color: #777; }
+        .like-btn[data-liked="true"]  .heart { color: #e0245e; }
+        .heart { font-size: 16px; line-height: 1; }
+        .like-count { font-size: 13px; color: #333; min-width: 16px; text-align:right; }
     </style>
 </head>
 
@@ -25,12 +41,10 @@
     <a th:href="@{/api/trip/write}">게시글 작성</a>
 </div>
 
-<!-- 목록이 비었을 때 -->
 <div th:if="${boardList == null or #lists.isEmpty(boardList)}" class="muted">
     아직 작성된 게시글이 없습니다.
 </div>
 
-<!-- 목록이 있을 때 -->
 <table th:if="${boardList != null and !#lists.isEmpty(boardList)}">
     <thead>
     <tr>
@@ -44,9 +58,10 @@
         <th class="nowrap">소요(분)</th>
         <th class="nowrap">비용(KRW)</th>
         <th class="nowrap">작성일</th>
+        <th class="nowrap">좋아요</th>
+        <th class="nowrap">삭제</th>
     </tr>
     </thead>
-
 
     <tbody>
     <tr th:each="trip : ${boardList}">
@@ -59,11 +74,7 @@
                 </a>
             </div>
 
-
-            <!-- description 안전 출력: null 처리 + 길이별 출력 분리 -->
-            <div class="muted desc" th:if="${trip.description == null}">
-                -
-            </div>
+            <div class="muted desc" th:if="${trip.description == null}">-</div>
 
             <div class="muted desc"
                  th:if="${trip.description != null and trip.description.length() <= 80}"
@@ -99,7 +110,20 @@
         </td>
 
         <td class="nowrap" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">-</td>
-        <td>
+
+        <!-- 좋아요 -->
+        <td class="nowrap">
+            <button type="button"
+                    class="like-btn"
+                    th:attr="data-trip-id=${trip.tripId}, data-liked=${trip.likedByMe}"
+                    onclick="toggleTripLike(this)">
+                <span class="heart" th:text="${trip.likedByMe} ? '❤' : '♡'">♡</span>
+                <span class="like-count" th:text="${trip.likeCount}">0</span>
+            </button>
+        </td>
+
+        <!-- 삭제 -->
+        <td class="nowrap">
             <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
                   onsubmit="return confirm('삭제하시겠습니까?');"
                   style="display:inline;">
@@ -109,6 +133,30 @@
     </tr>
     </tbody>
 </table>
+
+<script>
+    async function toggleTripLike(btn) {
+        const tripId = btn.getAttribute("data-trip-id");
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`/api/trip/${tripId}/like`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!res.ok) throw new Error(res.status);
+
+            const data = await res.json(); // {liked: boolean, count: number}
+            btn.setAttribute("data-liked", String(data.liked));
+            btn.querySelector(".heart").innerText = data.liked ? "❤" : "♡";
+            btn.querySelector(".like-count").innerText = data.count;
+
+        } finally {
+            btn.disabled = false;
+        }
+    }
+</script>
 
 </body>
 </html>

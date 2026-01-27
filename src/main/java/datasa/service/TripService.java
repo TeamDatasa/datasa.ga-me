@@ -13,10 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
+import java.util.*;
 
 @Service
 @Slf4j
@@ -28,6 +25,9 @@ public class TripService {
 	private final TripLanguageRepository tripLanguageRepository;
 	private final TripLocationRepository tripLocationRepository;
 	private final LocationRepository locationRepository;
+	
+	private static final Long TEST_USER_ID = 1L;
+	private final TripLikeRepository tripLikeRepository;
 
 
 //	public TripDetailResponse getTripDetail(Long boardNum) {
@@ -77,29 +77,56 @@ public class TripService {
 //	}
 	
 	// bjh
+	@Transactional(readOnly = true)
 	public List<TripListResponse> getListAll() {
+		
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		
 		List<Trip> entityList = tripRepository.findAll(sort);
-		List<TripListResponse> dtoList = new ArrayList<>();
-		for (Trip entity : entityList) {
-			TripListResponse dto = TripListResponse.builder()
-					.tripId(entity.getTripId())
-					.hostUserId(entity.getHostUser().getUserId())
-					.title(entity.getTitle())
-					.description(entity.getDescription())
-					.estimatedCost(entity.getEstimatedCost())
-					.maxParticipants(entity.getMaxParticipants())
-					.durationMinutes(entity.getDurationMinutes())
-					.startAt(entity.getStartAt())
-					.endAt(entity.getEndAt())
-					.status(entity.getStatus())
-					.createdAt(entity.getCreatedAt())
-					.updatedAt(entity.getUpdatedAt())
-					.build();
-			dtoList.add(dto);
+		if (entityList.isEmpty()) return List.of();
+		
+		// 1) DTO 기본 구성
+		List<TripListResponse> baseList = entityList.stream()
+				.map(TripListResponse::from)
+				.toList();
+		
+		List<Long> tripIds = baseList.stream()
+				.map(TripListResponse::getTripId)
+				.toList();
+		
+		// 2) 좋아요 카운트 일괄 조회
+		java.util.Map<Long, Long> countMap = new java.util.HashMap<>();
+		for (Object[] row : tripLikeRepository.countByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			Long cnt = (Long) row[1];
+			countMap.put(tripId, cnt);
 		}
-		return dtoList;
+		
+		// 3) 내가 좋아요한 tripId 일괄 조회
+		java.util.Set<Long> likedSet = new java.util.HashSet<>(
+				tripLikeRepository.findLikedTripIds(TEST_USER_ID, tripIds)
+		);
+		
+		// 4) enrich 후 반환(불변 DTO 유지)
+		return baseList.stream()
+				.map(dto -> TripListResponse.builder()
+						.tripId(dto.getTripId())
+						.hostUserId(dto.getHostUserId())
+						.hostName(dto.getHostName())
+						.title(dto.getTitle())
+						.description(dto.getDescription())
+						.estimatedCost(dto.getEstimatedCost())
+						.maxParticipants(dto.getMaxParticipants())
+						.durationMinutes(dto.getDurationMinutes())
+						.startAt(dto.getStartAt())
+						.endAt(dto.getEndAt())
+						.status(dto.getStatus())
+						.createdAt(dto.getCreatedAt())
+						.updatedAt(dto.getUpdatedAt())
+						.likeCount(countMap.getOrDefault(dto.getTripId(), 0L))
+						.likedByMe(likedSet.contains(dto.getTripId()))
+						.build())
+				.toList();
 	}
 	
 	@Transactional
@@ -330,10 +357,6 @@ public class TripService {
 		tl.setOrderNo(orderNo);
 		tripLocationRepository.save(tl);
 	}
-	
-	
-	
-	
 	
 	
 	/**
