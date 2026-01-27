@@ -23,6 +23,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable())
+                )
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
@@ -35,13 +38,13 @@ public class SecurityConfig {
                     "/mypage/details",
                     "/api/map/main",
                     "/trip",
-                    "/chat",
+                    "/chat/**",
                     "/api/trips/**",
-                    "/host/**"
+                    "/host/**","/ws/**"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(
-                    "/api/application/**",
+                    "/api/applications/**",
                     "/api/chat/**"
                 ).authenticated()
                 .anyRequest().authenticated()
