@@ -2,10 +2,118 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("signupForm");
   if (!form) return;
 
+  const emailInput = document.getElementById("email");
+  const sendCodeBtn = document.getElementById("sendCodeBtn");
+  const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+  const codeInput = document.getElementById("verificationCode");
+  const statusEl = document.getElementById("emailVerifyStatus");
+  const signupBtn = document.getElementById("signupBtn");
+
+  let isEmailVerified = false;
+
+  const setStatus = (text) => {
+    if (statusEl) statusEl.textContent = text;
+  };
+
+  const setVerifiedState = (verified) => {
+    isEmailVerified = verified;
+
+    if (signupBtn) signupBtn.disabled = !verified;
+
+    if (verified) {
+      setStatus("✅ Email verified.");
+      if (sendCodeBtn) sendCodeBtn.disabled = true;
+      if (verifyCodeBtn) verifyCodeBtn.disabled = true;
+      if (emailInput) emailInput.readOnly = true;
+      if (codeInput) codeInput.readOnly = true;
+    }
+  };
+
+  if (emailInput) {
+    emailInput.addEventListener("input", () => {
+      isEmailVerified = false;
+      if (signupBtn) signupBtn.disabled = true;
+      if (sendCodeBtn) sendCodeBtn.disabled = false;
+      if (verifyCodeBtn) verifyCodeBtn.disabled = false;
+      if (emailInput) emailInput.readOnly = false;
+      if (codeInput) codeInput.readOnly = false;
+      setStatus("");
+    });
+  }
+
+  // Send verification code
+  if (sendCodeBtn) {
+    sendCodeBtn.addEventListener("click", async () => {
+      const email = emailInput?.value?.trim();
+      if (!email) {
+        alert("Please enter your email address.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/email/send-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(text || "Failed to send verification code.");
+        }
+
+        setStatus("Verification code sent. Please check your email.");
+        alert("Verification code sent.");
+      } catch (err) {
+        alert(err?.message || "Failed to send verification code.");
+      }
+    });
+  }
+
+  // Verify code
+  if (verifyCodeBtn) {
+    verifyCodeBtn.addEventListener("click", async () => {
+      const email = emailInput?.value?.trim();
+      const code = codeInput?.value?.trim();
+
+      if (!email) {
+        alert("Please enter your email address.");
+        return;
+      }
+      if (!code) {
+        alert("Please enter the 6-digit verification code.");
+        return;
+      }
+      if (!/^\d{6}$/.test(code)) {
+        alert("Verification code must be 6 digits.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/auth/email/verify-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code }),
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(text || "Invalid or expired verification code.");
+        }
+
+        setVerifiedState(true);
+        alert("Email verification successful.");
+      } catch (err) {
+        alert(err?.message || "Invalid or expired verification code.");
+      }
+    });
+  }
+
+  // Signup submit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email")?.value?.trim();
+    const email = emailInput?.value?.trim();
     const password = document.getElementById("password")?.value ?? "";
     const passwordConfirm = document.getElementById("passwordConfirm")?.value ?? "";
     const name = document.getElementById("name")?.value?.trim();
@@ -19,35 +127,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!name) return alert("Please enter your name.");
     if (!role) return alert("Please select a user role.");
 
-    const payload = {
-      email: email,
-      password: password,
-      name: name,
-      role: role,
-    };
+    if (!isEmailVerified) {
+      alert("Please verify your email before signing up.");
+      return;
+    }
+
+    const payload = { email, password, name, role };
 
     try {
-      // 회원가입 API 호출
       const response = await fetch("/api/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      // 응답이 실패인 경우
       if (!response.ok) {
         const contentType = response.headers.get("content-type") || "";
         let errorMessage = "Sign up failed.";
 
-        // JSON 에러 응답 처리
         if (contentType.includes("application/json")) {
           const errorData = await response.json().catch(() => null);
           errorMessage = errorData?.message || errorData?.error || errorMessage;
-        }
-        // 텍스트 에러 응답 처리
-        else {
+        } else {
           const text = await response.text().catch(() => "");
           if (text) errorMessage = text;
         }
@@ -55,12 +156,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(errorMessage);
       }
 
-      // 회원가입 성공 처리
       alert("Account created successfully!");
-      window.location.href = "/login";
-
+      window.location.href = "/auth/login";
     } catch (error) {
-      // 회원가입 실패 시 에러 메시지 표시
       alert(error?.message || "Sign up failed.");
     }
   });

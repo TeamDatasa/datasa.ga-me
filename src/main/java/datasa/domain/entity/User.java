@@ -72,8 +72,11 @@ public class User {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
+	
+	@Column(name = "email_verified", nullable = false)
+	private Boolean emailVerified = false;
+	
+	@PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -139,5 +142,13 @@ public class User {
 	public void changePassword(String passwordHash) {
 		this.passwordHash = passwordHash;
 	}
+	
+	// 인증 처리 메서드
+	public Boolean getEmailVerified() { return emailVerified; }
+	
+	public void verifyEmail() {
+		this.emailVerified = true;
+	}
+	
 	
 }

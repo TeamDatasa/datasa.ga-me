@@ -18,6 +18,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PasswordResetService {
 	
+	private final MailService mailService;
 	private final UserRepository userRepository;
 	private final PasswordResetTokenRepository tokenRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -41,12 +42,7 @@ public class PasswordResetService {
 		
 		String link = baseUrl + "/auth/reset-password?token=" + token;
 		
-		// 실제 메일 발송으로 교체
-		System.out.println("=== PASSWORD RESET LINK ===");
-		System.out.println("TO: " + email);
-		System.out.println("LINK: " + link);
-		System.out.println("EXPIRES: " + expiresAt);
-		System.out.println("===========================");
+		mailService.sendPasswordResetMail(email, link, expiresAt.toString());
 		
 	}
 	@Transactional
@@ -66,4 +62,6 @@ public class PasswordResetService {
 		userRepository.save(user);
 		tokenRepository.save(prt);
 	}
+	
+	
 }
