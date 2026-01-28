@@ -25,12 +25,21 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+				.requestMatchers(
+					"/", "/index", "/favicon.ico",
+					"/css/**", "/js/**", "/images/**", "/webjars/**",
+					"/error",
+					"/login", "/signup",
+					"/auth/**"
+					).permitAll()
+					
                 .requestMatchers(
                     "/api/auth/password/**",
                     "/api/map/naver",
                     "/api/map/places",
                     "/api/map/kakao",
                     "/api/trip/**",
+					"/api/auth/email/**",
                     "/mypage",
                     "/mypage/details",
                     "/api/map/main",
