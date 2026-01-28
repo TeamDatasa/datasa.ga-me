@@ -1,25 +1,41 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>여행 글 수정</title>
+
+    <!-- Kakao Maps SDK (writeForm과 동일) -->
+    <script type="text/javascript"
+            th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${jsKey} + '&libraries=services'">
+    </script>
 </head>
+
 <body>
 <h1>여행 글 수정</h1>
 
 <form th:action="@{/api/trip/update}" method="post" th:object="${request}">
 
-    <input type="hidden" th:field="*{tripId}" />
+    <!-- 필수 -->
+    <input type="hidden" th:field="*{tripId}"/>
 
-    <input th:field="*{title}" />
-    <textarea th:field="*{description}"></textarea>
+    <div>
+        <label for="title">제목</label><br/>
+        <input id="title" type="text" th:field="*{title}" maxlength="120" required/>
+    </div>
+    <br/>
+
+    <div>
+        <label for="description">설명</label><br/>
+        <textarea id="description" th:field="*{description}" rows="6" cols="60" required></textarea>
+    </div>
+    <br/>
 
     <div>
         <label for="region">지역(시)</label><br/>
         <select id="region" th:field="*{region}" required>
-            <option value="" disabled selected>선택하세요</option>
+            <option value="" disabled>선택하세요</option>
 
-            <!-- 오름차순 정렬된 시 목록 -->
             <option value="가평">가평</option>
             <option value="강릉">강릉</option>
             <option value="거제">거제</option>
@@ -97,17 +113,400 @@
     </div>
     <br/>
 
-    <input type="number" th:field="*{estimatedCost}" />
-    <input type="number" th:field="*{maxParticipants}" />
-    <input type="number" th:field="*{durationMinutes}" />
+    <div>
+        <label for="estimatedCost">예상 비용(KRW)</label><br/>
+        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
+    </div>
+    <br/>
 
-    <input type="datetime-local" th:field="*{startAt}" />
-    <input type="datetime-local" th:field="*{endAt}" />
+    <div>
+        <label for="maxParticipants">최대 인원</label><br/>
+        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
+    </div>
+    <br/>
 
-    <input th:field="*{theme}" />
+    <div>
+        <label for="durationMinutes">소요 시간(분)</label><br/>
+        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required/>
+    </div>
+    <br/>
 
+    <div>
+        <label for="theme">테마</label><br/>
+        <select id="theme" th:field="*{theme}" required>
+            <option value="" disabled>선택하세요</option>
+            <option value="FOOD">맛집</option>
+            <option value="NATURE">자연</option>
+            <option value="CITY">도시</option>
+            <option value="CULTURE">문화</option>
+            <option value="NIGHT">야경</option>
+        </select>
+    </div>
+    <br/>
+
+    <div>
+        <label for="startAt">시작 일자/시간</label><br/>
+        <input id="startAt" type="datetime-local"
+               th:field="*{startAt}"
+               th:value="${request.startAt != null ? #temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
+               required/>
+    </div>
+    <br/>
+
+    <div>
+        <label for="endAt">끝나는 일자/시간</label><br/>
+        <input id="endAt" type="datetime-local"
+               th:field="*{endAt}"
+               th:value="${request.endAt != null ? #temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
+               required/>
+    </div>
+    <br/>
+
+    <!-- ================== MAP (writeForm과 동일) ================== -->
+    <div style="margin-top:16px;">
+        <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 검색</label>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <input id="keyword" type="text"
+                   placeholder="예: 부산역"
+                   style="padding:8px; width:280px;"
+                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchPlaces(); }"/>
+            <button type="button" onclick="searchPlaces()" style="padding:8px 12px; cursor:pointer;">검색</button>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+            <div id="map" style="width: 640px; height: 360px; border:1px solid #ddd; border-radius:10px;"></div>
+
+            <div style="width: 320px; max-height:360px; overflow:auto; border:1px solid #eee; border-radius:10px; padding:10px;">
+                <div style="font-weight:bold; margin-bottom:8px;">검색 결과</div>
+                <ul id="placesList"
+                    style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;"></ul>
+                <div id="pagination" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- 선택된 장소 1개 전송용(유지) -->
+        <input type="hidden" name="placeName" id="placeName">
+        <input type="hidden" name="placeId" id="placeId">
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lng" id="lng">
+        <input type="hidden" name="address" id="address">
+
+        <div style="margin-top:8px; color:#666; font-size:13px;">
+            선택된 장소: <span id="pickedText">아직 선택되지 않았습니다.</span>
+        </div>
+
+        <!-- 일정 목록 UI -->
+        <div style="margin-top:14px; border:1px solid #eee; border-radius:10px; padding:12px;">
+            <div style="font-weight:bold; margin-bottom:8px;">일정(선택한 장소 목록)</div>
+
+            <div id="scheduleList" style="display:flex; flex-direction:column; gap:8px;">
+                <div style="color:#888; font-size:13px;" id="scheduleEmptyText">
+                    아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.
+                </div>
+            </div>
+
+            <!-- ✅ 서버에서 넘어온 schedulePlaces 복원용(읽기 전용) -->
+            <div id="scheduleHiddenFieldsServer" style="display:none;">
+                <th:block th:if="${request.schedulePlaces != null}">
+                    <th:block th:each="p, stat : ${request.schedulePlaces}">
+                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].placeId'" th:value="${p.placeId}">
+                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].placeName'" th:value="${p.placeName}">
+                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].address'" th:value="${p.address}">
+                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].lat'" th:value="${p.lat}">
+                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].lng'" th:value="${p.lng}">
+                    </th:block>
+                </th:block>
+            </div>
+
+            <!-- ✅ JS가 제출용 hidden input들을 여기에 동적으로 생성 -->
+            <div id="scheduleHiddenFields"></div>
+        </div>
+    </div>
+    <!-- ================== /MAP ================== -->
+
+    <br/>
     <button type="submit">수정</button>
+    <a th:href="@{/api/trip/detail/{id}(id=${request.tripId})}">취소</a>
 </form>
 
+<script>
+    let map, ps, infowindow;
+    let markers = [];
+
+    // 일정 목록 상태
+    // { placeId, placeName, address, lat, lng }
+    let schedulePlaces = [];
+
+    function initKakaoMap() {
+      map = new kakao.maps.Map(document.getElementById('map'), {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567),
+        level: 3
+      });
+
+      ps = new kakao.maps.services.Places(map);
+      infowindow = new kakao.maps.InfoWindow({zIndex: 1});
+    }
+
+    // SDK 로드 완료 후에만 초기화
+    kakao.maps.load(function () {
+      initKakaoMap();
+    });
+
+    function searchPlaces() {
+      const keyword = document.getElementById('keyword').value.trim();
+      if (!keyword) return;
+      ps.keywordSearch(keyword, placesSearchCB);
+    }
+
+    function placesSearchCB(data, status, pagination) {
+      if (status !== kakao.maps.services.Status.OK) {
+        clearResults();
+        return;
+      }
+      displayPlaces(data);
+      displayPagination(pagination);
+    }
+
+    function displayPlaces(places) {
+      const listEl = document.getElementById('placesList');
+      const bounds = new kakao.maps.LatLngBounds();
+
+      clearMarkers();
+      listEl.innerHTML = '';
+
+      places.forEach((place) => {
+        const position = new kakao.maps.LatLng(place.y, place.x);
+        bounds.extend(position);
+
+        const marker = addMarker(position);
+        const itemEl = makeListItem(place);
+
+        itemEl.addEventListener('click', () => selectPlace(place, position));
+        kakao.maps.event.addListener(marker, 'click', () => selectPlace(place, position));
+
+        listEl.appendChild(itemEl);
+      });
+
+      map.setBounds(bounds);
+    }
+
+    function makeListItem(place) {
+      const li = document.createElement('li');
+      li.style.border = '1px solid #eee';
+      li.style.borderRadius = '10px';
+      li.style.padding = '10px';
+      li.style.cursor = 'pointer';
+
+      const addr = place.road_address_name || place.address_name || '';
+      li.innerHTML = `
+        <div style="font-weight:bold;">${escapeHtml(place.place_name)}</div>
+        <div style="font-size:12px; color:#666; margin-top:4px;">${escapeHtml(addr)}</div>
+      `;
+      return li;
+    }
+
+    function addMarker(position) {
+      const marker = new kakao.maps.Marker({position, map});
+      markers.push(marker);
+      return marker;
+    }
+
+    function selectPlace(place, position) {
+      const lat = position.getLat();
+      const lng = position.getLng();
+      const addr = place.road_address_name || place.address_name || '';
+
+      // 단일 선택 전송값(유지)
+      document.getElementById('placeName').value = place.place_name || '';
+      document.getElementById('placeId').value = place.id || '';
+      document.getElementById('lat').value = String(lat);
+      document.getElementById('lng').value = String(lng);
+      document.getElementById('address').value = addr;
+
+      document.getElementById('pickedText').textContent =
+        `${place.place_name} / ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
+
+      // 일정 목록에 추가
+      addSchedulePlace({
+        placeId: String(place.id || ''),
+        placeName: String(place.place_name || ''),
+        address: String(addr || ''),
+        lat: Number(lat),
+        lng: Number(lng)
+      });
+    }
+
+    // 일정 추가 (중복 방지)
+    function addSchedulePlace(item) {
+      if (!item.placeName) return;
+
+      const key = item.placeId || `${item.placeName}|${item.lat}|${item.lng}`;
+      const exists = schedulePlaces.some(p => (p.placeId || `${p.placeName}|${p.lat}|${p.lng}`) === key);
+      if (exists) return;
+
+      schedulePlaces.push(item);
+      renderSchedulePlaces();
+    }
+
+    // 일정 삭제
+    function removeSchedulePlace(index) {
+      if (index < 0 || index >= schedulePlaces.length) return;
+      schedulePlaces.splice(index, 1);
+      renderSchedulePlaces();
+    }
+
+    // ====== 서버 hidden 복원 ======
+    document.addEventListener('DOMContentLoaded', function () {
+      loadSchedulePlacesFromHidden();
+      renderSchedulePlaces();
+    });
+
+    function loadSchedulePlacesFromHidden() {
+      const hiddenRoot = document.getElementById('scheduleHiddenFieldsServer'); // 서버용 div
+      if (!hiddenRoot) return;
+
+      const placeNameInputs = hiddenRoot.querySelectorAll('input[name^="schedulePlaces["][name$=".placeName"]');
+      if (!placeNameInputs || placeNameInputs.length === 0) return;
+
+      schedulePlaces = [];
+
+      for (let i = 0; i < placeNameInputs.length; i++) {
+        const base = `schedulePlaces[${i}]`;
+
+        const placeId = hiddenRoot.querySelector(`input[name="${base}.placeId"]`)?.value ?? '';
+        const placeName = hiddenRoot.querySelector(`input[name="${base}.placeName"]`)?.value ?? '';
+        const address = hiddenRoot.querySelector(`input[name="${base}.address"]`)?.value ?? '';
+        const latStr = hiddenRoot.querySelector(`input[name="${base}.lat"]`)?.value ?? '';
+        const lngStr = hiddenRoot.querySelector(`input[name="${base}.lng"]`)?.value ?? '';
+
+        if (!placeName) continue;
+
+        const lat = latStr !== '' ? Number(latStr) : null;
+        const lng = lngStr !== '' ? Number(lngStr) : null;
+
+        schedulePlaces.push({
+          placeId,
+          placeName,
+          address,
+          lat: Number.isFinite(lat) ? lat : null,
+          lng: Number.isFinite(lng) ? lng : null
+        });
+      }
+    }
+
+    function renderSchedulePlaces() {
+      const listEl = document.getElementById('scheduleList');
+      const hiddenEl = document.getElementById('scheduleHiddenFields'); // JS 제출용 div
+
+      listEl.innerHTML = '';
+      hiddenEl.innerHTML = '';
+
+      if (!schedulePlaces || schedulePlaces.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.id = 'scheduleEmptyText';
+        emptyDiv.style.color = '#888';
+        emptyDiv.style.fontSize = '13px';
+        emptyDiv.textContent = '아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.';
+        listEl.appendChild(emptyDiv);
+        return;
+      }
+
+      schedulePlaces.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '10px';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.border = '1px solid #f0f0f0';
+        row.style.borderRadius = '10px';
+        row.style.padding = '10px';
+
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.flexDirection = 'column';
+        left.style.gap = '4px';
+
+        const title = document.createElement('div');
+        title.style.fontWeight = 'bold';
+        title.textContent = `${p.placeName} | ${p.address || ''}`;
+        left.appendChild(title);
+
+        if (p.lat != null && p.lng != null && Number.isFinite(p.lat) && Number.isFinite(p.lng)) {
+          const sub = document.createElement('div');
+          sub.style.fontSize = '12px';
+          sub.style.color = '#666';
+          sub.textContent = `(lat=${p.lat.toFixed(6)}, lng=${p.lng.toFixed(6)})`;
+          left.appendChild(sub);
+        }
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = '삭제';
+        btn.style.padding = '6px 10px';
+        btn.style.cursor = 'pointer';
+        btn.onclick = () => removeSchedulePlace(idx);
+
+        row.appendChild(left);
+        row.appendChild(btn);
+        listEl.appendChild(row);
+
+        // 제출용 hidden inputs 생성
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeId`, p.placeId));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeName`, p.placeName));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].address`, p.address));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lat`, p.lat == null ? '' : String(p.lat)));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lng`, p.lng == null ? '' : String(p.lng)));
+      });
+    }
+
+    function makeHidden(name, value) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value ?? '';
+      return input;
+    }
+
+    function displayPagination(pagination) {
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+
+      for (let i = 1; i <= pagination.last; i++) {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = i;
+        a.style.marginRight = '8px';
+        a.onclick = (function (i) {
+          return function () {
+            pagination.gotoPage(i);
+            return false;
+          }
+        })(i);
+
+        paginationEl.appendChild(a);
+      }
+    }
+
+    function clearMarkers() {
+      markers.forEach(m => m.setMap(null));
+      markers = [];
+    }
+
+    function clearResults() {
+      clearMarkers();
+      document.getElementById('placesList').innerHTML = '';
+      document.getElementById('pagination').innerHTML = '';
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+</script>
 </body>
 </html>

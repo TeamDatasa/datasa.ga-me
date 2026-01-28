@@ -40,13 +40,16 @@ public class SecurityConfig {
                     "/api/map/kakao",
                     "/api/trip/**",
 					"/api/auth/email/**",
+					"/api/trip/update/**",
                     "/mypage",
                     "/mypage/details",
                     "/api/map/main",
                     "/trip",
                     "/chat",
                     "/api/trips/**",
-                    "/host/**"
+                    "/host/**",
+					"/css/**", "/js/**", "/images/**",
+					"/favicon.ico"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(

@@ -44,5 +44,11 @@ public class TripDetailResponse {
 	private Integer editLockDays;
 	
 	private List<TripLocationItemResponse> locations;
-
+	
+	// like
+	private long likeCount;
+	private boolean likedByMe;
+	
+	// region
+	private String region;
 }

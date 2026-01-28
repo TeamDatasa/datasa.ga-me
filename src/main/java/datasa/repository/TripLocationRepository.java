@@ -16,4 +16,6 @@ public interface TripLocationRepository extends JpaRepository<TripLocation, Long
 	
 	
 	List<TripLocation> findByTrip_TripIdOrderByOrderNoAsc(Long tripId);
+	
+	void deleteByTrip(Trip trip);
 }
