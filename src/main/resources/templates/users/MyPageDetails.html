@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>My Page Details</title>
@@ -19,11 +19,21 @@
         <h3>Details</h3>
         <p class="hint">This page will show different content depending on your role.</p>
 
-        <div class="grid">
-            <a class="card" href="/auth/forgot-password">Reset Password</a>
+        <div th:with="r=${role != null ? #strings.toUpperCase(#strings.trim(role.toString())) : ''}">
+
+            <div th:if="${r == 'USER'}"
+                 th:replace="users/MyPageDetailsUser :: content"></div>
+
+            <div th:if="${r == 'HOST'}"
+                 th:replace="users/MyPageDetailsHost :: content"></div>
+
+            <div th:if="${r != 'USER' and r != 'HOST'}" class="hint">
+                Your role information is not available.
+            </div>
+
+            <div class="hint">Current role: <span th:text="${r}"></span></div>
         </div>
 
-        <div id="detailsRoleHint" class="hint"></div>
     </section>
 
 </div>

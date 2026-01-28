@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <title>My Page</title>
@@ -45,6 +45,25 @@
                         <label>Date of Birth *</label>
                         <input type="date" id="birthDate" required />
                     </div>
+
+                    <div class="row">
+                        <label>Role *</label>
+
+                        <div class="role-toggle" role="group" aria-label="Role toggle">
+                            <button type="button" class="role-pill"
+                                    data-role="USER"
+                                    onclick="setRole('USER')">USER</button>
+
+                            <button type="button" class="role-pill"
+                                    data-role="HOST"
+                                    onclick="setRole('HOST')">HOST</button>
+                        </div>
+
+                        <p class="hint">Switching to HOST enables tour management features.</p>
+                    </div>
+
+                    <input type="hidden" id="currentRole" th:value="${user.role}" />
+
 
                     <div class="row">
                         <label>Gender *</label>
