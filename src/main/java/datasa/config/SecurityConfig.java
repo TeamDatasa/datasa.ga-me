@@ -37,7 +37,9 @@ public class SecurityConfig {
                     "/trip",
                     "/chat",
                     "/api/trips/**",
-                    "/host/**"
+                    "/host/**",
+					"/css/**", "/js/**", "/images/**",
+					"/favicon.ico"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(
