@@ -40,7 +40,8 @@ public class PasswordResetService {
 		
 		tokenRepository.save(PasswordResetToken.create(user, token, expiresAt));
 		
-		String link = baseUrl + "/auth/reset-password?token=" + token;
+		String link = baseUrl + "/reset-password?token=" +
+				java.net.URLEncoder.encode(token, java.nio.charset.StandardCharsets.UTF_8);
 		
 		mailService.sendPasswordResetMail(email, link, expiresAt.toString());
 		

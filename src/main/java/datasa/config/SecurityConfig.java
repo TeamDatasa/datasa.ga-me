@@ -28,7 +28,7 @@ public class SecurityConfig {
 				.requestMatchers(
 					"/", "/index", "/favicon.ico",
 					"/css/**", "/js/**", "/images/**", "/webjars/**",
-					"/error",
+					"/error", "/reset-password",
 					"/login", "/signup",
 					"/auth/**"
 					).permitAll()
@@ -52,6 +52,7 @@ public class SecurityConfig {
 					"/favicon.ico"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers("/mypage/**", "/api/mypage/**").authenticated()
                 .requestMatchers(
                     "/api/application/**",
                     "/api/chat/**"

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="content">
+
+    <!-- Quick Summary -->
+    <div class="grid">
+        <div class="card">
+            <div class="card-title">Application Status</div>
+            <div class="card-meta">Pending / Approved / Rejected</div>
+
+            <!-- 서버 렌더링이면 counts 넣어서 숫자 표시 가능 -->
+            <div class="status-badges">
+                <span class="status pending">Pending <b th:text="${counts != null ? counts.pending() : 0}">0</b></span>
+                <span class="status approved">Approved <b th:text="${counts != null ? counts.approved() : 0}">0</b></span>
+                <span class="status rejected">Rejected <b th:text="${counts != null ? counts.rejected() : 0}">0</b></span>
+            </div>
+        </div>
+
+        <a class="card" href="/auth/forgot-password">
+            <div class="card-title">Reset Password</div>
+            <div class="card-meta">Send a reset email</div>
+        </a>
+
+        <div class="card">
+            <div class="card-title">My Reviews</div>
+            <div class="card-meta">Create / Edit / Delete</div>
+            <p class="hint" style="margin:10px 0 0;">You can write reviews after the tour ends.</p>
+        </div>
+    </div>
+
+    <!-- My Tours -->
+    <div class="panel" style="margin-top: 18px;">
+        <h3>My Tours</h3>
+        <p class="hint">Approved tours you joined. Reviews are available after end time.</p>
+
+        <!-- 서버 렌더링 버전 -->
+        <ul class="list" th:if="${myTours != null and !#lists.isEmpty(myTours)}">
+            <li class="list-item" th:each="t : ${myTours}">
+                <div class="title" th:text="${t.title()}">Tour title</div>
+                <div class="meta">
+                    <span th:text="${t.region()}">Region</span>
+                    ·
+                    <span th:text="${t.startAt()}">Start</span>
+                    ~
+                    <span th:text="${t.endAt()}">End</span>
+                </div>
+
+                <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
+
+                    <!-- 후기 작성 가능 -->
+                    <button class="btn"
+                            th:if="${t.canReview()}"
+                            type="button"
+                            th:attr="data-trip-id=${t.tripId()},data-trip-title=${t.title()}"
+                            onclick="openReviewCreate(this)">
+                        Write Review
+                    </button>
+
+                    <!-- 후기 수정/삭제 가능 (reviewId 존재) -->
+                    <button class="btn"
+                            th:if="${t.reviewId() != null}"
+                            type="button"
+                            th:attr="data-review-id=${t.reviewId()},data-trip-title=${t.title()}"
+                            onclick="openReviewEdit(this)">
+                        Edit Review
+                    </button>
+
+                    <button class="btn btn-danger"
+                            th:if="${t.reviewId() != null}"
+                            type="button"
+                            th:attr="data-review-id=${t.reviewId()}"
+                            onclick="deleteReview(this)">
+                        Delete
+                    </button>
+                </div>
+            </li>
+        </ul>
+
+        <div class="empty" th:if="${myTours == null or #lists.isEmpty(myTours)}">
+            No approved tours yet.
+        </div>
+    </div>
+
+    <!-- Applications -->
+    <div class="panel">
+        <h3>My Applications</h3>
+        <p class="hint">Recent applications (pending/approved/rejected).</p>
+
+        <ul class="list" th:if="${myApplications != null and !#lists.isEmpty(myApplications)}">
+            <li class="list-item" th:each="a : ${myApplications}">
+                <div class="title" th:text="${a.tripTitle()}">Trip</div>
+                <div class="meta">
+                    <span th:text="${a.status()}">PENDING</span>
+                    <span th:if="${a.message() != null and a.message().length() > 0}">
+            · <span th:text="${a.message()}">message</span>
+          </span>
+                </div>
+            </li>
+        </ul>
+
+        <div class="empty" th:if="${myApplications == null or #lists.isEmpty(myApplications)}">
+            No applications yet.
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" onclick="closeReviewModal()"></div>
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-head">
+                <div>
+                    <div class="modal-title" id="reviewModalTitle">Write Review</div>
+                    <div class="modal-sub" id="reviewModalSub">Trip</div>
+                </div>
+                <button class="modal-x" onclick="closeReviewModal()" type="button">×</button>
+            </div>
+
+            <form class="form" onsubmit="return submitReview(event)">
+                <input type="hidden" id="reviewTripId" />
+                <input type="hidden" id="reviewId" />
+
+                <div class="row">
+                    <label>Rating (1~5)</label>
+                    <select id="reviewRating" required>
+                        <option value="5">5</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label>Content</label>
+                    <textarea id="reviewContent" placeholder="Write your experience..." required></textarea>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button class="btn btn-ghost" type="button" onclick="closeReviewModal()">Cancel</button>
+                    <button class="btn" type="submit">Save</button>
+                </div>
+
+                <p class="hint" id="reviewHint"></p>
+            </form>
+        </div>
+    </div>
+
+</section>
+</body>
+</html>

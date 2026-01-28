@@ -151,5 +151,11 @@ public class User {
 		this.emailVerified = true;
 	}
 	
+	// Role 변경
+	public void changeRole(Role role) {
+		this.role = role;
+	}
+	
+	
 	
 }

@@ -25,5 +25,20 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	Optional<Application> findById(Long applicationId);
 
     List<Application> findByTrip_TripId(Long tripId);
+	
+	// 유저 확인용
+	
+	boolean existsByUser_UserIdAndTrip_TripIdAndStatus(
+			Long userId, Long tripId, Application.Status status
+	);
+	
+	List<Application> findTop20ByUser_UserIdOrderByApplicationIdDesc(Long userId);
+	
+	List<Application> findByUser_UserIdAndStatusOrderByApplicationIdDesc(
+			Long userId, Application.Status status
+	);
+	
+	long countByUser_UserIdAndStatus(Long userId, Application.Status status);
+	
 }
 

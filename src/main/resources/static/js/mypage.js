@@ -166,3 +166,40 @@ document.getElementById("resetPwBtn")?.addEventListener("click", () => {
   window.location.href = `/auth/forgot-password?email=${encodeURIComponent(email)}`;
 });
 
+
+(function initRolePills(){
+    const current = document.getElementById('currentRole')?.value || 'USER';
+    document.querySelectorAll('.role-pill').forEach(btn=>{
+      btn.classList.toggle('is-active', btn.dataset.role === current);
+    });
+  })();
+
+  async function setRole(role){
+    try{
+      const res = await fetch('/api/mypage/role', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role })
+      });
+
+      if(!res.ok){
+        const txt = await res.text();
+        alert('Role change failed: ' + txt);
+        return;
+      }
+
+      // UI 업데이트
+      document.getElementById('currentRole').value = role;
+      document.querySelectorAll('.role-pill').forEach(btn=>{
+        btn.classList.toggle('is-active', btn.dataset.role === role);
+      });
+
+
+      alert('Role updated to ' + role);
+    }catch(e){
+      alert('Role change error');
+      console.error(e);
+    }
+  }
+
+
