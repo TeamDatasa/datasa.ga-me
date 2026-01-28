@@ -27,24 +27,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			FilterChain filterChain
 	) throws ServletException, IOException {
 
-		String header = request.getHeader("Authorization");
-		String token = null;
+//		String header = request.getHeader("Authorization");
+//		String token = null;
 
-		if (header != null && header.startsWith("Bearer ")) {
-			token = header.substring(7);
-		}
-
-		if (token != null && jwtTokenProvider.validate(token)) {
-			String email = jwtTokenProvider.getEmail(token);
-
-			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-			var auth = new UsernamePasswordAuthenticationToken(
-					userDetails, null, userDetails.getAuthorities()
-			);
-
-			SecurityContextHolder.getContext().setAuthentication(auth);
-		}
+//		if (header != null && header.startsWith("Bearer ")) {
+//			token = header.substring(7);
+//		}
+//
+//		if (token != null && jwtTokenProvider.validate(token)) {
+//			String email = jwtTokenProvider.getEmail(token);
+//
+//			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+//
+//			var auth = new UsernamePasswordAuthenticationToken(
+//					userDetails, null, userDetails.getAuthorities()
+//			);
+//
+//			SecurityContextHolder.getContext().setAuthentication(auth);
+//		}
 
 		filterChain.doFilter(request, response);
 		System.out.println("JWT FILTER HIT: " + request.getMethod() + " " + request.getRequestURI());

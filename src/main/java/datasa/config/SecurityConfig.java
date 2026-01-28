@@ -40,14 +40,10 @@ public class SecurityConfig {
                     "/trip",
                     "/chat/**",
                     "/api/trips/**",
-                    "/host/**","/ws/**"
+                    "/host/**","/ws/**","/api/chat/**"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(
-                    "/api/applications/**",
-                    "/api/chat/**"
-                ).authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

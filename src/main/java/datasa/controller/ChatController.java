@@ -9,6 +9,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @RequiredArgsConstructor
@@ -56,5 +59,14 @@ public class ChatController {
             }
         }
         return (Long) userIdObj;
+    }
+
+    @GetMapping("chat/room/{tripId}")
+    public String chatRoom(@PathVariable Long tripId, Model model) {
+        Long roomId = chatService.getOrCreateRoomIdByTrip(tripId);
+
+        model.addAttribute("tripId", tripId);
+        model.addAttribute("roomId", roomId);
+        return "chat-room";
     }
 }

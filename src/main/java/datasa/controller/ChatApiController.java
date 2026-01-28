@@ -1,86 +1,59 @@
-//package datasa.controller;
-//
-//import datasa.repository.ChatRoomRepository;
-//import datasa.service.ChatService;
-//import datasa.domain.entity.ChatMessage;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.web.bind.annotation.*;
-//
-//@RestController
-//@RequiredArgsConstructor
-//@RequestMapping("/api/chat")
-//public class ChatApiController {
-//
-//    private final ChatService chatService;
-//    private final ChatRoomRepository chatRoomRepository;
-//
-//    @GetMapping("/room-id")
-//    public Long getRoomId(@RequestParam Long tripId) {
-//        return chatRoomRepository.findByTrip_TripId(tripId)
-//                .orElseThrow()
-//                .getRoomId();
-//    }
-//
-//
-//    /* =========================
-//       메시지 전송
-//       POST /api/chat/rooms/{roomId}/messages
-//    ========================= */
-//    @PostMapping("/rooms/{roomId}/messages")
-//    public void sendMessage(
-//            @PathVariable Long roomId,
-//            @RequestParam Long userId,
-//            @RequestParam String message
-//    ) {
-//        chatService.sendMessage(roomId, userId, message);
-//    }
-//
-//    /* =========================
-//       메시지 조회 (페이징)
-//       GET /api/chat/rooms/{roomId}/messages
-//    ========================= */
-//    @GetMapping("/rooms/{roomId}/messages")
-//    public Page<ChatMessage> getMessages(
-//            @PathVariable Long roomId,
-//            @RequestParam Long userId,
-//            Pageable pageable
-//    ) {
-//        return chatService.getMessages(roomId, userId, pageable);
-//    }
-//
-//
-//    /* =========================
-//   메시지 번역 요청 (C_008)
-//   POST /api/chat/rooms/{roomId}/messages/{messageId}/translate
-//========================= */
-//    @PostMapping("/rooms/{roomId}/messages/{messageId}/translate")
-//    public void translateMessage(
-//            @PathVariable Long roomId,
-//            @PathVariable Long messageId,
-//            @RequestParam Long userId,
-//            @RequestParam String targetLanguage
-//    ) {
-//        chatService.translateMessage(
-//                messageId,
-//                roomId,
-//                userId,
-//                targetLanguage
-//        );
-//    }
-//
-//
-//    /* =========================
-//   채팅 나가기 (C_011)
-//   POST /api/chat/rooms/{roomId}/leave
-//========================= */
-//    @PostMapping("/rooms/{roomId}/leave")
-//    public void leaveChat(
-//            @PathVariable Long roomId,
-//            @RequestParam Long userId
-//    ) {
-//        chatService.leaveChat(roomId, userId);
-//    }
-//
-//}
+
+package datasa.controller;
+
+import datasa.domain.dto.ChatMessageResponseDto;
+import datasa.service.ChatService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/chat")
+@RequiredArgsConstructor
+public class ChatApiController {
+
+    private final ChatService chatService;
+
+
+    //채팅 히스토리
+    @GetMapping("/rooms/{roomId}/messages")
+    public Page<ChatMessageResponseDto> getMessages(
+            @PathVariable Long roomId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return chatService.getMessages(roomId, pageable);
+    }
+
+    //채팅 읽음 표시
+    @PostMapping("/rooms/{roomId}/read")
+    public void read(
+            @PathVariable Long roomId,
+            @RequestParam Long userId
+    ) {
+        chatService.markAsRead(roomId, userId);
+    }
+
+    @PostMapping("/messages/{messageId}/translate")
+    public void translateMessage(
+            @PathVariable Long messageId,
+            @RequestParam String targetLanguage
+    ) {
+        chatService.translateMessage(messageId, targetLanguage);
+    }
+
+
+    @PostMapping("/rooms/{roomId}/leave")
+    public void leaveRoom(
+            @PathVariable Long roomId,
+            @RequestParam Long userId
+    ) {
+        chatService.leaveRoom(roomId, userId);
+    }
+}
+
+
+

@@ -2,15 +2,15 @@ package datasa.service;
 
 import datasa.domain.dto.ChatMessageRequestDto;
 import datasa.domain.dto.ChatMessageResponseDto;
-import datasa.domain.entity.ChatMessage;
-import datasa.domain.entity.ChatRoom;
-import datasa.domain.entity.Trip;
-import datasa.domain.entity.User;
-import datasa.repository.ChatMessageRepository;
-import datasa.repository.ChatRoomRepository;
-import datasa.repository.TripRepository;
-import datasa.repository.UserRepository;
+import datasa.domain.entity.*;
+import datasa.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +20,13 @@ public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatMemberRepository chatMemberRepository;
 
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
-
+    private final SimpMessagingTemplate messagingTemplate;
     // ✅ 이미 프로젝트에 있는 "승인 사용자만 채팅 가능" 검증 로직을 여기에 연결하면 됨
-    // (아직 메서드가 없다면 내가 만들어줄게)
+
     private final ApplicationService applicationService;
 
     // 번역 기능이 실제로 있다면 주입해서 사용
@@ -37,7 +38,11 @@ public class ChatService {
      * userId는 세션에서, roomId는 destination variable에서만 받는다.
      */
     @Transactional
-    public ChatMessageResponseDto sendMessage(Long roomId, Long userId, ChatMessageRequestDto dto) {
+    public ChatMessageResponseDto sendMessage(
+            Long roomId,
+            Long userId,
+            ChatMessageRequestDto dto
+    ) {
         validateRequest(dto);
 
         ChatRoom room = chatRoomRepository.findById(roomId)
@@ -46,33 +51,23 @@ public class ChatService {
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다. userId=" + userId));
 
-        // ✅ 승인 사용자만 채팅 가능 (핵심)
-        // ChatRoom은 Trip과 1:1이므로 tripId를 꺼내서 검증
+        // 승인 사용자만 채팅 가능
         Trip trip = room.getTrip();
         applicationService.validateApprovedUser(trip.getTripId(), userId);
 
-        // 원문 저장
-        ChatMessage message = new ChatMessage(room, sender, dto.getOriginalText());
-
-        // (선택) 번역 요청이 있는 경우
-        if (dto.getTargetLanguage() != null && !dto.getTargetLanguage().isBlank()) {
-            String targetLang = dto.getTargetLanguage().trim();
-
-            // 실제 번역 서비스가 있으면 여기서 호출
-            // String translated = translationService.translate(dto.getOriginalText(), targetLang);
-
-            // 일단 MVP에서는 translatedText를 비워두거나, 테스트로 원문 그대로 넣어도 됨
-            // String translated = dto.getOriginalText();
-            String translated = null;
-
-            if (translated != null && !translated.isBlank()) {
-                message.applyTranslation(translated, targetLang);
-            }
-        }
-
+        //  원문 메시지 저장 (번역 X)
+        ChatMessage message = new ChatMessage(
+                room,
+                sender,
+                dto.getOriginalText()
+        );
         chatMessageRepository.save(message);
+
+
+        //  원문 DTO 즉시 반환 (WS 전송용)
         return ChatMessageResponseDto.from(message);
     }
+
 
     private void validateRequest(ChatMessageRequestDto dto) {
         if (dto == null) {
@@ -106,5 +101,83 @@ public class ChatService {
                     return newRoom.getRoomId();
                 });
     }
+
+    //메세지 조회
+    @Transactional(readOnly = true)
+    public Page<ChatMessageResponseDto> getMessages(Long roomId, Pageable pageable) {
+
+        Page<ChatMessage> page =
+                chatMessageRepository.findByChatRoom_RoomIdOrderByCreatedAtDesc(
+                        roomId, pageable
+                );
+
+        // Entity → DTO 변환
+        return page.map(ChatMessageResponseDto::from);
+
+
+
+    }
+
+
+    @Transactional
+    public void leaveRoom(Long roomId, Long userId) {
+
+        ChatMember member = chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
+                .orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
+
+        // 이미 나간 경우 방어
+        if (!member.isActive()) {
+            return;
+        }
+
+        member.leave();
+    }
+
+//읽음 처리
+    @Transactional
+    public void markAsRead(Long roomId, Long userId) {
+        ChatMember member = chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
+                .orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
+
+        // 나간 사용자는 읽음 처리 X
+        if (!member.isActive()) {
+            return;
+        }
+
+        member.markAsRead();
+    }
+
+
+
+    private final TranslationService translationService;
+
+
+    @Transactional
+    public void translateMessage(Long messageId, String targetLanguage) {
+
+        ChatMessage message = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("메시지 없음"));
+
+        // 이미 번역된 경우 방어
+        if (message.getTranslatedText() != null) return;
+
+        String translated = translationService.translate(
+                message.getOriginalText(),
+                targetLanguage
+        );
+
+        message.applyTranslation(translated, targetLanguage);
+
+        //  번역 결과 WS로 push
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + message.getChatRoom().getRoomId(),
+                ChatMessageResponseDto.from(message)
+        );
+    }
+
+
+
 }
 
