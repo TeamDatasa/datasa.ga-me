@@ -48,5 +48,7 @@ public class TripDetailResponse {
 	// like
 	private long likeCount;
 	private boolean likedByMe;
-
+	
+	// region
+	private String region;
 }

@@ -135,20 +135,31 @@ public class TripService {
 		Trip trip = tripRepository.findById(req.getTripId())
 				.orElseThrow(() -> new EntityNotFoundException("게시글 없습니다."));
 		
-		// 작성자 검증
 		if (!trip.getHostUser().getUserId().equals(loginUserId)) {
 			throw new RuntimeException("수정 권한이 없습니다.");
 		}
 		
-		// 전체 수정
 		trip.setTitle(req.getTitle());
 		trip.setDescription(req.getDescription());
+		trip.setRegion(req.getRegion());
 		trip.setEstimatedCost(req.getEstimatedCost());
 		trip.setMaxParticipants(req.getMaxParticipants());
 		trip.setDurationMinutes(req.getDurationMinutes());
 		trip.setStartAt(req.getStartAt());
 		trip.setEndAt(req.getEndAt());
 		trip.setTheme(req.getTheme());
+		
+		// ✅ 기존 일정 삭제
+		tripLocationRepository.deleteByTrip(trip);
+		
+		// ✅ 새 일정 저장 (write와 동일 로직)
+		if (req.getSchedulePlaces() != null) {
+			int order = 1;
+			for (TripWriteSchedulePlaceRequest p : req.getSchedulePlaces()) {
+				if (p == null || p.getPlaceName() == null || p.getPlaceName().isBlank()) continue;
+				persistTripLocation(trip, p, order++);
+			}
+		}
 	}
 	
 	
@@ -282,6 +293,7 @@ public class TripService {
 				.hostUser(entity.getHostUser())
 				.title(entity.getTitle())
 				.description(entity.getDescription())
+				.region(entity.getRegion())
 				.estimatedCost(entity.getEstimatedCost())
 				.maxParticipants(entity.getMaxParticipants())
 				.durationMinutes(entity.getDurationMinutes())

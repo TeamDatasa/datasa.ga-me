@@ -31,6 +31,7 @@ public class SecurityConfig {
                     "/api/map/places",
                     "/api/map/kakao",
                     "/api/trip/**",
+					"/api/trip/update/**",
                     "/mypage",
                     "/mypage/details",
                     "/api/map/main",

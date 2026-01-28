@@ -3,12 +3,8 @@ package datasa.controller;
 
 
 
-import datasa.domain.dto.TripListResponseDto;
+import datasa.domain.dto.*;
 import datasa.service.TripService;
-import datasa.domain.dto.TripDetailResponse;
-import datasa.domain.dto.TripListResponse;
-import datasa.domain.dto.TripUpdateRequest;
-import datasa.domain.dto.TripWriteRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,7 +102,7 @@ public class TripController {
 		
 		TripDetailResponse detail = tripService.getTripDetail(id);
 		
-		// 임시 로그인 유저
+		// 작성자 검증
 		if (!detail.getHostUser().getUserId().equals(1L)) {
 			return "redirect:/api/trip/listAll";
 		}
@@ -115,6 +111,7 @@ public class TripController {
 		req.setTripId(detail.getTripId());
 		req.setTitle(detail.getTitle());
 		req.setDescription(detail.getDescription());
+		req.setRegion(detail.getRegion());
 		req.setEstimatedCost(detail.getEstimatedCost());
 		req.setMaxParticipants(detail.getMaxParticipants());
 		req.setDurationMinutes(detail.getDurationMinutes());
@@ -122,10 +119,26 @@ public class TripController {
 		req.setEndAt(detail.getEndAt());
 		req.setTheme(detail.getTheme());
 		
+		// ✅ TripLocation → schedulePlaces 변환
+		if (detail.getLocations() != null) {
+			req.setSchedulePlaces(
+					detail.getLocations().stream()
+							.map(l -> TripWriteSchedulePlaceRequest.builder()
+									.placeId(l.getPlaceId())
+									.placeName(l.getPlaceName())
+									.address(l.getAddress())
+									.lat(l.getLat())
+									.lng(l.getLng())
+									.build())
+							.toList()
+			);
+		}
+		
 		model.addAttribute("request", req);
+		model.addAttribute("jsKey", kakaoJsKey);
+		
 		return "trip/updateForm";
 	}
-	
 	
 	@PostMapping("/update")
 	public String update(@ModelAttribute("request") TripUpdateRequest request) {
