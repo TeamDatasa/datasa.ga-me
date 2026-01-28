@@ -22,6 +22,7 @@ public class TripLikeController {
 	
 	@PostMapping("/{tripId}/like")
 	public ResponseEntity<TripLikeResponse> toggleLike(@PathVariable Long tripId) {
+		// test
 		User user = new User();
 		user.setUserId(TEST_USER_ID);
 		
@@ -32,8 +33,5 @@ public class TripLikeController {
 	
 	
 	public record TripLikeResponse(boolean liked, long count) {
-	}
-	
-	public record TripLikeResult(boolean liked, long count) {
 	}
 }

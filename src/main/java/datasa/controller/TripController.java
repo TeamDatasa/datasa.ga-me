@@ -131,16 +131,16 @@ public class TripController {
 	public String update(@ModelAttribute("request") TripUpdateRequest request) {
 		
 		tripService.updateTrip(request, 1L); // 임시 로그인 유저
-		return "redirect:/api/trip/read/" + request.getTripId();
+		return "redirect:/api/trip/detail/" + request.getTripId();
 	}
 
 	
 	 //	게시글 (상세)읽기
-	 @GetMapping("/read/{id}")
-	 public String read(@PathVariable Long id, Model model) {
+	 @GetMapping("/detail/{id}")
+	 public String detail(@PathVariable Long id, Model model) {
 	 	TripDetailResponse response = tripService.getTripDetail(id);
 	 	model.addAttribute("trip", response);
-	 	return "trip/read";
+	 	return "trip/detail";
 	 }
 	
 	 @PostMapping("/delete/{id}")
@@ -150,7 +150,7 @@ public class TripController {
 	 		return "redirect:/api/trip/listAll";
 	 	} catch (Exception e) {
 	 		e.printStackTrace();
-	 		return "redirect:/api/trip/read/" + id;
+	 		return "redirect:/api/trip/detail/" + id;
 	 	}
 	 }
 
