@@ -1,12 +1,16 @@
 package datasa.controller;
 
+import datasa.domain.dto.AuthResponse;
 import datasa.domain.dto.RoleUpdateRequest;
 import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
+import datasa.security.JwtTokenProvider;
 import datasa.service.MyPageUserService;
 import datasa.service.UserRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,13 +25,20 @@ public class PageController {
 	private final UserRepository userRepository;
 	private final MyPageUserService myPageUserService;
 	private final UserRoleService userRoleService;
+	private final JwtTokenProvider jwtTokenProvider;
 	
 	// ====== PAGES ======
 	
 	@GetMapping({"/login", "/auth/login"})
 	public String loginPage() {
-		return "users/login"; // templates/users/login.html
+		return "users/login";
 	}
+	
+	@GetMapping("/signup")
+	public String signupPage() {
+		return "users/signup";
+	}
+	
 	
 	@GetMapping("/mypage")
 	public String mypage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
@@ -39,27 +50,51 @@ public class PageController {
 		
 		return "users/mypage";
 	}
-	
 	@GetMapping("/mypage/details")
-	public String mypageDetails(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+	public String details(@AuthenticationPrincipal UserDetails userDetails) {
 		String email = userDetails.getUsername();
 		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		String role = user.getRole().name();
-		model.addAttribute("role", role);
+		if (user.getRole() == User.Role.HOST) {
+			return "redirect:/mypage/details/host";
+		}
+		return "redirect:/mypage/details/user";
+	}
+	
+	
+	@GetMapping("/mypage/details/user")
+	public String detailsUser(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+		String email = userDetails.getUsername();
+		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		// USER면 디테일 데이터 내려주기
-		if ("USER".equals(role)) {
-			var dto = myPageUserService.getUserDetails(email);
-			model.addAttribute("counts", dto.counts());
-			model.addAttribute("myTours", dto.myTours());
-			model.addAttribute("myApplications", dto.myApplications());
+		if (user.getRole() == User.Role.HOST) {
+			return "redirect:/mypage/details/host";
 		}
 		
-		// HOST면 나중에 host dto 추가해서 model에 넣으면 됨
+		model.addAttribute("role", "USER");
+		
+		var dto = myPageUserService.getUserDetails(email);
+		model.addAttribute("counts", dto.counts());
+		model.addAttribute("myTours", dto.myTours());
+		model.addAttribute("myApplications", dto.myApplications());
 		
 		return "users/MyPageDetails";
 	}
+	
+	@GetMapping("/mypage/details/host")
+	public String detailsHost(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+		String email = userDetails.getUsername();
+		User user = userRepository.findByEmail(email).orElseThrow();
+		
+		if (user.getRole() == User.Role.USER) {
+			return "redirect:/mypage/details/user";
+		}
+		
+		model.addAttribute("role", "HOST");
+		return "users/MyPageDetails";
+	}
+	
+	
 	
 	@GetMapping("/auth/forgot-password")
 	public String forgotPassword() {
@@ -75,11 +110,28 @@ public class PageController {
 	
 	@PatchMapping("/api/mypage/role")
 	@ResponseBody
-	public ResponseEntity<Void> updateRole(
+	public ResponseEntity<AuthResponse> updateRole(
 			@AuthenticationPrincipal UserDetails userDetails,
 			@Valid @RequestBody RoleUpdateRequest req
 	) {
-		userRoleService.updateRole(userDetails.getUsername(), req.role());
-		return ResponseEntity.ok().build();
+		String email = userDetails.getUsername();
+		
+		userRoleService.updateRole(email, req.role());
+		
+		User user = userRepository.findByEmail(email).orElseThrow();
+		String newToken = jwtTokenProvider.createToken(user.getEmail(), user.getRole());
+		
+		ResponseCookie cookie = ResponseCookie.from("access_token", newToken)
+				.path("/")
+				.httpOnly(true)
+				.sameSite("Lax")
+				// .secure(true) // https면 켜고 localhost http면 주석
+				.build();
+		
+		AuthResponse body = new AuthResponse(newToken, user.getUserId(), user.getEmail(), user.getRole());
+		
+		return ResponseEntity.ok()
+				.header(HttpHeaders.SET_COOKIE, cookie.toString())
+				.body(body);
 	}
 }

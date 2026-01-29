@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PasswordResetPageController {
 	@GetMapping("/reset-password")
 	public String page(){
-		return "reset-password";
+		return "auth/reset-password";
 	}
 }

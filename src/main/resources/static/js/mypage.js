@@ -1,4 +1,6 @@
-
+// =============================
+// Auth header helper
+// =============================
 function authHeaders() {
   const token = localStorage.getItem("accessToken");
   return {
@@ -7,7 +9,9 @@ function authHeaders() {
   };
 }
 
+// =============================
 // Country mapping
+// =============================
 function countryNameToCode(name) {
   if (!name) return null;
   const n = name.trim().toLowerCase();
@@ -28,9 +32,48 @@ function countryCodeToName(code) {
   return map[code] || code || "";
 }
 
+// =============================
+// UI helpers
+// =============================
+function setRoleUI(role) {
+  const currentRoleEl = document.getElementById("currentRole");
+  if (currentRoleEl) currentRoleEl.value = role;
+
+  document.querySelectorAll(".role-pill").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.role === role);
+  });
+
+  const hostPanel = document.getElementById("hostPanel");
+  const userPanel = document.getElementById("userPanel");
+  if (hostPanel) hostPanel.style.display = role === "HOST" ? "block" : "none";
+  if (userPanel) userPanel.style.display = role === "USER" ? "block" : "none";
+
+  const roleBadge = document.getElementById("roleBadge");
+  if (roleBadge) roleBadge.textContent = role ?? "-";
+}
+
+function setHint(msg = "") {
+  const hint = document.getElementById("saveHint");
+  if (hint) hint.textContent = msg;
+}
+
+function setDetailsLink(role) {
+  const link = document.getElementById("detailsLink");
+  if (!link) return;
+
+  // ✅ URL 분리 방식 추천
+  link.href = (role === "HOST")
+    ? "/mypage/details/host"
+    : "/mypage/details/user";
+}
+
+
+// =============================
 // Load profile
+// =============================
 async function loadProfile() {
   const token = localStorage.getItem("accessToken");
+
   if (!token) {
     alert("Login is required.");
     window.location.href = "/auth/login";
@@ -53,19 +96,17 @@ async function loadProfile() {
 
   const data = await res.json();
 
-  // Top card
+  // ===== Top card =====
   document.getElementById("displayName").textContent = data.name ?? "-";
   document.getElementById("displayMeta").textContent =
     `${data.region ?? "-"} · ${data.age ?? "-"} yrs · ${countryCodeToName(data.countryCode) ?? "-"}`;
-  document.getElementById("roleBadge").textContent = data.role ?? "-";
   document.getElementById("avatar").textContent = data.name ? data.name[0] : "?";
 
-  // Form
+  // ===== Form values =====
   document.getElementById("name").value = data.name ?? "";
   document.getElementById("birthDate").value = data.birthDate ?? "";
   document.getElementById("gender").value = data.gender ?? "";
 
-  // country input uses name (id="country")
   const countryEl = document.getElementById("country");
   if (countryEl) countryEl.value = countryCodeToName(data.countryCode);
 
@@ -80,126 +121,155 @@ async function loadProfile() {
 
   document.getElementById("bio").value = data.bio ?? "";
 
-  // Role panels
-  document.getElementById("hostPanel").style.display =
-    data.role === "HOST" ? "block" : "none";
-  document.getElementById("userPanel").style.display =
-    data.role === "USER" ? "block" : "none";
+  // ===== Role UI (pills/panels/badge) =====
+  setRoleUI(data.role ?? "USER");
 }
 
-// Save profile
-document.getElementById("profileForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+// =============================
+// Save profile (ONLY on Save button)
+// =============================
+function bindProfileSave() {
+  const form = document.getElementById("profileForm");
+  if (!form) return;
 
-  const payload = {
-    name: document.getElementById("name").value.trim(),
-    birthDate: document.getElementById("birthDate").value,
-    gender: document.getElementById("gender").value,
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    // country name -> code
-    countryCode: countryNameToCode(document.getElementById("country")?.value),
+    const payload = {
+      name: document.getElementById("name").value.trim(),
+      birthDate: document.getElementById("birthDate").value,
+      gender: document.getElementById("gender").value,
 
-    region: document.getElementById("region").value.trim(),
-    mbti: document.getElementById("mbti").value.trim() || null,
+      // country name -> code
+      countryCode: countryNameToCode(document.getElementById("country")?.value),
 
-    smoking: document.getElementById("smoking").value === "" ? null :
-      document.getElementById("smoking").value === "true",
+      region: document.getElementById("region").value.trim(),
+      mbti: document.getElementById("mbti").value.trim() || null,
 
-    drinking: document.getElementById("drinking").value === "" ? null :
-      document.getElementById("drinking").value === "true",
+      smoking: document.getElementById("smoking").value === "" ? null :
+        document.getElementById("smoking").value === "true",
 
-    bio: document.getElementById("bio").value.trim() || null
-  };
+      drinking: document.getElementById("drinking").value === "" ? null :
+        document.getElementById("drinking").value === "true",
 
-  const res = await fetch("/api/mypage/profile", {
-    method: "PUT",
+      bio: document.getElementById("bio").value.trim() || null
+    };
+
+    const res = await fetch("/api/mypage/profile", {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      setHint("Profile saved successfully.");
+      await loadProfile();
+    } else {
+      const text = await res.text().catch(() => "");
+      setHint(text || "Failed to save profile. Please check your input.");
+    }
+  });
+}
+
+// =============================
+// Role change (IMMEDIATE save)
+// =============================
+async function setRole(role) {
+  // 1️⃣ UI 먼저 반영 (즉시 체감)
+  setRoleUI(role);
+
+  const res = await fetch("/api/mypage/role", {
+    method: "PATCH",
     headers: authHeaders(),
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ role })
   });
 
-  const hint = document.getElementById("saveHint");
-
-  if (res.ok) {
-    hint.textContent = "Profile saved successfully.";
-    await loadProfile();
-  } else {
-    const text = await res.text().catch(() => "");
-    hint.textContent = text || "Failed to save profile. Please check your input.";
-  }
-});
-
-// Logout / Delete
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("email");
-  localStorage.removeItem("role");
-  window.location.href = "/auth/login";
-});
-
-document.getElementById("deactivateBtn").addEventListener("click", async () => {
-  const ok = confirm("Are you sure you want to delete your account?");
-  if (!ok) return;
-
-  const res = await fetch("/api/mypage", {
-    method: "DELETE",
-    headers: authHeaders()
-  });
-
-  if (!res.ok) {
-    alert("Failed to delete account.");
+  if (res.status === 401 || res.status === 403) {
+    alert("Session expired. Please log in again.");
+    localStorage.clear();
+    window.location.href = "/auth/login";
     return;
   }
 
-  alert("Your account has been deleted.");
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("email");
-  localStorage.removeItem("role");
-  window.location.href = "/";
-});
-
-document.addEventListener("DOMContentLoaded", loadProfile);
-
-document.getElementById("resetPwBtn")?.addEventListener("click", () => {
-  const email = localStorage.getItem("email") || "";
-  window.location.href = `/auth/forgot-password?email=${encodeURIComponent(email)}`;
-});
-
-
-(function initRolePills(){
-    const current = document.getElementById('currentRole')?.value || 'USER';
-    document.querySelectorAll('.role-pill').forEach(btn=>{
-      btn.classList.toggle('is-active', btn.dataset.role === current);
-    });
-  })();
-
-  async function setRole(role){
-    try{
-      const res = await fetch('/api/mypage/role', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role })
-      });
-
-      if(!res.ok){
-        const txt = await res.text();
-        alert('Role change failed: ' + txt);
-        return;
-      }
-
-      // UI 업데이트
-      document.getElementById('currentRole').value = role;
-      document.querySelectorAll('.role-pill').forEach(btn=>{
-        btn.classList.toggle('is-active', btn.dataset.role === role);
-      });
-
-
-      alert('Role updated to ' + role);
-    }catch(e){
-      alert('Role change error');
-      console.error(e);
-    }
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    alert(text || "Failed to update role. Please try again.");
+    await loadProfile(); // 서버 값으로 되돌리기
+    return;
   }
 
+  // 2️⃣ ✅ 서버에서 내려준 최신 AuthResponse 받기
+  const data = await res.json();
 
+  // 3️⃣ ✅ 토큰 + 사용자 정보 갱신
+  localStorage.setItem("accessToken", data.accessToken);
+  localStorage.setItem("userId", data.userId);
+  localStorage.setItem("email", data.email);
+  localStorage.setItem("role", data.role);
+
+
+  setHint("Role updated.");
+
+  setDetailsLink(role);
+  setRoleUI(data.role);
+
+
+}
+
+
+
+// (HTML onclick="setRole('HOST')" 에서 접근 가능하게 전역 노출)
+window.setRole = setRole;
+
+// =============================
+// Logout / Delete
+// =============================
+function bindAccountActions() {
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    window.location.href = "/auth/login";
+  });
+
+  document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
+    const ok = confirm("Are you sure you want to delete your account?");
+    if (!ok) return;
+
+    const res = await fetch("/api/mypage", {
+      method: "DELETE",
+      headers: authHeaders()
+    });
+
+    if (!res.ok) {
+      alert("Failed to delete account.");
+      return;
+    }
+
+    alert("Your account has been deleted.");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    window.location.href = "/";
+  });
+
+  document.getElementById("resetPwBtn")?.addEventListener("click", () => {
+    const email = localStorage.getItem("email") || "";
+    window.location.href = `/auth/forgot-password?email=${encodeURIComponent(email)}`;
+  });
+}
+
+// =============================
+// Init
+// =============================
+document.addEventListener("DOMContentLoaded", async () => {
+  bindProfileSave();
+  bindAccountActions();
+
+  // 초기 UI는 loadProfile이 서버 값으로 덮어씀
+  setRoleUI(document.getElementById("currentRole")?.value || "USER");
+
+  await loadProfile();
+});

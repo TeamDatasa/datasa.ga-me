@@ -208,3 +208,103 @@ body{
   box-shadow:none;
 }
 
+/* Page */
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background: #f6f6f3; /* 로그인 배경 느낌 */
+}
+
+/* Card */
+.auth-card {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 44px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* Title / subtitle */
+.auth-title {
+  font-size: 40px;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  margin: 0 0 28px;
+  color: #555;
+  font-size: 16px;
+}
+
+/* Form */
+.auth-form {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-label {
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.auth-input {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.auth-input:focus {
+  border-color: #d7d7d7;
+}
+
+.auth-btn {
+  margin-top: 14px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f2e96d;
+}
+
+.auth-btn:hover {
+  filter: brightness(0.98);
+}
+
+.auth-linkline {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.auth-link {
+  color: #1f5eff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-msg {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 13px;
+  min-height: 18px;
+}
+
+.auth-msg.is-success { color: #1a7f37; }
+.auth-msg.is-error { color: #d1242f; }
+
+
