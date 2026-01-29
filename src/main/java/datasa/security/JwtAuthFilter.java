@@ -2,10 +2,14 @@ package datasa.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,7 +21,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 	
 	private final JwtTokenProvider jwtTokenProvider;
-	private final UserDetailsService userDetailsService; // CustomUserDetailsService가 빈이면 이것으로도 주입됨
+	private final UserDetailsService userDetailsService;
 	
 	@Override
 	protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
@@ -40,8 +44,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			@NonNull FilterChain filterChain
 	) throws ServletException, IOException {
 		
-		System.out.println("JWT FILTER HIT: " + request.getMethod() + " " + request.getRequestURI());
-		
 		String token = null;
 		
 		// 1) Authorization 헤더 우선
@@ -52,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		
 		// 2) 없으면 쿠키에서 access_token 찾기
 		if (token == null && request.getCookies() != null) {
-			for (var c : request.getCookies()) {
+			for (Cookie c : request.getCookies()) {
 				if ("access_token".equals(c.getName())) {
 					token = c.getValue();
 					break;
@@ -60,5 +62,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			}
 		}
 		
+		// ✅ 3) 토큰 검증 + 인증 세팅
+		if (token != null && jwtTokenProvider.validate(token)
+				&& SecurityContextHolder.getContext().getAuthentication() == null) {
+			
+			String email = jwtTokenProvider.getEmail(token);
+			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+			
+			UsernamePasswordAuthenticationToken auth =
+					new UsernamePasswordAuthenticationToken(
+							userDetails, null, userDetails.getAuthorities()
+					);
+			
+			SecurityContextHolder.getContext().setAuthentication(auth);
+		}
+		
+		// ✅ 4) 다음 필터로 넘기기 (이거 없으면 요청이 멈춤)
+		filterChain.doFilter(request, response);
 	}
 }
