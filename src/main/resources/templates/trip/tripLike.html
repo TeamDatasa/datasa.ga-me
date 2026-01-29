@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 목록</title>
+</head>
+<body>
+
+<div th:each="post : ${posts}">
+    <h3 th:text="${post.title}"></h3>
+    <p th:text="${post.content}"></p>
+
+    <button
+            th:attr="data-post-id=${post.id}"
+            onclick="toggleLike(this)">
+        ❤️ <span th:text="${post.likeCount}">0</span>
+    </button>
+</div>
+
+<script>
+    function toggleLike(button) {
+        const postId = button.getAttribute("data-post-id");
+
+        fetch(`/posts/${postId}/like`, {
+            method: "POST"
+        })
+        .then(response => response.text())
+        .then(count => {
+            button.querySelector("span").innerText = count;
+        });
+    }
+</script>
+
+</body>
+</html>

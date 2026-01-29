@@ -49,7 +49,7 @@ public class TripApiController {
             @PathVariable Long tripId,
             @RequestParam Long userId
     ) {
-        return tripService.getTripDetail(tripId, userId);
+        return tripService.getTripDetail_jiwon(tripId, userId);
     }
 
 }

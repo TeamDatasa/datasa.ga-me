@@ -15,4 +15,7 @@ public class TranslationService {
         // 나중에 Papago / Google / OpenAI API로 교체
         return "[번역:" + targetLanguage + "] " + text;
     }
+
+
 }
+

@@ -6,6 +6,7 @@ import datasa.domain.entity.ChatRoom;
 import datasa.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +23,16 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
             ChatRoom chatRoom,
             User user
     );
+
+    boolean existsByChatRoomAndUserAndLeftAtIsNull(
+            ChatRoom chatRoom,
+            User user
+    );
+
+    List<ChatMember> findByChatRoomAndLeftAtIsNull(ChatRoom chatRoom);
+
+    Optional<ChatMember>
+    findByChatRoom_RoomIdAndUser_UserId(Long roomId, Long userId);
 }
-
-
 
 

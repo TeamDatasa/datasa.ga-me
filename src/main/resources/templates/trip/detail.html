@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- 캐시 때문에 v 파라미터 유지 추천 -->
+    <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}"/>
+
+    <title>여행 글 상세</title>
+</head>
+
+<body>
+<main class="page">
+    <div class="container">
+
+        <!-- 상단: 뒤로 설명(선택) -->
+        <div class="top-actions">
+            <a class="back-link" th:href="@{/api/trip/listAll}" aria-label="목록으로">←</a>
+        </div>
+
+        <!-- 헤더 -->
+        <header class="post-header">
+            <div class="post-title-row">
+                <h1 class="post-title" th:text="${trip.title}">제목</h1>
+
+                <button type="button"
+                        id="likeBtn"
+                        class="like-btn"
+                        th:attr="data-trip-id=${trip.tripId}, data-liked=${trip.likedByMe}">
+                    <span class="heart" th:text="${trip.likedByMe} ? '❤' : '♡'">♡</span>
+                    <span class="like-count" id="likeCount" th:text="${trip.likeCount}">0</span>
+                </button>
+            </div>
+
+            <div class="post-meta">
+                <span class="author" th:text="${trip.hostUser != null ? trip.hostUser.name : '-'}">작성자</span>
+                <span class="meta-sep">|</span>
+                <span class="date"
+                      th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy.MM.dd') : '-'}">2026.01.28</span>
+            </div>
+
+            <hr class="divider"/>
+        </header>
+
+        <!-- 요약 + 사이드(추천글 같은 영역을 나중에 붙이려면 grid로 확장 가능) -->
+        <section class="summary-section">
+            <div class="summary-card">
+                <div class="summary-grid">
+
+                    <div class="summary-item">
+                        <div class="k">상태</div>
+                        <div class="v"><span class="badge" th:text="${trip.status}">OPEN</span></div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">테마</div>
+                        <div class="v" th:text="${trip.theme}">-</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">모집 인원</div>
+                        <div class="v"><span th:text="${trip.maxParticipants}">-</span>명</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">소요 시간</div>
+                        <div class="v"><span th:text="${trip.durationMinutes}">-</span>분</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">기간</div>
+                        <div class="v">
+                            <span th:text="${#temporals.format(trip.startAt, 'yyyy.MM.dd HH:mm')}">-</span>
+                            <span class="meta-sep">~</span>
+                            <span th:text="${#temporals.format(trip.endAt, 'yyyy.MM.dd HH:mm')}">-</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">예상 가격</div>
+                        <div class="v">
+                            <span th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">-</span>
+                            <span class="unit">KRW</span>
+                        </div>
+                    </div>
+
+                    <!-- “위치/사용 언어”가 실제 필드가 없으면 임시로 숨기거나 - 처리 -->
+                    <div class="summary-item">
+                        <div class="k">위치</div>
+                        <div class="v">-</div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="k">사용 언어</div>
+                        <div class="v">-</div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 본문 -->
+        <section class="content-section">
+            <h2 class="section-title">프로젝트 소개</h2>
+            <div class="content-card">
+                <div class="content-text" th:text="${trip.description}">본문</div>
+            </div>
+        </section>
+
+        <!-- 일정(장소) -->
+        <section class="content-section">
+            <h2 class="section-title">일정(장소)</h2>
+
+            <div class="content-card" th:if="${trip.locations == null or #lists.isEmpty(trip.locations)}">
+                <div class="muted">등록된 장소가 없습니다.</div>
+            </div>
+
+            <div class="place-list" th:if="${trip.locations != null and !#lists.isEmpty(trip.locations)}">
+                <article class="place-card" th:each="loc : ${trip.locations}">
+                    <div class="place-head">
+                        <span class="chip" th:text="${loc.orderNo}">1</span>
+                        <div class="place-name" th:text="${loc.placeName}">장소명</div>
+                    </div>
+                    <div class="place-addr" th:text="${loc.address}">주소</div>
+                    <div class="place-coord" th:if="${loc.lat != null and loc.lng != null}">
+                        <span th:text="'lat=' + ${#numbers.formatDecimal(loc.lat, 1, 'POINT', 6, 'NONE')}"></span>
+                        <span th:text="', lng=' + ${#numbers.formatDecimal(loc.lng, 1, 'POINT', 6, 'NONE')}"></span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 하단 액션 -->
+        <div class="bottom-actions">
+            <a class="btn btn-ghost" th:href="@{/api/trip/listAll}">목록으로</a>
+            <a class="btn btn-primary" th:href="@{/api/trip/update/{id}(id=${trip.tripId})}">수정</a>
+
+            <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <button class="btn btn-danger" type="submit">삭제</button>
+            </form>
+        </div>
+
+        <hr class="divider" style="margin:24px 0;"/>
+
+        <!--comment-->
+        <hr style="margin:24px 0;"/>
+
+        <div class="comment-wrap">
+            <div class="comment-header">
+                <div>
+                    <h2 style="margin:0;">댓글</h2>
+                    <div class="hint">로그인이 없으므로 userId(1~10)를 더미로 입력해서 테스트합니다.</div>
+                </div>
+                <div class="small" id="commentCountText"></div>
+            </div>
+
+            <div class="comment-form">
+                <!-- 상단: userId / 대댓글 상태(테스트용) -->
+                <div class="comment-form-top">
+                    <div class="comment-top-left">
+                        <label class="comment-userid">
+                            userId
+                            <input id="dummyUserId" type="number" min="1" max="10" value="1" />
+                        </label>
+
+                        <span class="reply-pill" id="replyTargetText">최상위 댓글 작성</span>
+                        <button type="button" id="cancelReplyBtn" class="reply-cancel hidden">대댓글 취소</button>
+                    </div>
+
+                    <input type="hidden" id="parentCommentId" value="" />
+                    <span class="form-msg muted" id="formMsg"></span>
+                </div>
+
+                <!-- 본문 입력: 아바타 + 텍스트박스 -->
+                <div class="comment-composer">
+                    <div class="comment-avatar" aria-hidden="true">
+                        <!-- 로그인 연동 전이면 임시 아이콘/이미지 -->
+                        <span class="comment-avatar__emoji">🐣</span>
+                    </div>
+
+                    <textarea id="commentContent" class="comment-textarea" placeholder="댓글을 입력하세요."></textarea>
+                </div>
+
+                <!-- 우측 하단 버튼 -->
+                <div class="comment-actions-row">
+                    <button type="button" id="submitCommentBtn" class="comment-submit">댓글 등록</button>
+                </div>
+            </div>
+
+    </div>
+</main>
+
+<script th:inline="javascript">
+    const tripId = [[${trip.tripId}]];
+</script>
+
+<script>
+    const likeBtn = document.getElementById("likeBtn");
+    const likeCountEl = document.getElementById("likeCount");
+
+    likeBtn.addEventListener("click", async () => {
+      const id = likeBtn.getAttribute("data-trip-id");
+      likeBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/trip/${id}/like`, {
+          method: "POST",
+          headers: { "Accept": "application/json" }
+        });
+        if (!res.ok) throw new Error(res.status);
+
+        const data = await res.json();
+        likeBtn.setAttribute("data-liked", String(data.liked));
+        likeBtn.querySelector(".heart").innerText = data.liked ? "❤" : "♡";
+        likeCountEl.innerText = data.count;
+      } finally {
+        likeBtn.disabled = false;
+      }
+    });
+</script>
+</body>
+</html>

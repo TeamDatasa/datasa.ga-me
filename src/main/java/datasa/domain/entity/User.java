@@ -2,6 +2,7 @@ package datasa.domain.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user")
-@Getter
+@Data
 @NoArgsConstructor
 public class User {
 

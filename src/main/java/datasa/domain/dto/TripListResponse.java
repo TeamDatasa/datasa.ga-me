@@ -1,20 +1,26 @@
 package datasa.domain.dto;
 
+
 import datasa.domain.entity.Trip;
 import lombok.Builder;
 import lombok.Getter;
 
+
 import java.time.LocalDateTime;
+
 
 @Getter
 @Builder
 public class TripListResponse {
 	
+	
 	private Long tripId;
+	
 	
 	// 호스트 정보(필요 최소)
 	private Long hostUserId;
 	private String hostName;
+	
 	
 	// Trip 기본 정보
 	private String title;
@@ -26,9 +32,16 @@ public class TripListResponse {
 	private LocalDateTime endAt;
 	private Trip.Status status;
 	
+	
 	// 메타
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
+	
+	
+	// ✅ 좋아요 정보 추가
+	private long likeCount;
+	private boolean likedByMe;
+	
 	
 	public static TripListResponse from(Trip trip) {
 		return TripListResponse.builder()
@@ -45,6 +58,8 @@ public class TripListResponse {
 				.status(trip.getStatus())
 				.createdAt(trip.getCreatedAt())
 				.updatedAt(trip.getUpdatedAt())
+				.likeCount(0L)
+				.likedByMe(false)
 				.build();
 	}
 }
