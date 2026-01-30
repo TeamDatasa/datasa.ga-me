@@ -7,8 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,10 +21,12 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 	
 	private final JwtTokenProvider jwtTokenProvider;
+	private final UserDetailsService userDetailsService;
 	
 	@Override
 	protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
 		String path = request.getServletPath();
+		
 		return path.equals("/reset-password")
 				|| path.equals("/error")
 				|| path.equals("/")
@@ -31,7 +35,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				|| path.startsWith("/js/")
 				|| path.startsWith("/images/")
 				|| path.startsWith("/webjars/")
-				|| path.startsWith("/api/auth/");
+				|| path.startsWith("/api/auth/")
+				|| path.startsWith("/api/notifications/"); // ✅ 무로그인 테스트용(원하면 제거 가능)
 	}
 	
 	@Override
@@ -41,25 +46,37 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			@NonNull FilterChain filterChain
 	) throws ServletException, IOException {
 		
-		System.out.println("JWT FILTER HIT: " + request.getMethod() + " " + request.getRequestURI());
-		
 		String token = resolveToken(request);
 		
-		// 토큰이 아예 없으면: 그냥 통과
-		if (token == null || token.isBlank()) {
-			filterChain.doFilter(request, response);
-			return;
+		try {
+			// 토큰 없으면 익명으로 통과
+			if (token == null || token.isBlank()) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+			
+			// 이미 인증이 세팅되어 있으면 중복 세팅하지 않음
+			if (SecurityContextHolder.getContext().getAuthentication() == null
+					&& jwtTokenProvider.validate(token)) {
+				
+				String email = jwtTokenProvider.getEmail(token);
+				
+				UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+				
+				UsernamePasswordAuthenticationToken auth =
+						new UsernamePasswordAuthenticationToken(
+								userDetails,
+								null,
+								userDetails.getAuthorities()
+						);
+				
+				SecurityContextHolder.getContext().setAuthentication(auth);
+			}
+			
+		} catch (Exception e) {
+			// 토큰 만료/서명 오류 등 -> 500 금지, 익명 처리
+			SecurityContextHolder.clearContext();
 		}
-		
-		// 토큰이 있는데 유효하지 않으면: 401로 종료
-		if (!jwtTokenProvider.validateToken(token)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-		
-		// 유효하면 SecurityContext 세팅 후 통과
-		Authentication auth = jwtTokenProvider.getAuthentication(token);
-		SecurityContextHolder.getContext().setAuthentication(auth);
 		
 		filterChain.doFilter(request, response);
 	}
@@ -80,6 +97,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				}
 			}
 		}
+		
 		return null;
 	}
 }
