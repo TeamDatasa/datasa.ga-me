@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -51,48 +52,44 @@ public class PageController {
 		return "users/mypage";
 	}
 	@GetMapping("/mypage/details")
-	public String details(@AuthenticationPrincipal UserDetails userDetails) {
-		String email = userDetails.getUsername();
-		User user = userRepository.findByEmail(email).orElseThrow();
+	public String details(Authentication authentication) {
+		boolean isHost = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_HOST"));
 		
-		if (user.getRole() == User.Role.HOST) {
-			return "redirect:/mypage/details/host";
-		}
-		return "redirect:/mypage/details/user";
+		return isHost ? "redirect:/mypage/details/host"
+				: "redirect:/mypage/details/user";
 	}
 	
 	
 	@GetMapping("/mypage/details/user")
-	public String detailsUser(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+	public String detailsUser(Authentication authentication,
+							  @AuthenticationPrincipal UserDetails userDetails,
+							  Model model) {
+		
+		boolean isHost = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_HOST"));
+		if (isHost) return "redirect:/mypage/details/host";
+		
 		String email = userDetails.getUsername();
-		User user = userRepository.findByEmail(email).orElseThrow();
-		
-		if (user.getRole() == User.Role.HOST) {
-			return "redirect:/mypage/details/host";
-		}
-		
 		model.addAttribute("role", "USER");
-		
 		var dto = myPageUserService.getUserDetails(email);
 		model.addAttribute("counts", dto.counts());
 		model.addAttribute("myTours", dto.myTours());
 		model.addAttribute("myApplications", dto.myApplications());
-		
 		return "users/MyPageDetails";
 	}
 	
 	@GetMapping("/mypage/details/host")
-	public String detailsHost(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-		String email = userDetails.getUsername();
-		User user = userRepository.findByEmail(email).orElseThrow();
+	public String detailsHost(Authentication authentication, Model model) {
 		
-		if (user.getRole() == User.Role.USER) {
-			return "redirect:/mypage/details/user";
-		}
+		boolean isUser = authentication.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
+		if (isUser) return "redirect:/mypage/details/user";
 		
 		model.addAttribute("role", "HOST");
 		return "users/MyPageDetails";
 	}
+	
 	
 	
 	

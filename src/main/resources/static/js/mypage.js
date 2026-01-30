@@ -1,12 +1,5 @@
-// =============================
-// Auth header helper
-// =============================
 function authHeaders() {
-  const token = localStorage.getItem("accessToken");
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`
-  };
+  return { "Content-Type": "application/json" };
 }
 
 // =============================
@@ -57,37 +50,12 @@ function setHint(msg = "") {
   if (hint) hint.textContent = msg;
 }
 
-function setDetailsLink(role) {
-  const link = document.getElementById("detailsLink");
-  if (!link) return;
-
-  // ✅ URL 분리 방식 추천
-  link.href = (role === "HOST")
-    ? "/mypage/details/host"
-    : "/mypage/details/user";
-}
-
-
 // =============================
 // Load profile
 // =============================
 async function loadProfile() {
-  const token = localStorage.getItem("accessToken");
-
-  if (!token) {
-    alert("Login is required.");
-    window.location.href = "/auth/login";
-    return;
-  }
-
-  const res = await fetch("/api/mypage/profile", { headers: authHeaders() });
-
-  if (res.status === 401 || res.status === 403) {
-    alert("Session expired. Please log in again.");
-    localStorage.removeItem("accessToken");
-    window.location.href = "/auth/login";
-    return;
-  }
+  const res = await authFetch("/api/mypage/profile", { method: "GET" });
+  if (!res) return; // 401이면 authFetch가 리다이렉트 처리했을 수 있음
 
   if (!res.ok) {
     alert("Failed to load profile.");
@@ -155,11 +123,11 @@ function bindProfileSave() {
       bio: document.getElementById("bio").value.trim() || null
     };
 
-    const res = await fetch("/api/mypage/profile", {
+    const res = await authFetch("/api/mypage/profile", {
       method: "PUT",
-      headers: authHeaders(),
       body: JSON.stringify(payload)
     });
+    if (!res) return;
 
     if (res.ok) {
       setHint("Profile saved successfully.");
@@ -175,21 +143,15 @@ function bindProfileSave() {
 // Role change (IMMEDIATE save)
 // =============================
 async function setRole(role) {
-  // 1️⃣ UI 먼저 반영 (즉시 체감)
+  // UI 먼저 반영 (즉시 체감)
   setRoleUI(role);
 
-  const res = await fetch("/api/mypage/role", {
+  // ✅ 쿠키 기반 authFetch를 쓰는 게 핵심
+  const res = await authFetch("/api/mypage/role", {
     method: "PATCH",
-    headers: authHeaders(),
     body: JSON.stringify({ role })
   });
-
-  if (res.status === 401 || res.status === 403) {
-    alert("Session expired. Please log in again.");
-    localStorage.clear();
-    window.location.href = "/auth/login";
-    return;
-  }
+  if (!res) return;
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -198,49 +160,34 @@ async function setRole(role) {
     return;
   }
 
-  // 2️⃣ ✅ 서버에서 내려준 최신 AuthResponse 받기
-  const data = await res.json();
-
-  // 3️⃣ ✅ 토큰 + 사용자 정보 갱신
-  localStorage.setItem("accessToken", data.accessToken);
-  localStorage.setItem("userId", data.userId);
-  localStorage.setItem("email", data.email);
-  localStorage.setItem("role", data.role);
-
-
+  // ✅ 여기서 절대 이동하지 말기
   setHint("Role updated.");
 
-  setDetailsLink(role);
-  setRoleUI(data.role);
-
-
+  // ✅ 서버에서 저장된 role 다시 받아와서 UI 확정
+  await loadProfile();
 }
 
-
-
-// (HTML onclick="setRole('HOST')" 에서 접근 가능하게 전역 노출)
 window.setRole = setRole;
+
 
 // =============================
 // Logout / Delete
 // =============================
 function bindAccountActions() {
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("email");
-    localStorage.removeItem("role");
-    window.location.href = "/auth/login";
+  // 로그아웃은 서버로 요청 보내서 쿠키도 정리되게 하는 게 안전
+  document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+    // NOTE: CSRF 설정에 따라 403이 날 수 있음.
+    // 403 나면: 로그아웃 버튼을 form POST로 바꾸거나, CSRF 토큰을 헤더로 보내도록 수정 필요.
+    await fetch("/logout", { method: "POST", credentials: "same-origin" });
+    window.location.href = "/";
   });
 
   document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
     const ok = confirm("Are you sure you want to delete your account?");
     if (!ok) return;
 
-    const res = await fetch("/api/mypage", {
-      method: "DELETE",
-      headers: authHeaders()
-    });
+    const res = await authFetch("/api/mypage", { method: "DELETE" });
+    if (!res) return;
 
     if (!res.ok) {
       alert("Failed to delete account.");
@@ -248,16 +195,12 @@ function bindAccountActions() {
     }
 
     alert("Your account has been deleted.");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("email");
-    localStorage.removeItem("role");
     window.location.href = "/";
   });
 
+  // resetPwBtn이 실제 DOM에 없을 수도 있으니 optional
   document.getElementById("resetPwBtn")?.addEventListener("click", () => {
-    const email = localStorage.getItem("email") || "";
-    window.location.href = `/auth/forgot-password?email=${encodeURIComponent(email)}`;
+    window.location.href = "/auth/forgot-password";
   });
 }
 

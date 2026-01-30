@@ -10,7 +10,9 @@
 
     <!-- Header -->
     <header class="mypage-header">
-        <div class="brand">ga-me</div>
+        <h1 class="logo">
+            <a th:href="@{/}">ga-me</a>
+        </h1>
 
         <div class="header-actions">
             <button id="logoutBtn" class="btn btn-ghost">Log out</button>
@@ -76,7 +78,7 @@
                     </div>
 
                     <div class="row">
-                        <label>Country</label>
+                        <label>Country *</label>
                         <input type="text" id="country" placeholder="Korea" />
                     </div>
 
@@ -157,6 +159,7 @@
     </div>
 </div>
 
+<script src="/js/authFetch.js"></script>
 <script src="/js/mypage.js"></script>
 </body>
 </html>

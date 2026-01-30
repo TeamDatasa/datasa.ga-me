@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -10,6 +11,9 @@
 </head>
 <body>
 <header class="yw-header">
+    <p sec:authorize="isAuthenticated()">AUTH</p>
+    <p sec:authorize="isAnonymous()">ANON</p>
+
     <div class="yw-container yw-header__inner">
         <a class="yw-logo" href="/">
             <span class="yw-logo__mark">●</span>
@@ -24,16 +28,24 @@
         </nav>
 
         <div class="yw-auth">
-            <div th:if="${isLogin}">
-                <a class="yw-btn yw-btn--ghost" href="/mypage">마이페이지</a>
-                <form action="/logout" method="post" style="display:inline;">
-                    <button class="yw-btn yw-btn--primary" type="submit">로그아웃</button>
+            <!-- 로그인 했을 때 -->
+            <div sec:authorize="isAuthenticated()">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <button class="yw-btn yw-btn--primary" type="submit">
+                        로그아웃
+                    </button>
                 </form>
             </div>
-
-            <div th:unless="${isLogin}">
-                <a class="yw-btn yw-btn--ghost" href="/login">로그인</a>
-                <a class="yw-btn yw-btn--primary" href="/signup">회원가입</a>
+            <!-- 로그인 안 했을 때 -->
+            <div sec:authorize="isAnonymous()">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
             </div>
         </div>
     </div>
