@@ -2,11 +2,15 @@
 package datasa.controller;
 
 import datasa.domain.dto.ChatMessageResponseDto;
+import datasa.domain.entity.ChatMessage;
+import datasa.repository.ChatMessageRepository;
 import datasa.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class ChatApiController {
 
     private final ChatService chatService;
-
-
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatMessageRepository chatMessageRepository;
     //채팅 히스토리
     @GetMapping("/rooms/{roomId}/messages")
     public Page<ChatMessageResponseDto> getMessages(
@@ -38,12 +42,14 @@ public class ChatApiController {
     }
 
     @PostMapping("/messages/{messageId}/translate")
-    public void translateMessage(
+    public ResponseEntity<Void> translateMessage(
             @PathVariable Long messageId,
             @RequestParam String targetLanguage
     ) {
         chatService.translateMessage(messageId, targetLanguage);
+        return ResponseEntity.ok().build();
     }
+
 
 
     @PostMapping("/rooms/{roomId}/leave")
