@@ -3,119 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <title>채팅방</title><style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
-    }
+/* =========================
+   기본 설정
+========================= */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f5f5;
+}
 
-    /* 전체 채팅 영역 */
-    .chat-container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      height: 80vh;
-      display: flex;
-      flex-direction: column;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+/* =========================
+   채팅 컨테이너
+========================= */
+.chat-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #bcd3e6;
+  padding: 16px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-    /* 메시지 영역 */
-    #messages {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      background: #eaeaea;
-    }
+/* 메시지 스크롤 영역 */
+#chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
 
-    /* 메시지 공통 */
-    .msg {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 10px;
-      max-width: 70%;
-    }
+/* =========================
+   메시지 공통
+========================= */
+.chat-message {
+  display: flex;
+  margin-bottom: 14px;
+}
 
-    /* 상대 메시지 (오른쪽) */
-    .msg.other {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
+/* 연속 메시지일 경우 위 여백 줄이기 */
+.chat-message.continued {
+  margin-top: 2px;
+}
 
-    .msg.other .bubble {
-      background: #ffeb3b;
-      color: #000;
-      border-radius: 12px 0 12px 12px;
-    }
+/* =========================
+   상대 메시지 (왼쪽)
+========================= */
+.chat-message.other {
+  align-items: flex-start;
+}
 
-    /* 내 메시지 (왼쪽) */
-    .msg.me {
-      align-self: flex-start;
-    }
+/* 프로필 */
+.profile img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
 
-    .msg.me .bubble {
-      background: #ffffff;
-      border-radius: 0 12px 12px 12px;
-    }
+/* =========================
+   내 메시지 (오른쪽)
+========================= */
+.chat-message.me {
+  justify-content: flex-end;
+}
 
-    /* 말풍선 */
-    .bubble {
-      padding: 8px 12px;
-      font-size: 14px;
-      line-height: 1.4;
-      word-break: break-word;
-    }
+/* =========================
+   메시지 영역
+========================= */
+.message-area {
+  display: flex;
+  flex-direction: column;
+}
 
-    /* 닉네임 */
-    .nickname {
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 2px;
-    }
+/* 보낸 사람 이름 */
+.sender {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 2px;
+}
 
-    /* 번역 버튼 */
-    .translate-btn {
-      font-size: 11px;
-      padding: 2px 6px;
-      margin-top: 2px;
-      border: none;
-      background: transparent;
-      color: #888;
-      cursor: pointer;
-    }
+/* =========================
+   말풍선 + 시간
+========================= */
+.bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
 
-    .translate-btn:hover {
-      text-decoration: underline;
-    }
+/* 내 메시지일 때 */
+.bubble-row.me {
+  justify-content: flex-end;
+}
 
-    .translate-btn[disabled] {
-      color: #aaa;
-      cursor: default;
-    }
+/* 말풍선 공통 */
+.bubble {
+  display: inline-block;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: pre-wrap;
+  position: relative;
+}
 
-    /* 입력 영역 */
-    .input-area {
-      display: flex;
-      padding: 8px;
-      border-top: 1px solid #ddd;
-      background: #fff;
-    }
+/* 상대 말풍선 */
+.bubble.white {
+  background: #ffffff;
+  border: 1px solid #ddd;
+}
 
-    .input-area input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      margin-right: 6px;
-    }
+/* 내 말풍선 */
+.bubble.yellow {
+  background: #ffe812;
+}
 
-    .input-area button {
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      background: #ffeb3b;
-      cursor: pointer;
-    }
+/* =========================
+   시간
+========================= */
+.time {
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* =========================
+   번역 버튼 영역
+========================= */
+.translate-area {
+  margin-top: 4px;
+}
+
+.translate-area.right {
+  text-align: right;
+}
+
+.translate-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  padding: 0;
+}
+
+.translate-btn:hover {
+  text-decoration: underline;
+}
+
+.translate-select {
+  margin-top: 4px;
+  font-size: 12px;
+  padding: 2px;
+}
+
+/* =========================
+   입력 영역
+========================= */
+.input-area {
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 6px;
+}
+
+.input-area button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #ffe812;
+  cursor: pointer;
+}
+
+/* 프로필 영역은 항상 공간 차지 */
+.chat-message.other .profile {
+  width: 42px;
+  height: 42px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* 연속 메시지일 경우: 프로필 숨김 (공간은 유지) */
+.chat-message.other.continued .profile {
+  visibility: hidden;
+
+  
+}
+
+.chat-message.other.continued .sender {
+  display: none;
+}
+
 </style>
 
 </head>
@@ -123,7 +212,7 @@
 
 <h3>채팅방</h3>
 <div class="chat-container">
-    <div id="messages"></div>
+    <div id="chatMessages"></div>
 
     <div class="input-area">
         <input type="text" id="messageInput" placeholder="메시지 입력" />
@@ -153,49 +242,67 @@ const socket = new WebSocket(
 );
     const stompClient = Stomp.over(socket);
     stompClient.debug = null; // 콘솔 스팸 끄기
-
-<!--    stompClient.connect(-->
-<!--        { Authorization: "Bearer " + accessToken },-->
-<!--        () => {-->
-<!--            // 구독-->
-<!--            stompClient.subscribe("/topic/chat/" + roomId, (frame) => {-->
-<!--                const data = JSON.parse(frame.body);-->
-<!--                appendMessage(data.senderNickname, data.translatedText ?? data.originalText);-->
-<!--            });-->
-<!--        },-->
-<!--        (err) => {-->
-<!--            console.error("STOMP ERROR", err);-->
-<!--            alert("채팅 서버 연결 실패");-->
-<!--        }-->
-<!--    );-->
-
+/**
+        stompClient.connect(
+        { Authorization: "Bearer " + accessToken },
+        () => {
+            // 구독
+            stompClient.subscribe("/topic/chat/" + roomId, (frame) => {
+                const data = JSON.parse(frame.body);
+                appendMessage(data.senderNickname, data.translatedText ?? data.originalText);
+            });
+        },
+        (err) => {
+            console.error("STOMP ERROR", err);
+            alert("채팅 서버 연결 실패");
+        }
+    );
+**/
 stompClient.connect(
-    {},
-    () => {
-        console.log("CONNECTED");
+  {},
+  () => {
+    console.log("CONNECTED");
 
-  // 읽음 처리
-  fetch(`/api/chat/rooms/${roomId}/read?userId=${userId}`, {
-    method: "POST"
-  });
-        loadHistory(0);
-        stompClient.subscribe("/topic/chat/" + roomId, (frame) => {
-            const data = JSON.parse(frame.body);
-            console.log("WS MESSAGE =", data);
-            appendMessage(
-                data
-            );
-            if (data.senderId !== userId) {
-  fetch(`/api/chat/rooms/${roomId}/read?userId=${userId}`, {
-    method: "POST"
-  });
-}
-        });
-    },
-    (err) => {
-        console.error("STOMP ERROR", err);
+    // 읽음 처리
+    fetch(`/api/chat/rooms/${roomId}/read?userId=${userId}`, {
+      method: "POST"
+    });
+
+    loadHistory(0);
+
+    stompClient.subscribe("/topic/chat/" + roomId, (frame) => {
+      const data = JSON.parse(frame.body);
+      console.log("WS MESSAGE =", data);
+
+
+  //  번역 메시지
+  if (data.translatedText) {
+    // 기존 메시지가 있으면 update
+    if (messageMap.has(data.messageId)) {
+      updateTranslatedMessage(data);
+    } 
+    // 없으면 새로 append
+    else {
+      appendMessage(data);
     }
+    return;
+  }
+
+  //  일반 새 메시지
+  appendMessage(data);
+
+  if (data.senderId !== userId) {
+    fetch(`/api/chat/rooms/${roomId}/read?userId=${userId}`, {
+      method: "POST"
+    });
+      }
+    });
+  },
+  (err) => {
+    console.error("STOMP ERROR", err);
+  }
 );
+
 
     function sendMessage() {
         const input = document.getElementById("messageInput");
@@ -212,60 +319,113 @@ stompClient.connect(
 
 
 const messageMap = new Map();
+let lastSenderId = null;
 
 function appendMessage(message) {
-  let wrapper = messageMap.get(message.messageId);
+  const chat = document.getElementById("chatMessages");
 
-  if (!wrapper) {
-    const isMe = message.senderId === userId;
+  const isMe = message.senderId === userId;
+  const isContinued = lastSenderId === message.senderId;
 
-    wrapper = document.createElement("div");
-    wrapper.className = "msg " + (isMe ? "me" : "other");
-    wrapper.dataset.messageId = message.messageId;
+  const wrapper = document.createElement("div");
+  wrapper.className = `chat-message ${isMe ? "me" : "other"} ${isContinued ? "continued" : ""}`;
 
-    // 닉네임 (상대만)
-    if (!isMe) {
-      const nick = document.createElement("div");
-      nick.className = "nickname";
-      nick.innerText = message.senderNickname;
-      wrapper.appendChild(nick);
-    }
+  if (!isMe) {
+  const profile = document.createElement("div");
+  profile.className = "profile";
+  profile.innerHTML = `<img src="/images/profile.png" />`;
 
-    // 말풍선
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    wrapper.appendChild(bubble);
-
-    // 번역 버튼
-    const btn = document.createElement("button");
-    btn.className = "translate-btn";
-    btn.innerText = "번역";
-    btn.onclick = () => {
-      btn.innerText = "번역중...";
-      btn.disabled = true;
-      translateMessage(message.messageId);
-    };
-    wrapper.appendChild(btn);
-
-    document.getElementById("messages").appendChild(wrapper);
-    messageMap.set(message.messageId, wrapper);
+  if (isContinued) {
+    profile.style.visibility = "hidden";
   }
 
-  // 텍스트 갱신
-  const bubble = wrapper.querySelector(".bubble");
-  bubble.innerText = message.translatedText || message.originalText;
-
-  // 번역 완료 시 버튼 숨김
-  if (message.translatedText) {
-    const btn = wrapper.querySelector(".translate-btn");
-    if (btn) btn.style.display = "none";
-  }
-
-  // 스크롤 유지
-  const box = document.getElementById("messages");
-  box.scrollTop = box.scrollHeight;
+  wrapper.appendChild(profile);
 }
 
+
+  const messageArea = document.createElement("div");
+  messageArea.className = "message-area";
+
+  if (!isMe && !isContinued) {
+    const sender = document.createElement("div");
+    sender.className = "sender";
+    sender.innerText = message.senderName;
+    messageArea.appendChild(sender);
+  }
+
+  const bubbleRow = document.createElement("div");
+  bubbleRow.className = `bubble-row ${isMe ? "me" : ""}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = `bubble message-text ${isMe ? "yellow" : "white"}`;
+  bubble.innerText = message.translatedText ?? message.originalText;
+
+  const time = document.createElement("span");
+  time.className = "time";
+  time.innerText = formatTime(message.createdAt);
+
+  if (isMe) {
+    bubbleRow.appendChild(time);
+    bubbleRow.appendChild(bubble);
+  } else {
+    bubbleRow.appendChild(bubble);
+    bubbleRow.appendChild(time);
+  }
+
+  messageArea.appendChild(bubbleRow);
+
+  // 번역 버튼 영역
+  const translateArea = document.createElement("div");
+  translateArea.className = `translate-area ${isMe ? "right" : ""}`;
+  // 버튼 생성
+const translateBtn = document.createElement("button");
+translateBtn.className = "translate-btn";
+translateBtn.innerText = "번역";
+translateBtn.dataset.messageId = message.messageId;
+
+// translateArea에 버튼 추가
+translateArea.appendChild(translateBtn);
+  
+  
+  messageArea.appendChild(translateArea);
+
+  wrapper.appendChild(messageArea);
+  chat.appendChild(wrapper);
+
+  lastSenderId = message.senderId;
+
+  messageMap.set(message.messageId, wrapper);
+}
+
+function showLanguageSelect(wrapper, messageId) {
+  const btn = wrapper.querySelector(".translate-btn");
+  if (btn) btn.remove();
+
+  const select = document.createElement("select");
+  select.className = "translate-select";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.innerText = "언어 선택";
+  defaultOption.disabled = true;
+  defaultOption.selected = true;
+  select.appendChild(defaultOption);
+
+  AVAILABLE_LANGUAGES.forEach(lang => {
+    const option = document.createElement("option");
+    option.value = lang.code;
+    option.innerText = lang.label;
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    const lang = select.value;
+    select.disabled = true;
+    select.innerHTML = `<option>번역중...</option>`;
+    translateMessage(messageId, lang);
+  };
+
+  wrapper.querySelector(".message-area").appendChild(select);
+}
 
 
 
@@ -292,13 +452,88 @@ function appendMessage(message) {
 
 }
 
-    function translateMessage(messageId) {
-  const targetLanguage = "ko"; // 나중에 select로 확장 가능
+const AVAILABLE_LANGUAGES = [
+  { code: "ko", label: "한국어" },
+  { code: "ja", label: "日本語" },
+  { code: "en", label: "English" }
+];
 
-  fetch(`/api/chat/messages/${messageId}/translate?targetLanguage=${targetLanguage}`, {
-    method: "POST"
+function translateMessage(messageId, targetLanguage) {
+  fetch(
+    `/api/chat/messages/${messageId}/translate?targetLanguage=${targetLanguage}`,
+    { method: "POST" }
+  )
+  .then(res => {
+    if (!res.ok) {
+      throw new Error("번역 실패");
+    }
+  })
+  .catch(err => {
+    alert("번역에 실패했습니다.");
+    console.error(err);
+
+    // 버튼 복구 (UX)
+    const wrapper = messageMap.get(messageId);
+    if (wrapper) {
+      const btn = document.createElement("button");
+      btn.className = "translate-btn";
+      btn.innerText = "번역";
+      btn.dataset.messageId = messageId;
+      wrapper.querySelector(".message-area").appendChild(btn);
+    }
   });
 }
+
+function formatTime(dateString) {
+  const date = new Date(dateString);
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  const isPM = hours >= 12;
+  const period = isPM ? "오후" : "오전";
+
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+
+  return `${period} ${hours}:${minutes}`;
+}
+
+document.getElementById("chatMessages").addEventListener("click", (e) => {
+  if (!e.target.classList.contains("translate-btn")) return;
+
+  const messageId = Number(e.target.dataset.messageId);
+  const wrapper = messageMap.get(messageId);
+  if (!wrapper) return;
+
+  showLanguageSelect(wrapper, messageId);
+});
+
+
+function updateTranslatedMessage(message) {
+  const wrapper = messageMap.get(message.messageId);
+  if (!wrapper) return;
+
+  const messageText = wrapper.querySelector(".message-text");
+  const translateArea = wrapper.querySelector(".translate-area");
+
+  // 텍스트 교체
+  messageText.innerText = message.translatedText;
+
+  // 번역 UI 복구 (select 제거 → 번역 버튼)
+  if (translateArea) {
+    translateArea.innerHTML = "";
+
+    const btn = document.createElement("button");
+    btn.className = "translate-btn";
+    btn.innerText = "번역";
+    btn.dataset.messageId = message.messageId;
+
+    translateArea.appendChild(btn);
+  }
+}
+
+
 </script>
 
 </body>
