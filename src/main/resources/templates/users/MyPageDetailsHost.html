@@ -2,12 +2,48 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <section th:fragment="content">
+
+    <!-- Quick Summary -->
     <div class="grid">
-        <a class="card host-primary" href="/host">
-            <div class="card-title">투어 등록 / 관리</div>
-            <div class="card-meta">새 투어 만들기</div>
+        <a class="card" href="/host/trips/new">
+            <div class="card-title">Create Tour</div>
+            <div class="card-meta">Register a new tour</div>
+            <p class="hint" style="margin:10px 0 0;">Create and publish your tour.</p>
+        </a>
+
+        <a class="card" href="/host/trips">
+            <div class="card-title">Manage Tours</div>
+            <div class="card-meta">Edit / Hide / Delete</div>
+            <p class="hint" style="margin:10px 0 0;">Manage your listed tours.</p>
+        </a>
+
+        <a class="card" href="/host/applications">
+            <div class="card-title">Applications</div>
+            <div class="card-meta">Approve / Reject</div>
+            <p class="hint" style="margin:10px 0 0;">Review and manage applicants.</p>
         </a>
     </div>
+
+    <!-- My Tours (HOST) -->
+    <div class="panel" style="margin-top: 18px;">
+        <h3>My Hosted Tours</h3>
+        <p class="hint">Tours you created. Manage schedules and applicants.</p>
+
+        <div class="empty">
+            No tours yet.
+        </div>
+    </div>
+
+    <!-- My Reviews (HOST optional) -->
+    <div class="panel">
+        <h3>Reviews</h3>
+        <p class="hint">Reviews from users after tours end.</p>
+
+        <div class="empty">
+            No reviews yet.
+        </div>
+    </div>
+
 </section>
 </body>
 </html>

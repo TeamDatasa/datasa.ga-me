@@ -1,41 +1,179 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8" />
-    <meta
-            name="viewport"
-            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <title>Document</title>
 </head>
 <body>
-<div th:replace="~{fragments/topbar :: notifTopbar}"></div>
-<!--<header>-->
-<!--    <div th:if="${isLogin}">-->
-<!--        <span>로그인 상태</span>-->
-<!--        <a href="#">로그아웃</a>-->
-<!--    </div>-->
+<header class="yw-header">
+    <p sec:authorize="isAuthenticated()">AUTH</p>
+    <p sec:authorize="isAnonymous()">ANON</p>
 
-<!--    <div th:unless="${isLogin}">-->
-<!--        <a href="#">로그인</a>-->
-<!--        <a href="#">회원가입</a>-->
-<!--    </div>-->
-<!--</header>-->
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
 
-<nav class="quick-menu">
-    <a href="/">홈</a>
+        <nav class="yw-nav">
+            <a class="yw-nav__link" href="/">홈</a>
+            <a class="yw-nav__link" href="/courses">코스</a>
+            <a class="yw-nav__link" href="/guides">가이드</a>
+            <a class="yw-nav__link" href="/community">커뮤니티</a>
+        </nav>
 
-    <a th:unless="${isLogin}" th:href="@{/auth/login}">로그인</a>
-    <a th:unless="${isLogin}" th:href="@{/auth/signup}">회원가입</a>
+        <div class="yw-auth">
+            <!-- 로그인 했을 때 -->
+            <div sec:authorize="isAuthenticated()">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
 
-    <a th:if="${isLogin}" href="/course/create">코스 등록</a>
-    <a th:if="${isLogin}" href="/mypage">마이페이지</a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+                    <button class="yw-btn yw-btn--primary" type="submit">
+                        로그아웃
+                    </button>
+                </form>
+            </div>
+            <!-- 로그인 안 했을 때 -->
+            <div sec:authorize="isAnonymous()">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
+            </div>
+        </div>
+    </div>
+</header>
 
-    <a th:href="@{api/trip/write}">게시글 작성</a>
-    <a th:href="@{api/map/naver}">naver map</a>
-    <a th:href="@{api/map/kakao}">kakao map</a>
-    <a th:href="@{/api/map/main}">지도</a>
-</nav>
+<main>
+    <!-- HERO -->
+    <section class="yw-hero">
+        <div class="yw-container yw-hero__inner">
+            <div class="yw-hero__copy">
+                <p class="yw-badge">지역 기반 코스 추천</p>
+                <h1 class="yw-hero__title">
+                    오늘 갈 곳,<br>
+                    빠르게 찾고 바로 떠나자
+                </h1>
+                <p class="yw-hero__desc">
+                    AI 추천부터 인기 코스까지, 한 번에
+                </p>
+
+                <div class="yw-hero__actions">
+                    <a class="yw-btn yw-btn--primary yw-btn--lg" href="/recommend">AI 추천 받기</a>
+                    <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/courses">코스 둘러보기</a>
+                </div>
+            </div>
+
+            <aside class="yw-hero__card">
+                <div class="yw-search">
+                    <div class="yw-search__row">
+                        <input class="yw-input" type="text" placeholder="키워드 검색 (예: 부산, 야경, 맛집)">
+                        <button class="yw-btn yw-btn--primary" type="button">검색</button>
+                    </div>
+
+                    <div class="yw-chips">
+                        <button class="yw-chip" type="button">#부산</button>
+                        <button class="yw-chip" type="button">#야경</button>
+                        <button class="yw-chip" type="button">#카페</button>
+                        <button class="yw-chip" type="button">#데이트</button>
+                    </div>
+
+                    <div class="yw-mini">
+                        <div class="yw-mini__item">
+                            <div class="yw-mini__num">추천가능개수</div>
+                            <div class="yw-mini__label">추천 가능</div>
+                        </div>
+                        <div class="yw-mini__item">
+                            <div class="yw-mini__num">신규등록개수</div>
+                            <div class="yw-mini__label">신규 등록</div>
+                        </div>
+                        <div class="yw-mini__item">
+                            <div class="yw-mini__num">평점높은순추천</div>
+                            <div class="yw-mini__label">만족도</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- QUICK MENU -->
+    <section class="yw-section">
+        <div class="yw-container">
+            <div class="yw-section__head">
+                <h2 class="yw-section__title">빠른 메뉴</h2>
+                <p class="yw-section__desc">자주 쓰는 메뉴 추가 예정</p>
+            </div>
+
+            <div class="yw-grid yw-grid--4">
+                <a class="yw-tile" href="/recommend">
+                    <div class="yw-tile__title">AI 추천</div>
+                    <div class="yw-tile__desc">취향 맞춤 코스</div>
+                </a>
+                <a class="yw-tile" href="/courses">
+                    <div class="yw-tile__title">인기 코스</div>
+                    <div class="yw-tile__desc">지금 많이 보는</div>
+                </a>
+                <a class="yw-tile" href="/regions">
+                    <div class="yw-tile__title">지역별</div>
+                    <div class="yw-tile__desc">동네로 찾기</div>
+                </a>
+                <a class="yw-tile" th:if="${isLogin}" href="/recent">
+                    <div class="yw-tile__title">최근 본 코스</div>
+                    <div class="yw-tile__desc">다시 이어보기</div>
+                </a>
+                <a class="yw-tile" th:unless="${isLogin}" href="/signup">
+                    <div class="yw-tile__title">최근 본 코스</div>
+                    <div class="yw-tile__desc">로그인 후 제공</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECOMMEND LIST -->
+    <section class="yw-section">
+        <div class="yw-container">
+            <div class="yw-section__head yw-section__head--row">
+                <h2 class="yw-section__title">추천 코스</h2>
+                <a class="yw-section__link" href="/courses">더보기</a>
+            </div>
+
+            <div class="yw-cards">
+                <article class="yw-card" th:each="course : ${recommendCourses}">
+                    <div class="yw-card__thumb"></div>
+                    <div class="yw-card__body">
+                        <div class="yw-card__title" th:text="${course.title}">코스 제목</div>
+                        <div class="yw-card__meta">
+                            <span th:text="${course.region}">지역</span>
+                            <span class="yw-dot">•</span>
+                            <span th:text="${course.duration}">소요시간</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="yw-card" th:if="${recommendCourses == null || #lists.isEmpty(recommendCourses)}">
+                    <div class="yw-card__thumb"></div>
+                    <div class="yw-card__body">
+                        <div class="yw-card__title">추천 코스 추가 예정</div>
+                        <div class="yw-card__meta">데이터 연결되면 자동으로 뜸</div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="yw-footer">
+    <div class="yw-container yw-footer__inner">
+        <span>© ga-me</span>
+    </div>
+</footer>
 </body>
 </html>

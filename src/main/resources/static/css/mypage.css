@@ -49,6 +49,17 @@ a {
   border-color:#111;
 }
 
+.login-extra {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.forgot-link {
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+
 
 .brand {
   font-size: 20px;

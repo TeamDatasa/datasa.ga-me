@@ -44,8 +44,6 @@ public class SecurityConfig {
                     "/api/trip/**",
 					"/api/auth/email/**",
 					"/api/trip/update/**",
-                    "/mypage",
-                    "/mypage/details",
                     "/api/map/main",
                     "/trip",
                     "/chat/**",
