@@ -1,50 +1,41 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
-  </head>
-  <body>
-    <!--<header>-->
-    <!--    <div th:if="${isLogin}">-->
-    <!--        <span>로그인 상태</span>-->
-    <!--        <a href="#">로그아웃</a>-->
-    <!--    </div>-->
+</head>
+<body>
+<div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+<!--<header>-->
+<!--    <div th:if="${isLogin}">-->
+<!--        <span>로그인 상태</span>-->
+<!--        <a href="#">로그아웃</a>-->
+<!--    </div>-->
 
-    <!--    <div th:unless="${isLogin}">-->
-    <!--        <a href="#">로그인</a>-->
-    <!--        <a href="#">회원가입</a>-->
-    <!--    </div>-->
-    <!--</header>-->
+<!--    <div th:unless="${isLogin}">-->
+<!--        <a href="#">로그인</a>-->
+<!--        <a href="#">회원가입</a>-->
+<!--    </div>-->
+<!--</header>-->
 
-    <nav class="quick-menu">
-      <a href="/">홈</a>
+<nav class="quick-menu">
+    <a href="/">홈</a>
 
-      <a th:unless="${isLogin}" th:href="@{/auth/login}">로그인</a>
-      <a th:unless="${isLogin}" th:href="@{/auth/signup}">회원가입</a>
+    <a th:unless="${isLogin}" th:href="@{/auth/login}">로그인</a>
+    <a th:unless="${isLogin}" th:href="@{/auth/signup}">회원가입</a>
 
-      <a th:if="${isLogin}" href="/course/create">코스 등록</a>
-      <a th:if="${isLogin}" href="/mypage">마이페이지</a>
+    <a th:if="${isLogin}" href="/course/create">코스 등록</a>
+    <a th:if="${isLogin}" href="/mypage">마이페이지</a>
 
-      <a th:href="@{api/trip/write}">게시글 작성</a>
-      <a th:href="@{api/map/naver}">naver map</a>
-      <a th:href="@{api/map/kakao}">kakao map</a>
-      <a th:href="@{/api/map/main}">지도</a>
-    </nav>
-
-    <!--<section>-->
-    <!--    <h2>추천 코스</h2>-->
-
-    <!--    <ul>-->
-    <!--        <li th:each="course : ${recommendCourses}">-->
-    <!--            <span th:text="${course.title}"></span>-->
-    <!--        </li>-->
-    <!--    </ul>-->
-    <!--</section>-->
-  </body>
+    <a th:href="@{api/trip/write}">게시글 작성</a>
+    <a th:href="@{api/map/naver}">naver map</a>
+    <a th:href="@{api/map/kakao}">kakao map</a>
+    <a th:href="@{/api/map/main}">지도</a>
+</nav>
+</body>
 </html>

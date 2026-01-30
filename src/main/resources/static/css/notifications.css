@@ -1,0 +1,121 @@
+:root{
+  --notif-bg:#ffffff;
+  --notif-border: rgba(86, 104, 115, 0.18);
+  --notif-shadow: 0 14px 40px rgba(0,0,0,0.10);
+}
+
+.notif-wrap{
+z-index: 2147483647;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+
+.notif-icon-btn, .notif-test-btn{
+  border: 1px solid var(--notif-border);
+  background: var(--notif-bg);
+  border-radius: 999px;
+  padding: 10px 12px;
+  box-shadow: var(--notif-shadow);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-icon{
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.notif-badge{
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  background: #1675F2;
+  color: #fff;
+  display: none;
+}
+
+.notif-popover{
+z-index: 2147483647;
+  position: fixed;
+  top: 56px;
+  right: 14px;
+  width: min(360px, calc(100vw - 28px));
+  max-height: 420px;
+  overflow: auto;
+  background: var(--notif-bg);
+  border: 1px solid var(--notif-border);
+  border-radius: 16px;
+  box-shadow: var(--notif-shadow);
+  display: none;
+}
+
+.notif-popover.open{ display:block; }
+
+.notif-popover__header{
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--notif-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notif-popover__title{
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notif-popover__markread{
+  font-size: 12px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.notif-list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notif-item{
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--notif-border);
+}
+
+.notif-item:last-child{ border-bottom: 0; }
+
+.notif-item__title{
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.notif-item__body{
+  font-size: 13px;
+  opacity: .9;
+  margin-bottom: 6px;
+}
+
+.notif-item__meta{
+  font-size: 12px;
+  opacity: .6;
+}
+
+.notif-empty{
+  padding: 16px 14px;
+  font-size: 13px;
+  opacity: .7;
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="notifTopbar">
+
+    <!-- Notification Top Right -->
+    <div class="notif-wrap" data-notif-wrap>
+        <button type="button" class="notif-icon-btn" data-notif-bell aria-label="알림">
+            <svg class="notif-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22a2.2 2.2 0 0 0 2.2-2.2h-4.4A2.2 2.2 0 0 0 12 22Z" fill="currentColor"/>
+                <path d="M18 16.5V11a6 6 0 1 0-12 0v5.5L4.5 18v1h15v-1L18 16.5Z"
+                      stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+            <span class="notif-badge" data-notif-badge>0</span>
+        </button>
+
+        <button type="button" class="notif-test-btn" data-notif-test>
+            테스트 알림
+        </button>
+    </div>
+
+    <div class="notif-popover" data-notif-popover>
+        <div class="notif-popover__header">
+            <div class="notif-popover__title">알림</div>
+            <button type="button" class="notif-popover__markread" data-notif-markread>모두 읽음</button>
+        </div>
+
+        <div class="notif-empty" data-notif-empty>표시할 알림이 없습니다.</div>
+        <ul class="notif-list" data-notif-list></ul>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -53,7 +53,8 @@ public class SecurityConfig {
                     "/host/**",
 					"/css/**", "/js/**", "/images/**",
 					"/favicon.ico",
-                    "/host/**","/ws/**","/api/chat/**"
+                    "/host/**","/ws/**","/api/chat/**",
+					"/api/notifications/**"
                 ).permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers("/mypage/**", "/api/mypage/**").authenticated()

@@ -1,5 +1,6 @@
 package datasa.service;
 
+import datasa.domain.dto.TripLikedEvent;
 import datasa.domain.dto.TripListResponse;
 import datasa.domain.entity.Trip;
 import datasa.domain.entity.TripLike;
@@ -7,6 +8,7 @@ import datasa.domain.entity.User;
 import datasa.repository.TripLikeRepository;
 import datasa.repository.TripRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class TripLikeService {
 	
 	private final TripRepository tripRepository;
 	private final TripLikeRepository tripLikeRepository;
+	private final ApplicationEventPublisher eventPublisher;
 	
 	public TripLikeResult toggleLike(Long tripId, User user) {
 		Trip trip = tripRepository.findById(tripId)
@@ -34,12 +37,25 @@ public class TripLikeService {
 		} else {
 			tripLikeRepository.save(TripLike.of(trip, user));
 			nowLiked = true;
+			
+			// 좋아요 발생시 event 발생
+			if (!trip.getHostUser().getUserId().equals(user.getUserId())) {
+				eventPublisher.publishEvent(
+						new TripLikedEvent(
+								trip.getTripId(),
+								user.getUserId(),
+								trip.getHostUser().getUserId()
+						)
+				);
+			}
+			
+			
+			
 		}
-		
-		
 		long count = tripLikeRepository.countByTrip(trip);
 		return new TripLikeResult(nowLiked, count);
 	}
+	
 	
 	
 	public record TripLikeResult(boolean liked, long count) {}

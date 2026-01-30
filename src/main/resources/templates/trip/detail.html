@@ -11,6 +11,7 @@
 </head>
 
 <body>
+<div th:replace="~{fragments/topbar :: notifTopbar}"></div>
 <main class="page">
     <div class="container">
 
@@ -34,191 +35,237 @@
             </div>
 
             <div class="post-meta">
-                <span class="author" th:text="${trip.hostUser != null ? trip.hostUser.name : '-'}">작성자</span>
-                <span class="meta-sep">|</span>
-                <span class="date"
-                      th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy.MM.dd') : '-'}">2026.01.28</span>
-            </div>
+                <div class="meta-left">
+                    <span class="chip" th:text="${trip.userName}">작성자</span>
+                    <span class="dot">•</span>
+                    <span class="muted" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                </div>
 
-            <hr class="divider"/>
-        </header>
-
-        <!-- 요약 + 사이드(추천글 같은 영역을 나중에 붙이려면 grid로 확장 가능) -->
-        <section class="summary-section">
-            <div class="summary-card">
-                <div class="summary-grid">
-
-                    <div class="summary-item">
-                        <div class="k">상태</div>
-                        <div class="v"><span class="badge" th:text="${trip.status}">OPEN</span></div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">테마</div>
-                        <div class="v" th:text="${trip.theme}">-</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">모집 인원</div>
-                        <div class="v"><span th:text="${trip.maxParticipants}">-</span>명</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">소요 시간</div>
-                        <div class="v"><span th:text="${trip.durationMinutes}">-</span>분</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">기간</div>
-                        <div class="v">
-                            <span th:text="${#temporals.format(trip.startAt, 'yyyy.MM.dd HH:mm')}">-</span>
-                            <span class="meta-sep">~</span>
-                            <span th:text="${#temporals.format(trip.endAt, 'yyyy.MM.dd HH:mm')}">-</span>
-                        </div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">예상 가격</div>
-                        <div class="v">
-                            <span th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">-</span>
-                            <span class="unit">KRW</span>
-                        </div>
-                    </div>
-
-                    <!-- “위치/사용 언어”가 실제 필드가 없으면 임시로 숨기거나 - 처리 -->
-                    <div class="summary-item">
-                        <div class="k">위치</div>
-                        <div class="v">-</div>
-                    </div>
-
-                    <div class="summary-item">
-                        <div class="k">사용 언어</div>
-                        <div class="v">-</div>
-                    </div>
-
+                <div class="meta-right">
+                    <span class="muted">조회</span>
+                    <span class="num" th:text="${trip.viewCount}">0</span>
                 </div>
             </div>
+        </header>
+
+        <!-- 내용 -->
+        <section class="post-body">
+            <p class="content" th:text="${trip.content}">본문</p>
         </section>
 
-        <!-- 본문 -->
-        <section class="content-section">
-            <h2 class="section-title">프로젝트 소개</h2>
-            <div class="content-card">
-                <div class="content-text" th:text="${trip.description}">본문</div>
-            </div>
-        </section>
-
-        <!-- 일정(장소) -->
-        <section class="content-section">
-            <h2 class="section-title">일정(장소)</h2>
-
-            <div class="content-card" th:if="${trip.locations == null or #lists.isEmpty(trip.locations)}">
-                <div class="muted">등록된 장소가 없습니다.</div>
+        <!-- 댓글 영역 -->
+        <section class="comments">
+            <div class="comments-head">
+                <h2 class="section-title">댓글</h2>
+                <span class="muted small" id="commentCount">0</span>
             </div>
 
-            <div class="place-list" th:if="${trip.locations != null and !#lists.isEmpty(trip.locations)}">
-                <article class="place-card" th:each="loc : ${trip.locations}">
-                    <div class="place-head">
-                        <span class="chip" th:text="${loc.orderNo}">1</span>
-                        <div class="place-name" th:text="${loc.placeName}">장소명</div>
-                    </div>
-                    <div class="place-addr" th:text="${loc.address}">주소</div>
-                    <div class="place-coord" th:if="${loc.lat != null and loc.lng != null}">
-                        <span th:text="'lat=' + ${#numbers.formatDecimal(loc.lat, 1, 'POINT', 6, 'NONE')}"></span>
-                        <span th:text="', lng=' + ${#numbers.formatDecimal(loc.lng, 1, 'POINT', 6, 'NONE')}"></span>
-                    </div>
-                </article>
-            </div>
+            <!-- 댓글 작성 -->
+            <form id="commentForm" class="comment-form">
+                <input type="hidden" id="userId" th:value="${userId}"/>
+                <input type="hidden" id="tripId" th:value="${trip.tripId}"/>
+
+                <textarea id="commentContent"
+                          class="textarea"
+                          rows="3"
+                          placeholder="댓글을 입력하세요"></textarea>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn primary">등록</button>
+                </div>
+            </form>
+
+            <!-- 댓글 리스트 -->
+            <ul id="commentList" class="comment-list"></ul>
         </section>
 
         <!-- 하단 액션 -->
-        <div class="bottom-actions">
-            <a class="btn btn-ghost" th:href="@{/api/trip/listAll}">목록으로</a>
-            <a class="btn btn-primary" th:href="@{/api/trip/update/{id}(id=${trip.tripId})}">수정</a>
+        <footer class="bottom-actions">
+            <a class="btn" th:href="@{/api/trip/listAll}">목록</a>
 
-            <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
-                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                <button class="btn btn-danger" type="submit">삭제</button>
-            </form>
-        </div>
+            <a class="btn" th:if="${isMine}" th:href="@{'/api/trip/update/' + ${trip.tripId}}">수정</a>
 
-        <hr class="divider" style="margin:24px 0;"/>
-
-        <!--comment-->
-        <hr style="margin:24px 0;"/>
-
-        <div class="comment-wrap">
-            <div class="comment-header">
-                <div>
-                    <h2 style="margin:0;">댓글</h2>
-                    <div class="hint">로그인이 없으므로 userId(1~10)를 더미로 입력해서 테스트합니다.</div>
-                </div>
-                <div class="small" id="commentCountText"></div>
-            </div>
-
-            <div class="comment-form">
-                <!-- 상단: userId / 대댓글 상태(테스트용) -->
-                <div class="comment-form-top">
-                    <div class="comment-top-left">
-                        <label class="comment-userid">
-                            userId
-                            <input id="dummyUserId" type="number" min="1" max="10" value="1" />
-                        </label>
-
-                        <span class="reply-pill" id="replyTargetText">최상위 댓글 작성</span>
-                        <button type="button" id="cancelReplyBtn" class="reply-cancel hidden">대댓글 취소</button>
-                    </div>
-
-                    <input type="hidden" id="parentCommentId" value="" />
-                    <span class="form-msg muted" id="formMsg"></span>
-                </div>
-
-                <!-- 본문 입력: 아바타 + 텍스트박스 -->
-                <div class="comment-composer">
-                    <div class="comment-avatar" aria-hidden="true">
-                        <!-- 로그인 연동 전이면 임시 아이콘/이미지 -->
-                        <span class="comment-avatar__emoji">🐣</span>
-                    </div>
-
-                    <textarea id="commentContent" class="comment-textarea" placeholder="댓글을 입력하세요."></textarea>
-                </div>
-
-                <!-- 우측 하단 버튼 -->
-                <div class="comment-actions-row">
-                    <button type="button" id="submitCommentBtn" class="comment-submit">댓글 등록</button>
-                </div>
-            </div>
+            <button class="btn danger"
+                    type="button"
+                    th:if="${isMine}"
+                    th:attr="data-trip-id=${trip.tripId}"
+                    id="deleteBtn">삭제
+            </button>
+        </footer>
 
     </div>
 </main>
 
 <script th:inline="javascript">
-    const tripId = [[${trip.tripId}]];
+    const tripId = /*[[${trip.tripId}]]*/ 0;
+    const currentUserId = /*[[${userId}]]*/ null; // 서버에서 내려오는 userId
+    const isLogin = /*[[${isLogin}]]*/ false;
 </script>
 
 <script>
+    // ===== 좋아요 토글 =====
     const likeBtn = document.getElementById("likeBtn");
     const likeCountEl = document.getElementById("likeCount");
 
-    likeBtn.addEventListener("click", async () => {
-      const id = likeBtn.getAttribute("data-trip-id");
-      likeBtn.disabled = true;
+    likeBtn?.addEventListener("click", async () => {
+        if (!isLogin) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
 
-      try {
-        const res = await fetch(`/api/trip/${id}/like`, {
-          method: "POST",
-          headers: { "Accept": "application/json" }
-        });
-        if (!res.ok) throw new Error(res.status);
+        const tripId = likeBtn.dataset.tripId;
 
-        const data = await res.json();
-        likeBtn.setAttribute("data-liked", String(data.liked));
-        likeBtn.querySelector(".heart").innerText = data.liked ? "❤" : "♡";
-        likeCountEl.innerText = data.count;
-      } finally {
-        likeBtn.disabled = false;
-      }
+        try {
+            const res = await fetch(`/api/trips/${tripId}/like`, {
+                method: "POST",
+                credentials: "include"
+            });
+
+            if (!res.ok) {
+                if (res.status === 401) alert("로그인이 필요합니다.");
+                else alert("좋아요 처리 실패");
+                return;
+            }
+
+            const data = await res.json();
+            likeCountEl.textContent = data.likeCount;
+            likeBtn.dataset.liked = data.liked;
+
+            const heartEl = likeBtn.querySelector(".heart");
+            heartEl.textContent = data.liked ? "❤" : "♡";
+        } catch (e) {
+            console.error(e);
+            alert("네트워크 오류");
+        }
     });
+
+    // ===== 댓글 기능 =====
+    const commentListEl = document.getElementById("commentList");
+    const commentCountEl = document.getElementById("commentCount");
+
+    async function loadComments() {
+        const res = await fetch(`/api/trips/${tripId}/comments`, {credentials: "include"});
+        const comments = await res.json();
+
+        commentCountEl.textContent = comments.length;
+
+        commentListEl.innerHTML = "";
+        for (const c of comments) {
+            const li = document.createElement("li");
+            li.className = "comment-item";
+
+            // 대댓글 여부에 따른 들여쓰기
+            li.style.marginLeft = c.parentCommentId ? "28px" : "0px";
+
+            li.innerHTML = `
+                <div class="comment-head">
+                    <span class="author">${c.userName ?? "익명"}</span>
+                    <span class="dot">•</span>
+                    <span class="muted small">${c.createdAt ?? ""}</span>
+                </div>
+                <div class="comment-body">${escapeHtml(c.content ?? "")}</div>
+                <div class="comment-actions">
+                    ${isLogin ? `<button class="btn-xs" data-reply="${c.commentId}">답글</button>` : ""}
+                </div>
+                <div class="reply-box" id="reply-${c.commentId}" style="display:none;">
+                    <textarea class="textarea" rows="2" placeholder="대댓글을 입력하세요"></textarea>
+                    <button class="btn-xs primary" data-reply-submit="${c.commentId}">등록</button>
+                </div>
+            `;
+
+            commentListEl.appendChild(li);
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("commentForm")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!isLogin) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+
+        const content = document.getElementById("commentContent").value.trim();
+        if (!content) return;
+
+        const userId = document.getElementById("userId").value;
+
+        const res = await fetch(`/api/trips/${tripId}/comments`, {
+            method: "POST",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({userId: Number(userId), content})
+        });
+
+        if (!res.ok) {
+            alert("댓글 등록 실패");
+            return;
+        }
+
+        document.getElementById("commentContent").value = "";
+        await loadComments();
+    });
+
+    // 답글 버튼 토글 + 대댓글 등록
+    commentListEl?.addEventListener("click", async (e) => {
+        const t = e.target;
+
+        if (t.dataset.reply) {
+            const box = document.getElementById(`reply-${t.dataset.reply}`);
+            box.style.display = box.style.display === "none" ? "block" : "none";
+            return;
+        }
+
+        if (t.dataset.replySubmit) {
+            const commentId = Number(t.dataset.replySubmit);
+            const box = document.getElementById(`reply-${commentId}`);
+            const textarea = box.querySelector("textarea");
+            const content = textarea.value.trim();
+            if (!content) return;
+
+            const userId = document.getElementById("userId").value;
+
+            const res = await fetch(`/api/trips/${tripId}/comments`, {
+                method: "POST",
+                credentials: "include",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    userId: Number(userId),
+                    parentCommentId: commentId,
+                    content
+                })
+            });
+
+            if (!res.ok) {
+                alert("대댓글 등록 실패");
+                return;
+            }
+
+            textarea.value = "";
+            box.style.display = "none";
+            await loadComments();
+        }
+    });
+
+    // 삭제 버튼
+    document.getElementById("deleteBtn")?.addEventListener("click", async () => {
+        const id = document.getElementById("deleteBtn").dataset.tripId;
+        if (!confirm("삭제하시겠습니까?")) return;
+
+        const res = await fetch(`/api/trip/${id}`, {method: "DELETE", credentials: "include"});
+        if (res.ok) location.href = "/api/trip/listAll";
+        else alert("삭제 실패");
+    });
+
+    loadComments();
 </script>
 </body>
 </html>

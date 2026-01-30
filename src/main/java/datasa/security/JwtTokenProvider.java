@@ -7,11 +7,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
@@ -61,5 +65,23 @@ public class JwtTokenProvider {
 		return Jwts.parserBuilder().setSigningKey(key).build()
 				.parseClaimsJws(token)
 				.getBody();
+	}
+	
+	public boolean validateToken(String token) {
+		return validate(token); // 기존 validate 재사용
+	}
+	
+	public Authentication getAuthentication(String token) {
+		String email = getEmail(token);
+		String role = getRole(token); // 예: "USER" / "HOST"
+		
+		// Spring Security 권한 컨벤션: ROLE_ prefix
+		String authority = (role == null) ? "ROLE_USER" : "ROLE_" + role;
+		
+		return new UsernamePasswordAuthenticationToken(
+				email,                 // principal (간단히 email로 둠)
+				null,                  // credentials
+				List.of(new SimpleGrantedAuthority(authority))
+		);
 	}
 }

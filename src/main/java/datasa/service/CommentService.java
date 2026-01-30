@@ -3,6 +3,7 @@ package datasa.service;
 import datasa.domain.dto.CommentCreateRequest;
 import datasa.domain.dto.CommentResponse;
 import datasa.domain.dto.CommentUpdateRequest;
+import datasa.domain.dto.TripCommentedEvent;
 import datasa.domain.entity.Comment;
 import datasa.domain.entity.CommentLike;
 import datasa.domain.entity.Trip;
@@ -12,6 +13,7 @@ import datasa.repository.CommentRepository;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +25,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
 	
+	private static final Comment.Status DELETED = Comment.Status.DELETED;
 	private final TripRepository tripRepository;
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
 	private final CommentLikeRepository commentLikeRepository;
+	private final ApplicationEventPublisher eventPublisher;
 	
-	private static final Comment.Status DELETED = Comment.Status.DELETED;
 	
 	@Transactional(readOnly = true)
 	public List<CommentResponse> listByTrip(Long tripId) {
@@ -51,15 +54,28 @@ public class CommentService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 		
 		Comment parent = null;
+		
+		// parent cooment 확인
 		if (req.parentCommentId() != null) {
-			// 부모댓글이 같은 trip에 속해야 함(계층 무결성)
-			parent = commentRepository.findByCommentIdAndTrip_TripIdAndStatusNot(req.parentCommentId(), tripId, DELETED)
+			parent = commentRepository
+					.findByCommentIdAndTrip_TripIdAndStatusNot(req.parentCommentId(), tripId, DELETED)
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parent comment"));
 		}
 		
 		Comment saved = commentRepository.save(new Comment(trip, user, parent, req.content()));
+		
+		if (!trip.getHostUser().getUserId().equals(user.getUserId())) {
+			eventPublisher.publishEvent(new TripCommentedEvent(
+					trip.getTripId(),
+					saved.getCommentId(),
+					user.getUserId(),
+					trip.getHostUser().getUserId()
+			));
+		}
+		
 		return toResponse(saved);
 	}
+
 	
 	
 	@Transactional
@@ -81,7 +97,7 @@ public class CommentService {
 		return toResponse(comment);
 	}
 	
-
+	
 	@Transactional
 	public void delete(Long commentId, Long userId) {
 		Comment comment = commentRepository.findByCommentIdAndStatusNot(commentId, DELETED)

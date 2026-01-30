@@ -55,6 +55,34 @@ public class Notification {
             this.isRead = false;
         }
     }
+	
+	public static Notification tripLike(Long ownerUserId, Long actorUserId, Long tripId) {
+		Notification n = new Notification();
+		n.user = userRef(ownerUserId);
+		n.type = Type.LIKE;
+		n.refId = tripId;
+		n.title = "좋아요";
+		n.body = "내 게시글에 좋아요가 달렸습니다. (userId=" + actorUserId + ")";
+		n.isRead = false;
+		return n;
+	}
+	
+	public static Notification tripComment(Long ownerUserId, Long actorUserId, Long tripId, Long commentId) {
+		Notification n = new Notification();
+		n.user = userRef(ownerUserId);
+		n.type = Type.COMMENT;
+		n.refId = tripId; // refId는 tripId로 통일
+		n.title = "댓글";
+		n.body = "내 게시글에 댓글이 달렸습니다. (commentId=" + commentId + ", userId=" + actorUserId + ")";
+		n.isRead = false;
+		return n;
+	}
+	
+	private static User userRef(Long userId) {
+		User u = new User();
+		u.setUserId(userId);
+		return u;
+	}
 
     /* ===== ENUM ===== */
     public enum Type {
@@ -63,6 +91,13 @@ public class Notification {
         REJECTED,     // 거절
         COMMENT,      // 댓글
         CHAT,         // 채팅
-        SYSTEM        // 시스템 알림
+        SYSTEM,        // 시스템 알림
+		LIKE
     }
+	
+
+	public void setIsRead(Boolean isRead) {
+		this.isRead = isRead;
+	}
+	
 }
