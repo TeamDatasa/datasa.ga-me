@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My Applications</title>
+    <link rel="stylesheet" href="/css/mypage-user.css"/>
+</head>
+<body>
+
+<div class="details-wrap">
+    <header class="details-top">
+        <div class="brand">ga-me</div>
+        <a class="btn btn-ghost" href="/mypage/details/user">Back</a>
+    </header>
+
+    <section class="panel">
+        <h3>My Applications</h3>
+        <p class="hint">Your recent tour applications.</p>
+
+        <!-- 상태 필터 -->
+        <div class="status-badges" style="margin-top:14px;">
+            <a class="status"
+               th:classappend="${status == null} ? ' approved'"
+               th:href="@{/mypage/applications}">
+                All
+            </a>
+
+            <a class="status pending"
+               th:classappend="${status == T(datasa.domain.entity.Application.Status).PENDING} ? ' approved'"
+               th:href="@{/mypage/applications(status=${T(datasa.domain.entity.Application.Status).PENDING})}">
+                Pending
+            </a>
+
+            <a class="status approved"
+               th:classappend="${status == T(datasa.domain.entity.Application.Status).APPROVED} ? ' approved'"
+               th:href="@{/mypage/applications(status=${T(datasa.domain.entity.Application.Status).APPROVED})}">
+                Approved
+            </a>
+
+            <a class="status rejected"
+               th:classappend="${status == T(datasa.domain.entity.Application.Status).REJECTED} ? ' approved'"
+               th:href="@{/mypage/applications(status=${T(datasa.domain.entity.Application.Status).REJECTED})}">
+                Rejected
+            </a>
+        </div>
+
+        <!-- 리스트 -->
+        <ul class="list" th:if="${applications != null and !#lists.isEmpty(applications)}">
+            <li class="list-item" th:each="a : ${applications}">
+                <div class="title" th:text="${a.tripTitle()}">Trip title</div>
+
+                <div class="meta">
+                    <span th:text="${a.status()}">STATUS</span>
+                    <span th:if="${a.message() != null}">
+                        · <span th:text="${a.message()}">message</span>
+                    </span>
+                </div>
+
+                <div class="actions">
+                    <a class="btn btn-ghost"
+                       th:href="@{'/trip/' + ${a.tripId()}}">
+                        View Trip
+                    </a>
+
+                    <!-- 승인된 경우 -->
+                    <a class="btn"
+                       th:if="${a.status() == T(datasa.domain.entity.Application.Status).APPROVED}"
+                       th:href="@{/mypage/tours}">
+                        Go to My Tour
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+        <div class="empty" th:if="${applications == null or #lists.isEmpty(applications)}">
+            No applications yet.
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

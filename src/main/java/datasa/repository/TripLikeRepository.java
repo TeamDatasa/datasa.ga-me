@@ -35,4 +35,7 @@ public interface TripLikeRepository extends JpaRepository<TripLike, Long> {
     """)
 	List<Long> findLikedTripIds(@Param("userId") Long userId,
 								@Param("tripIds") List<Long> tripIds);
+	
+	List<TripLike> findTop20ByUser_UserIdOrderByCreatedAtDesc(Long userId);
+	
 }

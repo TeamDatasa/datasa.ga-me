@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My Tours</title>
+    <link rel="stylesheet" href="/css/mypage-user.css"/>
+</head>
+<body>
+<div class="details-wrap">
+    <header class="details-top">
+        <div class="brand">ga-me</div>
+        <a class="btn btn-ghost" href="/mypage/details/user">Back</a>
+    </header>
+
+    <!-- ✅ Liked Tours -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Liked Tours</h3>
+                <p class="hint">Tours you liked.</p>
+            </div>
+            <a class="btn btn-ghost" href="/api/trip/listAll">Browse</a>
+        </div>
+
+        <ul class="list" th:if="${likedTours != null and !#lists.isEmpty(likedTours)}">
+            <li class="list-item" th:each="t : ${likedTours}">
+                <div class="title" th:text="${t.title()}">Tour title</div>
+                <div class="meta">
+                    <span th:text="${t.region()}">Region</span>
+                    · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">Start</span>
+                </div>
+
+                <div class="actions">
+                    <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
+                </div>
+            </li>
+        </ul>
+
+        <div class="empty" th:if="${likedTours == null or #lists.isEmpty(likedTours)}">
+            No liked tours yet.
+        </div>
+    </section>
+
+    <!-- ✅ Recently Viewed -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Recently Viewed</h3>
+                <p class="hint">Tours you recently viewed.</p>
+            </div>
+        </div>
+
+        <ul class="list" th:if="${recentTours != null and !#lists.isEmpty(recentTours)}">
+            <li class="list-item" th:each="t : ${recentTours}">
+                <div class="title" th:text="${t.title()}">Tour title</div>
+                <div class="meta">
+                    <span th:text="${t.region()}">Region</span>
+                    · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">Start</span>
+                </div>
+
+                <div class="actions">
+                    <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
+                </div>
+            </li>
+        </ul>
+
+        <div class="empty" th:if="${recentTours == null or #lists.isEmpty(recentTours)}">
+            No recently viewed tours.
+        </div>
+    </section>
+</div>
+</body>
+</html>

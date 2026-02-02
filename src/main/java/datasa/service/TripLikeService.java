@@ -1,5 +1,7 @@
 package datasa.service;
 
+import datasa.domain.dto.RatingSummary;
+import datasa.domain.dto.TripDetailResponse;
 import datasa.domain.dto.TripLikedEvent;
 import datasa.domain.dto.TripListResponse;
 import datasa.domain.entity.Trip;
@@ -22,6 +24,7 @@ public class TripLikeService {
 	private final TripRepository tripRepository;
 	private final TripLikeRepository tripLikeRepository;
 	private final ApplicationEventPublisher eventPublisher;
+	private final RatingService ratingService;
 	
 	public TripLikeResult toggleLike(Long tripId, User user) {
 		Trip trip = tripRepository.findById(tripId)
@@ -54,6 +57,47 @@ public class TripLikeService {
 		}
 		long count = tripLikeRepository.countByTrip(trip);
 		return new TripLikeResult(nowLiked, count);
+	}
+	
+	@Transactional(readOnly = true)
+	public TripDetailResponse getTripDetail(Long tripId, Long loginUserId) {
+		
+		Trip trip = tripRepository.findById(tripId)
+				.orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+		
+		// ⭐ 평점 계산
+		RatingSummary tripRating = ratingService.getTripRating(tripId);
+		RatingSummary hostRating = ratingService.getHostRating(
+				trip.getHostUser().getUserId()
+		);
+		// ✅ like 정보 채우기
+		long likeCount = tripLikeRepository.countByTrip(trip);
+		
+		return TripDetailResponse.builder()
+				.tripId(trip.getTripId())
+				.hostUser(trip.getHostUser())
+				.title(trip.getTitle())
+				.description(trip.getDescription())
+				.estimatedCost(trip.getEstimatedCost())
+				.maxParticipants(trip.getMaxParticipants())
+				.durationMinutes(trip.getDurationMinutes())
+				.startAt(trip.getStartAt())
+				.endAt(trip.getEndAt())
+				.status(trip.getStatus())
+				.theme(trip.getTheme())
+				.createdAt(trip.getCreatedAt())
+				.updatedAt(trip.getUpdatedAt())
+				.editLockDays(trip.getEditLockDays())
+				.region(trip.getRegion())
+				
+				// 후기/평점 주입
+				.reviewCount(tripRating.count())
+				.reviewAvg(tripRating.avg())
+				.hostReviewCount(hostRating.count())
+				.hostRatingAvg(hostRating.avg())
+				.hostTrustScore(hostRating.trustScore())
+				
+				.build();
 	}
 	
 	

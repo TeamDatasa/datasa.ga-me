@@ -11,11 +11,13 @@ import datasa.repository.ApplicationRepository;
 import datasa.repository.ReviewRepository;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final ApplicationRepository applicationRepository;
 	
-	/** 후기 등록 */
+	/** ✅ 후기 등록 */
 	@Transactional
 	public ReviewResponse create(String email, ReviewCreateRequest req) {
 		
@@ -44,24 +46,28 @@ public class ReviewService {
 		);
 		if (!joined) throw new IllegalArgumentException("Not allowed: not joined");
 		
-		// 2) 지난 투어만 후기 가능 (endAt < now)
+		// 2) 종료된 투어만 후기 가능
 		if (!trip.getEndAt().isBefore(LocalDateTime.now())) {
 			throw new IllegalArgumentException("Not allowed: tour not ended");
 		}
 		
-		// 3) trip당 후기 1개 제한
-		if (reviewRepository.countByUser_UserIdAndTrip_TripId(user.getUserId(), trip.getTripId()) > 0) {
+		// 3) trip당 1개 제한 (빠른 체크) + 유니크가 최종 방어
+		if (reviewRepository.existsByUser_UserIdAndTrip_TripId(user.getUserId(), trip.getTripId())) {
 			throw new IllegalArgumentException("Review already exists");
 		}
 		
-		Review saved = reviewRepository.save(
-				Review.create(user, trip, req.rating(), req.content())
-		);
+		Review saved;
+		try {
+			saved = reviewRepository.save(Review.create(user, trip, req.rating(), req.content()));
+		} catch (DataIntegrityViolationException e) {
+			// 동시성으로 유니크 터진 경우
+			throw new IllegalArgumentException("Review already exists");
+		}
 		
 		return toResponse(saved);
 	}
 	
-	/** 후기 수정 */
+	/** ✅ 후기 수정 (본인만) */
 	@Transactional
 	public ReviewResponse update(String email, Long reviewId, ReviewUpdateRequest req) {
 		
@@ -71,7 +77,6 @@ public class ReviewService {
 		Review review = reviewRepository.findById(reviewId)
 				.orElseThrow(() -> new IllegalArgumentException("Review not found"));
 		
-		// 본인 후기만 수정 가능
 		if (!review.getUser().getUserId().equals(user.getUserId())) {
 			throw new IllegalArgumentException("Not allowed: not your review");
 		}
@@ -80,7 +85,7 @@ public class ReviewService {
 		return toResponse(review);
 	}
 	
-	/** 후기 삭제 */
+	/** ✅ 후기 삭제 (본인만) */
 	@Transactional
 	public void delete(String email, Long reviewId) {
 		
@@ -95,6 +100,45 @@ public class ReviewService {
 		}
 		
 		reviewRepository.delete(review);
+	}
+	
+	/** ✅ 특정 Trip의 전체 리뷰 목록 */
+	@Transactional(readOnly = true)
+	public List<ReviewResponse> listByTrip(Long tripId) {
+		return reviewRepository.findAllByTrip_TripIdOrderByCreatedAtDesc(tripId).stream()
+				.map(this::toResponse)
+				.toList();
+	}
+	
+	/** ✅ 내 리뷰 조회 (Trip 기준) */
+	@Transactional(readOnly = true)
+	public ReviewResponse myReview(String email, Long tripId) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		
+		Review r = reviewRepository.findByUser_UserIdAndTrip_TripId(user.getUserId(), tripId)
+				.orElseThrow(() -> new IllegalArgumentException("Review not found"));
+		
+		return toResponse(r);
+	}
+	
+	/** ✅ 리뷰 작성 가능 여부 체크 (유저 디테일 페이지에서 폼 노출용) */
+	@Transactional(readOnly = true)
+	public boolean canWriteReview(String email, Long tripId) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		
+		Trip trip = tripRepository.findById(tripId)
+				.orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+		
+		boolean joined = applicationRepository.existsByUser_UserIdAndTrip_TripIdAndStatus(
+				user.getUserId(), tripId, Application.Status.APPROVED
+		);
+		if (!joined) return false;
+		
+		if (!trip.getEndAt().isBefore(LocalDateTime.now())) return false;
+		
+		return !reviewRepository.existsByUser_UserIdAndTrip_TripId(user.getUserId(), tripId);
 	}
 	
 	private ReviewResponse toResponse(Review r) {
