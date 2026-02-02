@@ -4,7 +4,6 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-    <!-- 캐시 때문에 v 파라미터 유지 추천 -->
     <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}"/>
 
     <title>여행 글 상세</title>
@@ -15,12 +14,10 @@
 <main class="page">
     <div class="container">
 
-        <!-- 상단: 뒤로 설명(선택) -->
         <div class="top-actions">
             <a class="back-link" th:href="@{/api/trip/listAll}" aria-label="목록으로">←</a>
         </div>
 
-        <!-- 헤더 -->
         <header class="post-header">
             <div class="post-title-row">
                 <h1 class="post-title" th:text="${trip.title}">제목</h1>
@@ -36,31 +33,25 @@
 
             <div class="post-meta">
                 <div class="meta-left">
-                    <span class="chip" th:text="${trip.userName}">작성자</span>
+                    <span class="chip" th:text="${trip.hostName}">작성자</span>
                     <span class="dot">•</span>
                     <span class="muted" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
                 </div>
 
-                <div class="meta-right">
-                    <span class="muted">조회</span>
-                    <span class="num" th:text="${trip.viewCount}">0</span>
-                </div>
+                <div class="meta-right" style="display:none;"></div>
             </div>
         </header>
 
-        <!-- 내용 -->
         <section class="post-body">
-            <p class="content" th:text="${trip.content}">본문</p>
+            <p class="content" th:text="${trip.description}">본문</p>
         </section>
 
-        <!-- 댓글 영역 -->
         <section class="comments">
             <div class="comments-head">
                 <h2 class="section-title">댓글</h2>
                 <span class="muted small" id="commentCount">0</span>
             </div>
 
-            <!-- 댓글 작성 -->
             <form id="commentForm" class="comment-form">
                 <input type="hidden" id="userId" th:value="${userId}"/>
                 <input type="hidden" id="tripId" th:value="${trip.tripId}"/>
@@ -75,11 +66,9 @@
                 </div>
             </form>
 
-            <!-- 댓글 리스트 -->
             <ul id="commentList" class="comment-list"></ul>
         </section>
 
-        <!-- 하단 액션 -->
         <footer class="bottom-actions">
             <a class="btn" th:href="@{/api/trip/listAll}">목록</a>
 
@@ -98,12 +87,11 @@
 
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
-    const currentUserId = /*[[${userId}]]*/ null; // 서버에서 내려오는 userId
+    const currentUserId = /*[[${userId}]]*/ null;
     const isLogin = /*[[${isLogin}]]*/ false;
 </script>
 
 <script>
-    // ===== 좋아요 토글 =====
     const likeBtn = document.getElementById("likeBtn");
     const likeCountEl = document.getElementById("likeCount");
 
@@ -118,154 +106,23 @@
         try {
             const res = await fetch(`/api/trips/${tripId}/like`, {
                 method: "POST",
-                credentials: "include"
+                credentials: "same-origin",
             });
 
             if (!res.ok) {
-                if (res.status === 401) alert("로그인이 필요합니다.");
-                else alert("좋아요 처리 실패");
+                alert("처리에 실패했습니다.");
                 return;
             }
 
             const data = await res.json();
-            likeCountEl.textContent = data.likeCount;
             likeBtn.dataset.liked = data.liked;
-
-            const heartEl = likeBtn.querySelector(".heart");
-            heartEl.textContent = data.liked ? "❤" : "♡";
+            likeCountEl.textContent = data.likeCount;
+            likeBtn.querySelector(".heart").textContent = data.liked ? "❤" : "♡";
         } catch (e) {
-            console.error(e);
             alert("네트워크 오류");
         }
     });
-
-    // ===== 댓글 기능 =====
-    const commentListEl = document.getElementById("commentList");
-    const commentCountEl = document.getElementById("commentCount");
-
-    async function loadComments() {
-        const res = await fetch(`/api/trips/${tripId}/comments`, {credentials: "include"});
-        const comments = await res.json();
-
-        commentCountEl.textContent = comments.length;
-
-        commentListEl.innerHTML = "";
-        for (const c of comments) {
-            const li = document.createElement("li");
-            li.className = "comment-item";
-
-            // 대댓글 여부에 따른 들여쓰기
-            li.style.marginLeft = c.parentCommentId ? "28px" : "0px";
-
-            li.innerHTML = `
-                <div class="comment-head">
-                    <span class="author">${c.userName ?? "익명"}</span>
-                    <span class="dot">•</span>
-                    <span class="muted small">${c.createdAt ?? ""}</span>
-                </div>
-                <div class="comment-body">${escapeHtml(c.content ?? "")}</div>
-                <div class="comment-actions">
-                    ${isLogin ? `<button class="btn-xs" data-reply="${c.commentId}">답글</button>` : ""}
-                </div>
-                <div class="reply-box" id="reply-${c.commentId}" style="display:none;">
-                    <textarea class="textarea" rows="2" placeholder="대댓글을 입력하세요"></textarea>
-                    <button class="btn-xs primary" data-reply-submit="${c.commentId}">등록</button>
-                </div>
-            `;
-
-            commentListEl.appendChild(li);
-        }
-    }
-
-    function escapeHtml(str) {
-        return String(str)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    document.getElementById("commentForm")?.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!isLogin) {
-            alert("로그인이 필요합니다.");
-            return;
-        }
-
-        const content = document.getElementById("commentContent").value.trim();
-        if (!content) return;
-
-        const userId = document.getElementById("userId").value;
-
-        const res = await fetch(`/api/trips/${tripId}/comments`, {
-            method: "POST",
-            credentials: "include",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({userId: Number(userId), content})
-        });
-
-        if (!res.ok) {
-            alert("댓글 등록 실패");
-            return;
-        }
-
-        document.getElementById("commentContent").value = "";
-        await loadComments();
-    });
-
-    // 답글 버튼 토글 + 대댓글 등록
-    commentListEl?.addEventListener("click", async (e) => {
-        const t = e.target;
-
-        if (t.dataset.reply) {
-            const box = document.getElementById(`reply-${t.dataset.reply}`);
-            box.style.display = box.style.display === "none" ? "block" : "none";
-            return;
-        }
-
-        if (t.dataset.replySubmit) {
-            const commentId = Number(t.dataset.replySubmit);
-            const box = document.getElementById(`reply-${commentId}`);
-            const textarea = box.querySelector("textarea");
-            const content = textarea.value.trim();
-            if (!content) return;
-
-            const userId = document.getElementById("userId").value;
-
-            const res = await fetch(`/api/trips/${tripId}/comments`, {
-                method: "POST",
-                credentials: "include",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    userId: Number(userId),
-                    parentCommentId: commentId,
-                    content
-                })
-            });
-
-            if (!res.ok) {
-                alert("대댓글 등록 실패");
-                return;
-            }
-
-            textarea.value = "";
-            box.style.display = "none";
-            await loadComments();
-        }
-    });
-
-    // 삭제 버튼
-    document.getElementById("deleteBtn")?.addEventListener("click", async () => {
-        const id = document.getElementById("deleteBtn").dataset.tripId;
-        if (!confirm("삭제하시겠습니까?")) return;
-
-        const res = await fetch(`/api/trip/${id}`, {method: "DELETE", credentials: "include"});
-        if (res.ok) location.href = "/api/trip/listAll";
-        else alert("삭제 실패");
-    });
-
-    loadComments();
 </script>
+
 </body>
 </html>

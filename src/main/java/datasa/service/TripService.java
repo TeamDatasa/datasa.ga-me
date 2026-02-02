@@ -261,7 +261,6 @@ public class TripService {
 		Trip entity = tripRepository.findById(boardNum)
 				.orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
 		
-		
 		List<TripLocationItemResponse> locations = tripLocationRepository
 				.findByTripOrderByOrderNoAsc(entity)
 				.stream()
@@ -277,16 +276,13 @@ public class TripService {
 							.build();
 				})
 				.toList();
-
-
+		
 		// test
 		User stubUser = new User();
 		stubUser.setUserId(TEST_USER_ID);
 		
-		
 		long likeCount = tripLikeRepository.countByTrip(entity);
 		boolean likedByMe = tripLikeRepository.existsByTripAndUser(entity, stubUser);
-		
 		
 		return TripDetailResponse.builder()
 				.tripId(entity.getTripId())
@@ -305,16 +301,18 @@ public class TripService {
 				.updatedAt(entity.getUpdatedAt())
 				.editLockDays(entity.getEditLockDays())
 				.locations(locations)
-				// like
 				.likeCount(likeCount)
 				.likedByMe(likedByMe)
+				.hostUserId(entity.getHostUser().getUserId())
+				.hostName(entity.getHostUser().getName())
 				.build();
 	}
+
 	
 	@Transactional
-	public Long write(Long hostUserId, TripWriteRequest request) {
-		User hostUser = userRepository.findById(hostUserId)
-				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + hostUserId));
+	public Long write(String userEmail, TripWriteRequest request) {
+		User hostUser = userRepository.findByEmail(userEmail)
+				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + userEmail));
 		
 		Trip trip = new Trip();
 		trip.setHostUser(hostUser);
@@ -326,7 +324,7 @@ public class TripService {
 		trip.setDurationMinutes(request.getDurationMinutes());
 		trip.setStartAt(request.getStartAt());
 		trip.setEndAt(request.getEndAt());
-		trip.setStatus(Trip.Status.OPEN); // 임시
+		trip.setStatus(Trip.Status.OPEN); // test
 		trip.setTheme(request.getTheme());
 		Trip saved = tripRepository.save(trip);
 		
@@ -436,6 +434,13 @@ public class TripService {
 				applicationStatus
 		);
 	}
+	
+	public Long findUserIdByEmail(String email) {
+		return userRepository.findByEmail(email)
+				.map(User::getUserId)
+				.orElse(null);
+	}
+	
 }
 
 

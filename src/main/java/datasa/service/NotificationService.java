@@ -44,6 +44,7 @@ public class NotificationService {
 		unread.forEach(n -> n.setIsRead(true)); // dirty checking
 	}
 	
+	// test
 	@Transactional
 	public NotificationResponse createTestCommentNotification(Authentication authentication) {
 		User me = currentUser(authentication);
@@ -53,7 +54,7 @@ public class NotificationService {
 		long fakeTripId = 0L;
 		long fakeCommentId = System.currentTimeMillis() % 1_000_000;
 		
-		Notification n = Notification.tripComment(me.getUserId(), actorUserId, fakeTripId, fakeCommentId);
+		Notification n = Notification.tripComment(me, actorUserId, fakeTripId, fakeCommentId);
 		Notification saved = notificationRepository.save(n);
 		return NotificationResponse.from(saved);
 	}

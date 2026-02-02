@@ -1,11 +1,9 @@
 package datasa.controller;
 
-import datasa.domain.dto.CommentCreateRequest;
 import datasa.domain.dto.CommentResponse;
 import datasa.domain.dto.NotificationResponse;
 import datasa.service.CommentService;
 import datasa.service.NotificationQueryService;
-import datasa.service.NotificationTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,7 +19,6 @@ public class NotificationController {
 	
 	private final NotificationQueryService notificationQueryService;
 	private final CommentService commentService;
-	private final NotificationTestService notificationTestService;
 	
 	
 	// 최근 알림 목록
@@ -43,12 +40,4 @@ public class NotificationController {
 		notificationQueryService.markAllRead(authentication);
 		return ResponseEntity.noContent().build();
 	}
-	
-	// test
-	@PostMapping("/test-comment")
-	public CommentResponse testComment() {
-		return notificationTestService.forceCommentNotificationNoAuth();
-	}
-
-
 }

@@ -52,11 +52,6 @@ public class TripDetailResponse {
 	// region
 	private String region;
 	
-	// review
-	private long reviewCount;
-	private double reviewAvg;
-	
-	private long hostReviewCount;
-	private double hostRatingAvg;
-	private int hostTrustScore;
+	private Long hostUserId;
+	private String hostName;
 }
