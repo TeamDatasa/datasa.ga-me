@@ -1,6 +1,4 @@
-
 package datasa.controller;
-
 
 
 import datasa.domain.dto.*;
@@ -10,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;
@@ -27,28 +27,28 @@ import java.time.LocalDateTime;
 @Slf4j
 public class TripController {
 	
-	@Value("${kakao.maps.js-key}")
-	private String kakaoJsKey;
-	
 	/**
 	 * 게시글 수정 처리
 	 *
 	 */
 	private static final Long TEST_USER_ID = 1L;
 	private final TripService tripService;
-
-// json api 여행리스트
-    @GetMapping("/mainList")
-    public String mainList() {
-        return "trip-test";
-    }
-//신청페이지 만든다고 만든 여행상세페이지
-    @GetMapping("/{tripId}")
-    public String detailView(@PathVariable Long tripId, Model model) {
-        model.addAttribute("tripId", tripId);
-        return "trip-detail"; // templates/trip-detail.html
-}
-
+	@Value("${kakao.maps.js-key}")
+	private String kakaoJsKey;
+	
+	// json api 여행리스트
+	@GetMapping("/mainList")
+	public String mainList() {
+		return "trip-test";
+	}
+	
+	//신청페이지 만든다고 만든 여행상세페이지
+	@GetMapping("/{tripId}")
+	public String detailView(@PathVariable Long tripId, Model model) {
+		model.addAttribute("tripId", tripId);
+		return "trip-detail"; // templates/trip-detail.html
+	}
+	
 	
 	//	 동식ver List
 	@GetMapping("/listAll")
@@ -73,11 +73,24 @@ public class TripController {
 		return "trip/writeForm";
 	}
 	
+	
 	@PostMapping("/write")
-	public String write(@ModelAttribute TripWriteRequest request, Model model) {
+	public String write(@ModelAttribute TripWriteRequest request, Model model, Authentication authentication) {
+		System.out.println("신청자 계정 클래스 정보 : " + authentication.getPrincipal().getClass());
+		System.out.println(authentication.getPrincipal());
+		
 		try {
-			// 임시 : 유저 1번이 글을 작성하도록
-			tripService.write(1L, request);
+			Object principal = authentication.getPrincipal();
+			String email;
+			
+			if (principal instanceof UserDetails userDetails) {
+				email = userDetails.getUsername();
+			} else {
+				// 혹시 principal이 String(email)로 들어올 경우도 대비
+				// 근데 필요 없을 거 같긴함
+				email = String.valueOf(principal);
+			}
+			tripService.write(email, request);
 			return "redirect:/api/trip/listAll";
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,7 +107,6 @@ public class TripController {
 			return "trip/writeForm";
 		}
 	}
-	
 	
 	
 	@GetMapping("/update/{id}")
@@ -146,25 +158,25 @@ public class TripController {
 		tripService.updateTrip(request, 1L); // 임시 로그인 유저
 		return "redirect:/api/trip/detail/" + request.getTripId();
 	}
-
 	
-	 //	게시글 (상세)읽기
-	 @GetMapping("/detail/{id}")
-	 public String detail(@PathVariable Long id, Model model) {
-	 	TripDetailResponse response = tripService.getTripDetail(id);
-	 	model.addAttribute("trip", response);
-	 	return "trip/detail";
-	 }
 	
-	 @PostMapping("/delete/{id}")
-	 public String delete(@PathVariable Long id) {
-	 	try {
-	 		tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
-	 		return "redirect:/api/trip/listAll";
-	 	} catch (Exception e) {
-	 		e.printStackTrace();
-	 		return "redirect:/api/trip/detail/" + id;
-	 	}
-	 }
-
+	//	게시글 (상세)읽기
+	@GetMapping("/detail/{id}")
+	public String detail(@PathVariable Long id, Model model) {
+		TripDetailResponse response = tripService.getTripDetail(id);
+		model.addAttribute("trip", response);
+		return "trip/detail";
+	}
+	
+	@PostMapping("/delete/{id}")
+	public String delete(@PathVariable Long id) {
+		try {
+			tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
+			return "redirect:/api/trip/listAll";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/api/trip/detail/" + id;
+		}
+	}
+	
 }
