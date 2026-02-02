@@ -109,10 +109,16 @@ public class User {
 		user.email = email;
 		user.passwordHash = passwordHash;
 		user.name = name;
-		user.role = role;
+		
+		// role이 null로 들어오면 기본 USER로 강제
+		user.role = (role == null) ? Role.USER : role;
+		
+		// status가 null이면 기본 ACTIVE로 강제
+		if (user.status == null) user.status = Status.ACTIVE;
+		
 		return user;
 	}
-	
+
 	public void deactivate() {
 		this.status = Status.INACTIVE;
 	}

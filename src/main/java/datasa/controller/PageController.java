@@ -30,10 +30,11 @@ public class PageController {
 	
 	// ====== PAGES ======
 	
-	@GetMapping({"/login", "/auth/login"})
+	@GetMapping("/login")
 	public String loginPage() {
 		return "users/login";
 	}
+
 	
 	@GetMapping("/signup")
 	public String signupPage() {
