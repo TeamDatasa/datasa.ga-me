@@ -22,7 +22,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-				.csrf(csrf -> csrf.ignoringRequestMatchers("/api/", "/auth/"))
+				.csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())
                 )
@@ -38,6 +38,7 @@ public class SecurityConfig {
 					
                 .requestMatchers(
                     "/api/auth/password/**",
+					"/api/auth/login",
                     "/api/map/naver",
                     "/api/map/places",
                     "/api/map/kakao",
@@ -54,8 +55,7 @@ public class SecurityConfig {
                     "/host/**","/ws/**","/api/chat/**",
 					"/api/notifications/**"
                 ).permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-				.requestMatchers("/mypage/**", "/api/mypage/**").authenticated()
+				.requestMatchers("/mypage/**", "/api/mypage/**","/api/auth/**").authenticated()
                 .requestMatchers(
                     "/api/application/**",
                     "/api/chat/**"

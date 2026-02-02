@@ -31,12 +31,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				|| path.equals("/error")
 				|| path.equals("/")
 				|| path.equals("/index")
+				|| path.equals("/login")
+				|| path.equals("/signup")
 				|| path.startsWith("/css/")
 				|| path.startsWith("/js/")
 				|| path.startsWith("/images/")
 				|| path.startsWith("/webjars/")
-				|| path.startsWith("/api/auth/")
-				|| path.startsWith("/api/notifications/"); // ✅ 무로그인 테스트용(원하면 제거 가능)
+				|| path.equals("/api/auth/login")
+				|| path.equals("/api/auth/signup")
+				|| path.startsWith("/api/auth/password/")
+				|| path.startsWith("/api/auth/email/")
+				|| path.startsWith("/api/notifications/");
 	}
 	
 	@Override
