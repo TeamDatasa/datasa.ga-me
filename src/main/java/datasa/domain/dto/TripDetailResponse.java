@@ -51,4 +51,7 @@ public class TripDetailResponse {
 	
 	// region
 	private String region;
+	
+	private Long hostUserId;
+	private String hostName;
 }

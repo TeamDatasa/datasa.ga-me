@@ -162,21 +162,32 @@ public class TripController {
 	
 	//	게시글 (상세)읽기
 	@GetMapping("/detail/{id}")
-	public String detail(@PathVariable Long id, Model model) {
+	public String detail(@PathVariable Long id, Model model, Authentication authentication) {
+		
 		TripDetailResponse response = tripService.getTripDetail(id);
 		model.addAttribute("trip", response);
+		
+		boolean isLogin = authentication != null && authentication.isAuthenticated()
+				&& !(authentication.getPrincipal() instanceof String s && "anonymousUser".equals(s)); // 추가
+		
+		Long userId = null;  // 추가
+		boolean isMine = false; // 추가
+		
+		// 추가: 로그인 상태면 userId 계산 (현재 principal은 UserDetails 객체)
+		if (isLogin && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails ud) {
+			String email = ud.getUsername(); // 추가
+			userId = tripService.findUserIdByEmail(email); // 추가 (아래 4번에서 추가할 메서드)
+			if (userId != null && response.getHostUserId() != null) {
+				isMine = userId.equals(response.getHostUserId()); // 추가
+			}
+		}
+		
+		model.addAttribute("isLogin", isLogin); // 추가
+		model.addAttribute("userId", userId);   // 추가
+		model.addAttribute("isMine", isMine);   // 추가
+		
 		return "trip/detail";
 	}
-	
-	@PostMapping("/delete/{id}")
-	public String delete(@PathVariable Long id) {
-		try {
-			tripService.deleteTrip(id, 1L); // 임시 : 테스트용 로그인 유저
-			return "redirect:/api/trip/listAll";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "redirect:/api/trip/detail/" + id;
-		}
-	}
+
 	
 }

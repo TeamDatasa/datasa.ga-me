@@ -39,8 +39,11 @@ public class SecurityConfig {
 								"/api/auth/signup",
 								"/api/auth/password/**",
 								"/api/auth/email/**",
-								"/api/notifications/**"
+								"/api/notifications/**",
+								"/api/trip/**"
 						).permitAll()
+						
+						
 						
 						// auth
 						.requestMatchers(
