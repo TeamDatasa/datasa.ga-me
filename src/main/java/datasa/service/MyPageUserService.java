@@ -8,9 +8,7 @@ import datasa.domain.entity.Application;
 import datasa.domain.entity.Review;
 import datasa.domain.entity.Trip;
 import datasa.domain.entity.User;
-import datasa.repository.ApplicationRepository;
-import datasa.repository.ReviewRepository;
-import datasa.repository.UserRepository;
+import datasa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +24,10 @@ public class MyPageUserService {
 	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
 	private final ReviewRepository reviewRepository;
+	private final TripLikeRepository TripLikeRepository;
+	private final TripViewLogRepository tripViewLogRepository;
+	
+	
 	
 	public MyPageUserDetailsResponse getUserDetails(String email) {
 		
@@ -50,9 +52,9 @@ public class MyPageUserService {
 								a.getApplicationId(),
 								a.getTrip().getTripId(),
 								a.getTrip().getTitle(),
-								a.getStatus().name(),
+								a.getStatus(),
 								a.getMessage(),
-								a.getCreatedAt() != null ? a.getCreatedAt().toString() : null
+								a.getCreatedAt()
 						))
 						.toList();
 		
@@ -89,4 +91,68 @@ public class MyPageUserService {
 		
 		return new MyPageUserDetailsResponse(counts, myTours, myApplications);
 	}
+	
+	@Transactional(readOnly = true)
+	public List<MyApplicationItem> getMyApplications(String email) {
+		User user = userRepository.findByEmail(email).orElseThrow();
+		
+		return applicationRepository
+				.findTop20ByUser_UserIdOrderByApplicationIdDesc(user.getUserId())
+				.stream()
+				.map(MyApplicationItem::from)
+				.toList();
+	}
+	
+	@Transactional(readOnly = true)
+	public List<MyApplicationItem> getMyApplicationsByStatus(
+			String email,
+			Application.Status status
+	) {
+		User user = userRepository.findByEmail(email).orElseThrow();
+		
+		return applicationRepository
+				.findByUser_UserIdAndStatusOrderByApplicationIdDesc(
+						user.getUserId(), status
+				)
+				.stream()
+				.map(MyApplicationItem::from)
+				.toList();
+	}
+	
+	@Transactional(readOnly = true)
+	public List<MyTourItem> getLikedTours(String email) {
+		User user = userRepository.findByEmail(email).orElseThrow();
+		
+		return TripLikeRepository
+				.findTop20ByUser_UserIdOrderByCreatedAtDesc(user.getUserId())
+				.stream()
+				.map(tl -> MyTourItem.fromLiked(tl.getTrip()))
+				.toList();
+	}
+	
+	@Transactional(readOnly = true)
+	public List<MyTourItem> getRecentViewedTours(String email) {
+		User user = userRepository.findByEmail(email).orElseThrow();
+		
+		return tripViewLogRepository
+				.findTop20ByUser_UserIdOrderByViewedAtDesc(user.getUserId())
+				.stream()
+				.map(v -> {
+					Trip t = v.getTrip();
+					return new MyTourItem(
+							t.getTripId(),
+							t.getTitle(),
+							t.getRegion(),
+							t.getStartAt(),
+							t.getEndAt(),
+							null,
+							null,
+							false
+					);
+				})
+				.toList();
+	}
+	
+	
+	
 }

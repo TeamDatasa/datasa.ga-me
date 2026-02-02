@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Reviews</title>
+    <link rel="stylesheet" href="/css/mypage-user.css" />
+</head>
+<body>
+<div class="details-wrap">
+    <header class="details-top">
+        <div class="brand">ga-me</div>
+        <a class="btn btn-ghost" href="/mypage/details/user">Back</a>
+    </header>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>My Reviews</h3>
+                <p class="hint">Write after tour ends. One review per tour.</p>
+            </div>
+            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Reset</a>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1.2fr .8fr; margin-top:14px;">
+            <!-- ✅ LEFT: joined tours list -->
+            <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
+                <h3 style="margin:0 0 6px 0;">Joined Tours</h3>
+                <p class="hint">Approved tours you joined.</p>
+
+                <div class="empty" th:if="${items == null or #lists.isEmpty(items)}" style="height:90px;">
+                    No approved tours yet.
+                </div>
+
+                <ul class="list" th:if="${items != null and !#lists.isEmpty(items)}">
+                    <li class="list-item" th:each="t : ${items}">
+                        <div class="title" th:text="${t.title()}">Tour title</div>
+                        <div class="meta">
+                            <span th:text="${t.region()}">Region</span>
+                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">Start</span>
+                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">End</span>
+                        </div>
+
+                        <div class="actions">
+                            <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
+
+                            <!-- Write -->
+                            <a class="btn"
+                               th:if="${t.canWrite()}"
+                               th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}">
+                                Write
+                            </a>
+
+                            <!-- Edit -->
+                            <a class="btn"
+                               th:if="${t.hasReview()}"
+                               th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}">
+                                Edit
+                            </a>
+
+                            <!-- Delete (confirm) -->
+                            <a class="btn btn-danger"
+                               th:if="${t.hasReview()}"
+                               th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}">
+                                Delete
+                            </a>
+
+                            <span class="hint" th:if="${!t.ended()}" style="margin-left:6px;">
+                                After end time
+                            </span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ✅ RIGHT: mode panel -->
+            <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
+                <!-- 기본 안내 -->
+                <div th:if="${mode == ''}">
+                    <h3 style="margin:0 0 6px 0;">Select a tour</h3>
+                    <p class="hint">Choose Write / Edit / Delete from the list.</p>
+                </div>
+
+                <!-- ✅ NEW -->
+                <div th:if="${mode == 'new'}">
+                    <h3 style="margin:0 0 6px 0;">Write Review</h3>
+                    <p class="hint">Rating 1~5, content up to 2000 chars.</p>
+
+                    <form th:action="@{/mypage/reviews/create}" method="post" th:object="${form}">
+                        <input type="hidden" th:field="*{tripId}"/>
+
+                        <div class="row" style="margin-top:12px;">
+                            <label class="hint" style="display:block;margin-bottom:6px;">Rating</label>
+                            <select th:field="*{rating}">
+                                <option value="5">5</option><option value="4">4</option><option value="3">3</option>
+                                <option value="2">2</option><option value="1">1</option>
+                            </select>
+                            <p class="hint" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></p>
+                        </div>
+
+                        <div class="row" style="margin-top:12px;">
+                            <label class="hint" style="display:block;margin-bottom:6px;">Content</label>
+                            <textarea th:field="*{content}" placeholder="Write your experience..."></textarea>
+                            <p class="hint" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+                        </div>
+
+                        <div class="actions" style="justify-content:flex-end; margin-top:12px;">
+                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
+                            <button class="btn" type="submit">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ✅ EDIT -->
+                <div th:if="${mode == 'edit'}">
+                    <h3 style="margin:0 0 6px 0;">Edit Review</h3>
+                    <p class="hint">Only your review can be edited.</p>
+
+                    <form th:action="@{/mypage/reviews/update}" method="post" th:object="${form}">
+                        <input type="hidden" th:field="*{reviewId}"/>
+                        <input type="hidden" th:field="*{tripId}"/>
+
+                        <div class="row" style="margin-top:12px;">
+                            <label class="hint" style="display:block;margin-bottom:6px;">Rating</label>
+                            <select th:field="*{rating}">
+                                <option value="5">5</option><option value="4">4</option><option value="3">3</option>
+                                <option value="2">2</option><option value="1">1</option>
+                            </select>
+                            <p class="hint" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></p>
+                        </div>
+
+                        <div class="row" style="margin-top:12px;">
+                            <label class="hint" style="display:block;margin-bottom:6px;">Content</label>
+                            <textarea th:field="*{content}"></textarea>
+                            <p class="hint" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+                        </div>
+
+                        <div class="actions" style="justify-content:flex-end; margin-top:12px;">
+                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
+                            <button class="btn" type="submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ✅ DELETE CONFIRM -->
+                <div th:if="${mode == 'delete'}">
+                    <h3 style="margin:0 0 6px 0;">Delete Review</h3>
+                    <p class="hint">This action cannot be undone.</p>
+
+                    <div class="panel" style="margin-top:12px; box-shadow:none; border:1px dashed rgba(17,19,24,0.14); background:rgba(246,247,249,0.55);">
+                        <p class="hint" style="margin:0 0 6px 0;">Content preview</p>
+                        <div style="white-space:pre-wrap; font-size:13px;" th:text="${form.content}">content</div>
+                    </div>
+
+                    <form th:action="@{/mypage/reviews/delete}" method="post" style="margin-top:12px;">
+                        <input type="hidden" name="reviewId" th:value="${form.reviewId}"/>
+                        <div class="actions" style="justify-content:flex-end;">
+                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
+                            <button class="btn btn-danger" type="submit">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+</body>
+</html>

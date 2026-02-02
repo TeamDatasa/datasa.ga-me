@@ -26,8 +26,13 @@ public class TripLike {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 	
-	@Column(name = "created_at", insertable = false, updatable = false)
+	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+	
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = LocalDateTime.now();
+	}
 	
 	private TripLike(Trip trip, User user) {
 		this.trip = trip;
