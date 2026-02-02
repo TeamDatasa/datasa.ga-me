@@ -14,46 +14,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const payload = { email, password };
 
     try {
-      // 로그인 API 호출
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
+      const contentType = response.headers.get("content-type") || "";
+      const raw = await response.text();
+
+      console.log("LOGIN status:", response.status);
+      console.log("LOGIN content-type:", contentType);
+      console.log("LOGIN raw:", raw);
+
+      let data = null;
+      if (raw && contentType.includes("application/json")) {
+        try {
+          data = JSON.parse(raw);
+        } catch (err) {
+          console.error("LOGIN JSON parse error:", err);
+        }
+      }
+
       if (!response.ok) {
-        const contentType = response.headers.get("content-type") || "";
-        let errorMessage = "Sign in failed.";
-
-        if (contentType.includes("application/json")) {
-          const errorData = await response.json().catch(() => null);
-          errorMessage = errorData?.message || errorData?.error || errorMessage;
-        }
-        else {
-          const text = await response.text().catch(() => "");
-          if (text) errorMessage = text;
-        }
-
+        const errorMessage = data?.message || data?.error || raw || "Sign in failed.";
         throw new Error(errorMessage);
       }
 
-      // 성공 응답(JSON) 파싱
-      const data = await response.json();
+      const token = data?.accessToken || data?.token || data?.access_token;
 
-      // JWT 토큰 저장 (필수)
-      // AuthResponse: { accessToken, userId, email, role }
-      localStorage.setItem("accessToken", data.accessToken);
+      if (token && token.trim()) {
+        localStorage.setItem("accessToken", token);
+      } else {
+        console.warn("⚠️ No token in response body. Maybe set via cookie only.");
+      }
 
-      // (선택) 화면 분기/표시용으로 같이 저장해두면 편함
-      localStorage.setItem("userId", String(data.userId));
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("role", data.role);
+      if (data?.userId != null) localStorage.setItem("userId", String(data.userId));
+      if (data?.email) localStorage.setItem("email", data.email);
+      if (data?.role) localStorage.setItem("role", data.role);
 
-      // 로그인 성공 처리
-      alert("Signed in successfully!");
-      window.location.href = "/mypage";
+      console.log("✅ saved token:", localStorage.getItem("accessToken"));
+
+      sessionStorage.setItem("justLoggedIn", "1");
+      window.location.href = "/";
+
 
     } catch (error) {
       alert(error?.message || "Sign in failed.");

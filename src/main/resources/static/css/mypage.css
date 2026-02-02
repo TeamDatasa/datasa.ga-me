@@ -425,6 +425,159 @@ a {
   line-height:1;
 }
 
+/* ===== Layout ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+}
+
+.panel h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #888;
+}
+
+/* ===== Card ===== */
+.card {
+  display: block;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.card-meta {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* ===== Empty ===== */
+.empty {
+  padding: 28px;
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* ===== List ===== */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-item {
+  padding: 14px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item .title {
+  font-weight: 600;
+}
+
+.list-item .meta {
+  font-size: 13px;
+  color: #777;
+  margin-top: 4px;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  background: #3084F2;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #3084F2;
+  border: 1px solid #3084F2;
+}
+
+.btn-danger {
+  background: #E85B5B;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+}
+
+.modal[aria-hidden="false"] {
+  display: block;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+}
+
+.modal-card {
+  position: relative;
+  max-width: 420px;
+  margin: 10vh auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-weight: 700;
+}
+
+.modal-x {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+
+
 
 
 

@@ -1,49 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Page Details</title>
+    <link rel="stylesheet" href="/css/mypage-host.css" />
+</head>
 <body>
-<section th:fragment="content">
+<div class="details-wrap">
+    <header class="details-top">
+        <div class="brand">ga-me</div>
+        <a class="btn btn-ghost" href="/mypage">Back</a>
+    </header>
 
-    <!-- Quick Summary -->
-    <div class="grid">
-        <a class="card" href="/host/trips/new">
-            <div class="card-title">Create Tour</div>
-            <div class="card-meta">Register a new tour</div>
-            <p class="hint" style="margin:10px 0 0;">Create and publish your tour.</p>
-        </a>
+    <section class="panel">
+        <h3>Details</h3>
+        <p class="hint">Host detail page</p>
 
-        <a class="card" href="/host/trips">
-            <div class="card-title">Manage Tours</div>
-            <div class="card-meta">Edit / Hide / Delete</div>
-            <p class="hint" style="margin:10px 0 0;">Manage your listed tours.</p>
-        </a>
+        <!-- ✅ 여기부터 네 HOST content 그대로 -->
+        <div class="grid">
+            <a class="card" href="/host/trips/new">
+                <div class="card-title">Create Tour</div>
+                <div class="card-meta">Register a new tour</div>
+                <p class="hint" style="margin:10px 0 0;">Create and publish your tour.</p>
+            </a>
 
-        <a class="card" href="/host/applications">
-            <div class="card-title">Applications</div>
-            <div class="card-meta">Approve / Reject</div>
-            <p class="hint" style="margin:10px 0 0;">Review and manage applicants.</p>
-        </a>
-    </div>
+            <a class="card" href="/host/trips">
+                <div class="card-title">Manage Tours</div>
+                <div class="card-meta">Edit / Hide / Delete</div>
+                <p class="hint" style="margin:10px 0 0;">Manage your listed tours.</p>
+            </a>
 
-    <!-- My Tours (HOST) -->
-    <div class="panel" style="margin-top: 18px;">
-        <h3>My Hosted Tours</h3>
-        <p class="hint">Tours you created. Manage schedules and applicants.</p>
-
-        <div class="empty">
-            No tours yet.
+            <a class="card" href="/host/applications">
+                <div class="card-title">Applications</div>
+                <div class="card-meta">Approve / Reject</div>
+                <p class="hint" style="margin:10px 0 0;">Review and manage applicants.</p>
+            </a>
         </div>
-    </div>
 
-    <!-- My Reviews (HOST optional) -->
-    <div class="panel">
-        <h3>Reviews</h3>
-        <p class="hint">Reviews from users after tours end.</p>
-
-        <div class="empty">
-            No reviews yet.
+        <div class="panel" style="margin-top: 18px;">
+            <h3>My Hosted Tours</h3>
+            <p class="hint">Tours you created. Manage schedules and applicants.</p>
+            <div class="empty">No tours yet.</div>
         </div>
-    </div>
 
-</section>
+        <div class="panel">
+            <h3>Reviews</h3>
+            <p class="hint">Reviews from users after tours end.</p>
+            <div class="empty">No reviews yet.</div>
+        </div>
+        <!-- ✅ HOST content 끝 -->
+    </section>
+</div>
+
 </body>
 </html>

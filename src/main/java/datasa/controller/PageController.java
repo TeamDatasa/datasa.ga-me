@@ -51,46 +51,48 @@ public class PageController {
 		
 		return "users/mypage";
 	}
+	
 	@GetMapping("/mypage/details")
-	public String details(Authentication authentication) {
-		boolean isHost = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_HOST"));
+	public String details(@AuthenticationPrincipal UserDetails userDetails) {
+		String email = userDetails.getUsername();
+		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		return isHost ? "redirect:/mypage/details/host"
-				: "redirect:/mypage/details/user";
+		if (user.getRole() == User.Role.HOST) {
+			return "redirect:/mypage/details/host";
+		}
+		return "redirect:/mypage/details/user";
 	}
 	
-	
 	@GetMapping("/mypage/details/user")
-	public String detailsUser(Authentication authentication,
-							  @AuthenticationPrincipal UserDetails userDetails,
-							  Model model) {
-		
-		boolean isHost = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_HOST"));
-		if (isHost) return "redirect:/mypage/details/host";
-		
+	public String detailsUser(
+			@AuthenticationPrincipal UserDetails userDetails,
+			Model model
+	) {
 		String email = userDetails.getUsername();
-		model.addAttribute("role", "USER");
+		
 		var dto = myPageUserService.getUserDetails(email);
 		model.addAttribute("counts", dto.counts());
 		model.addAttribute("myTours", dto.myTours());
 		model.addAttribute("myApplications", dto.myApplications());
-		return "users/MyPageDetails";
+		
+		// ✅ users/MyPageDetailsUser.html
+		return "users/MyPageDetailsUser";
 	}
 	
 	@GetMapping("/mypage/details/host")
-	public String detailsHost(Authentication authentication, Model model) {
+	public String detailsHost(
+			@AuthenticationPrincipal UserDetails userDetails
+	) {
+		String email = userDetails.getUsername();
+		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		boolean isUser = authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals("ROLE_USER"));
-		if (isUser) return "redirect:/mypage/details/user";
+		if (user.getRole() != User.Role.HOST) {
+			return "redirect:/mypage/details/user";
+		}
 		
-		model.addAttribute("role", "HOST");
-		return "users/MyPageDetails";
+		// ✅ users/MyPageDetailsHost.html
+		return "users/MyPageDetailsHost";
 	}
-	
-	
 	
 	
 	@GetMapping("/auth/forgot-password")

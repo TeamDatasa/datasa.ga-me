@@ -11,8 +11,10 @@
 </head>
 <body>
 <header class="yw-header">
-    <p sec:authorize="isAuthenticated()">AUTH</p>
-    <p sec:authorize="isAnonymous()">ANON</p>
+
+    <div id="loginToast" class="yw-toast" aria-live="polite" aria-atomic="true">
+        로그인 완료!
+    </div>
 
     <div class="yw-container yw-header__inner">
         <a class="yw-logo" href="/">
@@ -28,25 +30,18 @@
         </nav>
 
         <div class="yw-auth">
-            <!-- 로그인 했을 때 -->
-            <div sec:authorize="isAuthenticated()">
-                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <input type="hidden"
-                           th:if="${_csrf != null}"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-                    <button class="yw-btn yw-btn--primary" type="submit">
-                        로그아웃
-                    </button>
-                </form>
-            </div>
-            <!-- 로그인 안 했을 때 -->
-            <div sec:authorize="isAnonymous()">
+            <!-- 비로그인 -->
+            <div id="guestMenu">
                 <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
                 <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
             </div>
+
+            <!-- 로그인 -->
+            <div id="userMenu" style="display:none;">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+                <button class="yw-btn yw-btn--primary" type="button" id="logoutBtn">로그아웃</button>
+            </div>
+
         </div>
     </div>
 </header>
@@ -175,5 +170,7 @@
         <span>© ga-me</span>
     </div>
 </footer>
+
+<script th:src="@{/js/main-auth.js}"></script>
 </body>
 </html>

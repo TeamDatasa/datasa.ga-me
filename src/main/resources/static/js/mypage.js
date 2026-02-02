@@ -174,13 +174,25 @@ window.setRole = setRole;
 // Logout / Delete
 // =============================
 function bindAccountActions() {
-  // 로그아웃은 서버로 요청 보내서 쿠키도 정리되게 하는 게 안전
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-    // NOTE: CSRF 설정에 따라 403이 날 수 있음.
-    // 403 나면: 로그아웃 버튼을 form POST로 바꾸거나, CSRF 토큰을 헤더로 보내도록 수정 필요.
-    await fetch("/logout", { method: "POST", credentials: "same-origin" });
+    // ✅ 1) 프론트 토큰/정보 삭제 (이게 핵심)
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    sessionStorage.removeItem("justLoggedIn");
+
+    // ✅ 2) (선택) 서버 로그아웃도 시도 - 실패해도 무시
+    try {
+      await fetch("/logout", { method: "POST", credentials: "same-origin" });
+    } catch (e) {
+      // ignore
+    }
+
+    // ✅ 3) 비로그인 메인으로 이동
     window.location.href = "/";
   });
+
 
   document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
     const ok = confirm("Are you sure you want to delete your account?");
