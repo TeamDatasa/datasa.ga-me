@@ -1,0 +1,7 @@
+lightfm==1.17
+pandas
+numpy
+sqlalchemy
+pymysql
+python-dotenv
+tqdm

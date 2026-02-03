@@ -122,4 +122,38 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             Pageable pageable
     );
 
+
+    //로그인 안했을때는 최신여행 8개 추천
+
+    @Query("""
+    select t
+    from Trip t
+    where t.status = 'OPEN'
+    order by t.createdAt desc
+    """)
+    List<Trip> findTop8Default(Pageable pageable);
+
+
+    // ai결과 없을시 같은지역 및 인기순 추천
+    @Query("""
+    select t
+    from Trip t
+    left join Application a
+        on a.trip = t
+        and a.status = 'APPROVED'
+    where
+        t.status = 'OPEN'
+    and t.region = (
+        select u.region
+        from User u
+        where u.userId = :userId
+    )
+    group by t
+    order by count(a) desc
+    """)
+    List<Trip> findRuleBased(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
 }
