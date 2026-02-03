@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
-
-    /**
+	
+	List<Trip> findByHostUser_UserIdOrderByCreatedAtDesc(Long hostUserId);
+	
+	/**
      *  =========================
      * U_001 여행 목록 (최신순)
      * ========================= */

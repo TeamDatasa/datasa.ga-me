@@ -191,6 +191,11 @@ public class TripService {
 		}
 		return tripRepository.findLatestTrips(pageable);
 	}
+	@Transactional(readOnly = true)
+	public List<TripListResponseDto> getMyTrips(Long hostUserId) {
+		return tripRepository.findMyTrips(hostUserId);
+	}
+	
 	
 	/**
 	 * U_002 여행 검색
