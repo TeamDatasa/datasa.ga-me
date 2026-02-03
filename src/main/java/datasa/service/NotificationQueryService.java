@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,16 +58,41 @@ public class NotificationQueryService {
 			return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
 		}
 		
-		String principal = authentication.getPrincipal().toString();
+		Object principalObj = authentication.getPrincipal();
+		
+		if (principalObj instanceof String principalStr) {
+			if (ANONYMOUS.equals(principalStr)) {
+				ensureDefaultUserExists();
+				return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
+			}
+			
+			// principal이 이메일 문자열인 경우
+			return userRepository.findByEmail(principalStr)
+					.orElseGet(() -> {
+						ensureDefaultUserExists();
+						return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
+					});
+		}
+		
+		// ✅ principal이 UserDetails인 경우(현재 JwtAuthFilter가 이 케이스)
+		if (principalObj instanceof UserDetails userDetails) {
+			String email = userDetails.getUsername(); // 보통 username에 email이 들어감
+			return userRepository.findByEmail(email)
+					.orElseGet(() -> {
+						ensureDefaultUserExists();
+						return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
+					});
+		}
+		
+		// 기타 타입은 toString으로 fallback
+		String principal = principalObj.toString();
 		if (ANONYMOUS.equals(principal)) {
 			ensureDefaultUserExists();
 			return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
 		}
 		
-		// 로그인 로직이 붙은 경우(이메일 principal)
 		return userRepository.findByEmail(principal)
 				.orElseGet(() -> {
-					// 혹시 principal이 이메일인데 DB에 없으면 기본유저로 fallback
 					ensureDefaultUserExists();
 					return userRepository.findById(DEFAULT_USER_ID).orElseThrow();
 				});
@@ -75,7 +101,6 @@ public class NotificationQueryService {
 	private void ensureDefaultUserExists() {
 		if (userRepository.existsById(DEFAULT_USER_ID)) return;
 		
-		// user 테이블 필수 컬럼 기준으로 삽입 (현재 프로젝트 스키마에 맞춤)
 		em.createNativeQuery("""
             INSERT INTO user
             (user_id, email, password_hash, name, role, local_verified, status, created_at, updated_at, email_verified)

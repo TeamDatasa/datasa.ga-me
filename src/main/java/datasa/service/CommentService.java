@@ -53,26 +53,24 @@ public class CommentService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 		
 		Comment parent = null;
-		
 		if (req.parentCommentId() != null) {
 			parent = commentRepository
-					.findByCommentIdAndTrip_TripIdAndStatusNot(req.parentCommentId(), tripId, DELETED)
+					.findByCommentIdAndTrip_TripIdAndStatusNot(req.parentCommentId(), tripId, Comment.Status.DELETED)
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parent comment"));
 		}
 		
 		Comment saved = commentRepository.save(new Comment(trip, user, parent, req.content()));
 		
-		// 글 작성자에게 알림 (자기 글에 자기가 댓글 달면 제외)
-		if (!trip.getHostUser().getUserId().equals(user.getUserId())) {
-			eventPublisher.publishEvent(new TripCommentedEvent(
-					trip.getTripId(),
-					saved.getCommentId(),
-					user.getUserId(),
-					trip.getHostUser().getUserId()
-			));
-		}
+		Long actorUserId = user.getUserId();
+		Long ownerUserId = trip.getHostUser().getUserId(); // 글 작성자(호스트)
+		Long commentId = saved.getCommentId();
+		
+		// ✅ 이벤트는 항상 발행 (리스너에서 본인 제외 처리)
+		eventPublisher.publishEvent(new TripCommentedEvent(tripId, commentId, actorUserId, ownerUserId));
+		
 		return toResponse(saved);
 	}
+
 	
 	@Transactional
 	public CommentResponse update(Long commentId, String email, CommentUpdateRequest req) {
