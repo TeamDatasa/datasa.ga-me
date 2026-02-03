@@ -2,10 +2,15 @@ package datasa.domain.dto;
 
 import datasa.domain.entity.ChatMessage;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+
+@Builder
+@Setter
 @Getter
 @AllArgsConstructor
 public class ChatMessageResponseDto {
@@ -34,6 +39,17 @@ public class ChatMessageResponseDto {
                 message.getCreatedAt()
         );
     }
+
+    public static ChatMessageResponseDto fromTranslated(
+            ChatMessage message,
+            String translatedText,
+            String targetLanguage
+    ) {
+        ChatMessageResponseDto dto = from(message);
+        dto.setTranslatedText(translatedText);
+        dto.setTargetLanguage(targetLanguage);
+        return dto;
+    }
+
+
 }
-
-

@@ -154,28 +154,25 @@ public class ChatService {
     private final TranslationService translationService;
 
 
-    @Transactional
-    public void translateMessage(Long messageId, String targetLanguage) {
-
+    @Transactional(readOnly = true)
+    public ChatMessageResponseDto translateMessage(
+            Long messageId,
+            String targetLanguage
+    ) {
         ChatMessage message = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("메시지 없음"));
-
-        // 이미 번역된 경우 방어
-        if (message.getTranslatedText() != null) return;
 
         String translated = translationService.translate(
                 message.getOriginalText(),
                 targetLanguage
         );
 
-        message.applyTranslation(translated, targetLanguage);
-
-        //  번역 결과 WS로 push
-        messagingTemplate.convertAndSend(
-                "/topic/chat/" + message.getChatRoom().getRoomId(),
-                ChatMessageResponseDto.from(message)
-        );
+        return ChatMessageResponseDto.builder()
+                .messageId(message.getMessageId())
+                .translatedText(translated)
+                .build();
     }
+
 
 
 

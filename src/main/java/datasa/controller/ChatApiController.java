@@ -42,13 +42,16 @@ public class ChatApiController {
     }
 
     @PostMapping("/messages/{messageId}/translate")
-    public ResponseEntity<Void> translateMessage(
+    public ResponseEntity<ChatMessageResponseDto> translate(
             @PathVariable Long messageId,
             @RequestParam String targetLanguage
     ) {
-        chatService.translateMessage(messageId, targetLanguage);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                chatService.translateMessage(messageId, targetLanguage)
+        );
     }
+
+
 
 
 
