@@ -1,0 +1,233 @@
+
+:root{
+  --bg: #F1F2F0;
+  --ink: #0f172a;
+  --muted: #64748b;
+
+  --card: #ffffff;
+  --border: rgba(15,23,42,0.10);
+
+  --shadow: 0 14px 40px rgba(2,6,23,0.10);
+  --shadowSoft: 0 8px 24px rgba(2,6,23,0.08);
+
+  --r: 18px;
+  --r2: 12px;
+
+  --yellow: #F2E96D;
+  --blueBorder: rgba(48,132,242,0.35);
+  --blueBg: rgba(48,132,242,0.12);
+  --blueText: #0b3a8a;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, Roboto, Helvetica, Arial;
+  color: var(--ink);
+  background: var(--bg);
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tw-title{
+  width: 100%;
+  max-width: 1100px;
+  margin: 32px auto 16px;
+  padding: 0 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+form[th\\:object]{
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+form[th\\:object] > div{
+  max-width: 760px;
+  margin: 14px auto 0;
+}
+
+label{
+  display:inline-block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+select,
+textarea{
+  width: min(760px, 100%);
+  padding: 12px 12px;
+  border-radius: var(--r2);
+  border: 1px solid rgba(15,23,42,0.12);
+  background: #fff;
+  outline: none;
+  font-size: 15px;
+  color: var(--ink);
+  transition: border-color .12s ease, box-shadow .12s ease, transform .06s ease;
+}
+
+textarea{
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color: rgba(48,132,242,0.55);
+  box-shadow: 0 0 0 4px rgba(48,132,242,0.14);
+}
+
+select{ cursor:pointer; }
+
+
+#keyword{
+  width: min(320px, 100%) !important;
+  padding: 12px 12px !important;
+  border-radius: 999px !important;
+}
+
+#keyword + button[type="button"]{
+  padding: 11px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--blueBorder) !important;
+  background: var(--blueBg) !important;
+  color: var(--blueText) !important;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+#keyword + button[type="button"]:hover{
+  transform: translateY(-1px);
+  background: rgba(48,132,242,0.16) !important;
+  box-shadow: var(--shadowSoft);
+}
+
+#map{
+  width: 100% !important;
+  height: 360px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(15,23,42,0.12) !important;
+  background: #fff;
+  overflow: hidden;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+#placesList{
+  list-style:none;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: grid !important;
+  gap: 10px;
+}
+#placesList li{
+  border: 1px solid rgba(15,23,42,0.10) !important;
+  border-radius: 14px !important;
+  padding: 10px !important;
+  background: #fff !important;
+  transition: transform .10s ease, box-shadow .10s ease, border-color .10s ease;
+}
+#placesList li:hover{
+  transform: translateY(-1px);
+  box-shadow: var(--shadowSoft);
+  border-color: rgba(48,132,242,0.35) !important;
+}
+
+#pagination{
+  margin-top: 10px !important;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#pagination a{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.9);
+  font-weight: 900;
+  color: #334155;
+}
+#pagination a:hover{
+  border-color: rgba(48,132,242,0.35);
+}
+
+#pickedText{
+  font-weight: 900;
+  color: #334155;
+}
+
+#scheduleList{ gap: 10px !important; }
+#scheduleList > div{
+  background: #fff !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.06);
+}
+
+#scheduleList button{
+  border: 1px solid rgba(15,23,42,0.12) !important;
+  background: rgba(2,6,23,0.04) !important;
+  border-radius: 12px !important;
+  font-weight: 900;
+  cursor:pointer;
+}
+#scheduleList button:hover{
+  background: rgba(2,6,23,0.07) !important;
+}
+
+
+
+button[type="submit"],
+.btn-cancel{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--yellow) !important;
+  color: #1e293b !important;
+
+  border: 0 !important;
+  border-radius: 12px;
+
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 900;
+
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  transition: transform .12s ease, box-shadow .12s ease;
+  vertical-align: middle;
+}
+
+button[type="submit"]:hover,
+.btn-cancel:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.16);
+}
+
+.btn-cancel{ margin-left: 10px; }
+

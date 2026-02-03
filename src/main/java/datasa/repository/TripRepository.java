@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
-
-    /**
+	
+	List<Trip> findByHostUser_UserIdOrderByCreatedAtDesc(Long hostUserId);
+	
+	/**
      *  =========================
      * U_001 여행 목록 (최신순)
      * ========================= */
@@ -121,5 +123,27 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("languages") List<String> languages,
             Pageable pageable
     );
-
+	
+	/** =========================
+	 *  호스트 본인 투어 목록 (최신순)
+	 * ========================= */
+	@Query("""
+        select new datasa.domain.dto.TripListResponseDto(
+            t.tripId,
+            t.title,
+            t.region,
+            t.theme,
+            t.maxParticipants,
+            count(a)
+        )
+        from Trip t
+        left join Application a
+            on a.trip = t
+            and a.status = 'APPROVED'
+        where t.hostUser.userId = :hostUserId
+        group by t
+        order by t.tripId desc
+    """)
+	List<TripListResponseDto> findMyTrips(@Param("hostUserId") Long hostUserId);
+	
 }

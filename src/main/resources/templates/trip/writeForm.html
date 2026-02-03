@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/css/host/trip-write.css" />
+
     <title>여행 글 작성</title>
 
     <!-- Kakao Maps SDK -->
@@ -12,7 +14,7 @@
 </head>
 
 <body>
-<h1>여행 글 작성</h1>
+<h1 class="tw-title">여행 글 작성</h1>
 
 <form th:action="@{/api/trip/write}" method="post" th:object="${request}">
 
@@ -223,7 +225,12 @@
 
     <br/>
     <button type="submit">등록</button>
-    <a th:href="@{/api/trip/listAll}">취소</a>
+    <button type="button"
+            class="btn-cancel"
+            onclick="location.href='/api/trip/listAll'">
+        목록
+    </button>
+
 </form>
 
 <script>
