@@ -1,0 +1,33 @@
+.yw-badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.yw-badge.ai {
+  background: linear-gradient(45deg, #6a5acd, #00bfff);
+}
+
+.yw-badge.rule {
+  background: #4caf50;
+}
+
+.yw-badge.default {
+  background: #ff9800;
+}
+
+.yw-card__author {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0 8px;
+}
+
+.yw-card__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #888;
+}
