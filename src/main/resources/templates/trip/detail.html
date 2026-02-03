@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <link rel="stylesheet" th:href="@{/css/main.css}">
-
-    <!-- 기존: 상세 페이지 스타일 -->
-    <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}"/>
-
+    <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
 
     <title>여행 글 상세</title>
@@ -31,18 +28,15 @@
         </nav>
 
         <div class="yw-auth">
-            <!-- 비로그인 -->
             <div id="guestMenu">
                 <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
                 <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
             </div>
 
-            <!-- 로그인 -->
             <div id="userMenu" style="display:none;">
                 <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
-
                 <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-                <button class="yw-btn yw-btn--primary" type="button" id="logoutBtn">로그아웃</button>
+                <button class="yw-btn yw-btn--primary" id="logoutBtn">로그아웃</button>
             </div>
         </div>
     </div>
@@ -51,36 +45,12 @@
 <main class="page">
     <div class="container">
 
-        <div class="top-actions">
-            <a class="back-link" th:href="@{/api/trip/listAll}" aria-label="목록으로">←</a>
-        </div>
-
         <header class="post-header">
-            <div class="post-title-row">
-                <h1 class="post-title" th:text="${trip.title}">제목</h1>
-
-                <button type="button"
-                        id="likeBtn"
-                        class="like-btn"
-                        th:attr="data-trip-id=${trip.tripId}, data-liked=${trip.likedByMe}">
-                    <span class="heart" th:text="${trip.likedByMe} ? '❤' : '♡'">♡</span>
-                    <span class="like-count" id="likeCount" th:text="${trip.likeCount}">0</span>
-                </button>
-            </div>
-
-            <div class="post-meta">
-                <div class="meta-left">
-                    <span class="chip" th:text="${trip.hostName}">작성자</span>
-                    <span class="dot">•</span>
-                    <span class="muted" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
-                </div>
-
-                <div class="meta-right" style="display:none;"></div>
-            </div>
+            <h1 th:text="${trip.title}">제목</h1>
         </header>
 
         <section class="post-body">
-            <p class="content" th:text="${trip.description}">본문</p>
+            <p th:text="${trip.description}">본문</p>
         </section>
 
         <section class="comments">
@@ -90,9 +60,6 @@
             </div>
 
             <form id="commentForm" class="comment-form">
-                <input type="hidden" id="userId" th:value="${userId}"/>
-                <input type="hidden" id="tripId" th:value="${trip.tripId}"/>
-
                 <textarea id="commentContent"
                           class="textarea"
                           rows="3"
@@ -106,63 +73,85 @@
             <ul id="commentList" class="comment-list"></ul>
         </section>
 
-        <footer class="bottom-actions">
-            <a class="btn" th:href="@{/api/trip/listAll}">목록</a>
-
-            <a class="btn" th:if="${isMine}" th:href="@{'/api/trip/update/' + ${trip.tripId}}">수정</a>
-
-            <button class="btn danger"
-                    type="button"
-                    th:if="${isMine}"
-                    th:attr="data-trip-id=${trip.tripId}"
-                    id="deleteBtn">삭제
-            </button>
-        </footer>
-
     </div>
 </main>
 
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
-    const currentUserId = /*[[${userId}]]*/ null;
-    const isLogin = /*[[${isLogin}]]*/ false;
 </script>
 
-<script>
-    const likeBtn = document.getElementById("likeBtn");
-    const likeCountEl = document.getElementById("likeCount");
+<script th:src="@{/js/authFetch.js}"></script>
 
-    likeBtn?.addEventListener("click", async () => {
-        if (!isLogin) {
-            alert("로그인이 필요합니다.");
-            return;
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("commentForm");
+        const contentEl = document.getElementById("commentContent");
+        const listEl = document.getElementById("commentList");
+        const countEl = document.getElementById("commentCount");
+
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
-        const tripId = likeBtn.dataset.tripId;
+        async function loadComments() {
+            const res = await authFetch(`/api/trips/${tripId}/comments`, { method: "GET" });
+            if (!res.ok) return;
 
-        try {
-            const res = await fetch(`/api/trips/${tripId}/like`, {
+            const data = await res.json();
+            countEl.textContent = data.length;
+
+            listEl.innerHTML = "";
+
+            data.forEach(c => {
+                const li = document.createElement("li");
+                li.className = "comment-item";
+                li.innerHTML = `
+                  <div class="comment-head">
+                    <span class="comment-author">${escapeHtml(c.userName)}</span>
+                    <span class="comment-date">${new Date(c.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div class="comment-body">${escapeHtml(c.content)}</div>
+                `;
+
+                // ✅ 빠진 부분: 실제로 DOM에 추가해야 화면에 보입니다.
+                listEl.appendChild(li);
+            });
+        }
+
+        form.addEventListener("submit", async e => {
+            e.preventDefault();
+
+            const content = contentEl.value.trim();
+            if (!content) return;
+
+            const res = await authFetch(`/api/trips/${tripId}/comments`, {
                 method: "POST",
-                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    parentCommentId: null,
+                    content
+                })
             });
 
             if (!res.ok) {
-                alert("처리에 실패했습니다.");
+                alert("댓글 등록에 실패했습니다.");
                 return;
             }
 
-            const data = await res.json();
-            likeBtn.dataset.liked = data.liked;
-            likeCountEl.textContent = data.likeCount;
-            likeBtn.querySelector(".heart").textContent = data.liked ? "❤" : "♡";
-        } catch (e) {
-            alert("네트워크 오류");
-        }
+            contentEl.value = "";
+            await loadComments();
+        });
+
+        loadComments();
     });
 </script>
 
 <script th:src="@{/js/main-auth.js}"></script>
-
 <script th:src="@{/js/notifications.js}"></script>
 
 </body>

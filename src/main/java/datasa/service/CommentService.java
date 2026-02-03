@@ -32,7 +32,6 @@ public class CommentService {
 	private final CommentLikeRepository commentLikeRepository;
 	private final ApplicationEventPublisher eventPublisher;
 	
-	
 	@Transactional(readOnly = true)
 	public List<CommentResponse> listByTrip(Long tripId) {
 		if (!tripRepository.existsById(tripId)) {
@@ -46,16 +45,15 @@ public class CommentService {
 	}
 	
 	@Transactional
-	public CommentResponse create(Long tripId, CommentCreateRequest req) {
+	public CommentResponse create(Long tripId, String email, CommentCreateRequest req) {
 		Trip trip = tripRepository.findById(tripId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
 		
-		User user = userRepository.findById(req.userId())
+		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 		
 		Comment parent = null;
 		
-		// parent cooment 확인
 		if (req.parentCommentId() != null) {
 			parent = commentRepository
 					.findByCommentIdAndTrip_TripIdAndStatusNot(req.parentCommentId(), tripId, DELETED)
@@ -64,6 +62,7 @@ public class CommentService {
 		
 		Comment saved = commentRepository.save(new Comment(trip, user, parent, req.content()));
 		
+		// 글 작성자에게 알림 (자기 글에 자기가 댓글 달면 제외)
 		if (!trip.getHostUser().getUserId().equals(user.getUserId())) {
 			eventPublisher.publishEvent(new TripCommentedEvent(
 					trip.getTripId(),
@@ -72,23 +71,23 @@ public class CommentService {
 					trip.getHostUser().getUserId()
 			));
 		}
-		
 		return toResponse(saved);
 	}
-
-	
 	
 	@Transactional
-	public CommentResponse update(Long commentId, CommentUpdateRequest req) {
+	public CommentResponse update(Long commentId, String email, CommentUpdateRequest req) {
 		Comment comment = commentRepository.findByCommentIdAndStatusNot(commentId, DELETED)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 		
+		User me = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+		
 		// 본인 댓글만 수정
-		if (!comment.getUser().getUserId().equals(req.userId())) {
+		if (!comment.getUser().getUserId().equals(me.getUserId())) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your comment");
 		}
 		
-		// ACTIVE만 수정 허용(원하시면 HIDDEN도 허용 가능)
+		// ACTIVE만 수정 허용
 		if (!comment.isActive()) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Comment is not editable");
 		}
@@ -97,14 +96,16 @@ public class CommentService {
 		return toResponse(comment);
 	}
 	
-	
 	@Transactional
-	public void delete(Long commentId, Long userId) {
+	public void delete(Long commentId, String email) {
 		Comment comment = commentRepository.findByCommentIdAndStatusNot(commentId, DELETED)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 		
+		User me = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+		
 		// 본인 댓글만 삭제
-		if (!comment.getUser().getUserId().equals(userId)) {
+		if (!comment.getUser().getUserId().equals(me.getUserId())) {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your comment");
 		}
 		
@@ -119,8 +120,7 @@ public class CommentService {
 			return;
 		}
 		
-		// 대댓글이 없으면: 일반 삭제 처리(소프트삭제)
-		// (원하시면 여기서만 물리삭제(commentRepository.delete(comment))로 바꿔도 됨)
+		// 대댓글이 없으면: 소프트 삭제
 		comment.markDeletedKeepingReplies();
 	}
 	
@@ -130,12 +130,14 @@ public class CommentService {
 	 * - 없으면 생성
 	 */
 	@Transactional
-	public long toggleLike(Long commentId, Long userId) {
+	public long toggleLike(Long commentId, String email) {
 		Comment comment = commentRepository.findByCommentIdAndStatusNot(commentId, DELETED)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 		
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+		
+		Long userId = user.getUserId();
 		
 		commentLikeRepository.findByComment_CommentIdAndUser_UserId(commentId, userId)
 				.ifPresentOrElse(
@@ -161,5 +163,4 @@ public class CommentService {
 				c.getUpdatedAt()
 		);
 	}
-	
 }

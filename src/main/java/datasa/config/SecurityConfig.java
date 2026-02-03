@@ -4,6 +4,8 @@ import datasa.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -23,37 +26,41 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				.csrf(csrf -> csrf.disable())
-				.headers(headers -> headers
-						.frameOptions(frame -> frame.disable())
-				)
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				
 				.authorizeHttpRequests(auth -> auth
-						// public
+						// ===== 정적/공개 =====
 						.requestMatchers(
-								"/", "/index", "/favicon.ico",
-								"/css/**", "/js/**", "/images/**", "/webjars/**",
+								"/",
+								"/index",
 								"/error",
-								"/login", "/signup",
+								"/favicon.ico",
+								"/css/**",
+								"/js/**",
+								"/images/**",
+								"/webjars/**",
+								"/login",
+								"/signup",
 								"/auth/**",
-								"/api/auth/login",
-								"/api/auth/signup",
-								"/api/auth/password/**",
-								"/api/auth/email/**",
-								"/api/notifications/**",
-								"/api/trip/**"
+								"/api/auth/**"
 						).permitAll()
 						
+						// ✅ HTML 상세 페이지(비로그인 허용)
+						.requestMatchers(HttpMethod.GET, "/api/trip/detail/**").permitAll()
 						
+						// ✅ 여행 API 조회(비로그인 허용)
+						.requestMatchers(HttpMethod.GET, "/api/trips/**").permitAll()
 						
-						// auth
-						.requestMatchers(
-								"/mypage/**",
-								"/api/mypage/**",
-								"/api/application/**",
-								"/api/chat/**"
-						).authenticated()
+						// ✅ 댓글 목록 조회(비로그인 허용)
+						.requestMatchers(HttpMethod.GET, "/api/trips/*/comments").permitAll()
 						
+						// 나머지는 인증 필요(댓글 작성/삭제 포함)
 						.anyRequest().authenticated()
+				)
+				
+				// ✅ 인증 안 된 요청은 401로
+				.exceptionHandling(ex -> ex
+						.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
 				)
 				
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

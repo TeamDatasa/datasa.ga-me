@@ -6,16 +6,19 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -24,86 +27,84 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	private final UserDetailsService userDetailsService;
 	
 	@Override
-	protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-		String path = request.getServletPath();
-		
-		return path.equals("/reset-password")
-				|| path.equals("/error")
-				|| path.equals("/")
-				|| path.equals("/index")
-				|| path.equals("/login")
-				|| path.equals("/signup")
-				|| path.startsWith("/css/")
-				|| path.startsWith("/js/")
-				|| path.startsWith("/images/")
-				|| path.startsWith("/webjars/")
-				|| path.equals("/api/auth/login")
-				|| path.equals("/api/auth/signup")
-				|| path.startsWith("/api/auth/password/")
-				|| path.startsWith("/api/auth/email/")
-				|| path.equals("/api/auth/signup")
-				|| path.startsWith("/api/notifications/");
-	}
-	
-	@Override
 	protected void doFilterInternal(
 			@NonNull HttpServletRequest request,
 			@NonNull HttpServletResponse response,
 			@NonNull FilterChain filterChain
 	) throws ServletException, IOException {
 		
+		String path = request.getRequestURI();
+		String method = request.getMethod();
+		
+		// 이미 인증이 있으면 패스
+		if (SecurityContextHolder.getContext().getAuthentication() != null) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		
 		String token = resolveToken(request);
 		
+		if (token == null || token.isBlank()) {
+			log.debug("[JWT] no token: {} {}", method, path);
+			filterChain.doFilter(request, response);
+			return;
+		}
+		
 		try {
-			// 토큰 없으면 익명으로 통과
-			if (token == null || token.isBlank()) {
+			boolean valid = jwtTokenProvider.validate(token);
+			if (!valid) {
+				log.warn("[JWT] invalid token: {} {}", method, path);
 				filterChain.doFilter(request, response);
 				return;
 			}
 			
-			// 이미 인증이 세팅되어 있으면 중복 세팅하지 않음
-			if (SecurityContextHolder.getContext().getAuthentication() == null
-					&& jwtTokenProvider.validate(token)) {
-				
-				String email = jwtTokenProvider.getEmail(token);
-				
-				UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-				
-				UsernamePasswordAuthenticationToken auth =
-						new UsernamePasswordAuthenticationToken(
-								userDetails,
-								null,
-								userDetails.getAuthorities()
-						);
-				
-				SecurityContextHolder.getContext().setAuthentication(auth);
+			String email = jwtTokenProvider.getEmail(token);
+			if (email == null || email.isBlank()) {
+				log.warn("[JWT] email empty: {} {}", method, path);
+				filterChain.doFilter(request, response);
+				return;
 			}
 			
+			UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+			
+			UsernamePasswordAuthenticationToken auth =
+					new UsernamePasswordAuthenticationToken(
+							userDetails,
+							null,
+							userDetails.getAuthorities()
+					);
+			
+			auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			SecurityContextHolder.getContext().setAuthentication(auth);
+			
+			log.info("[JWT] authenticated: email={}, {} {}", email, method, path);
+			
 		} catch (Exception e) {
-			// 토큰 만료/서명 오류 등 -> 500 금지, 익명 처리
+			// ✅ 여기서 삼키면 안 됩니다. 원인 확인용 로그
 			SecurityContextHolder.clearContext();
+			log.error("[JWT] auth failed: {} {} / msg={}", method, path, e.getMessage(), e);
 		}
 		
 		filterChain.doFilter(request, response);
 	}
 	
 	private String resolveToken(HttpServletRequest request) {
-		// 1) Authorization 헤더
+		// 1) Authorization 헤더 우선
 		String header = request.getHeader("Authorization");
 		if (header != null && header.startsWith("Bearer ")) {
-			return header.substring(7);
+			return header.substring(7).trim();
 		}
 		
-		// 2) 쿠키 access_token
+		// 2) 쿠키 access_token fallback
 		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie c : cookies) {
-				if ("access_token".equals(c.getName())) {
-					return c.getValue();
-				}
+		if (cookies == null) return null;
+		
+		for (Cookie c : cookies) {
+			if ("access_token".equals(c.getName())) {
+				String v = c.getValue();
+				return v == null ? null : v.trim();
 			}
 		}
-		
 		return null;
 	}
 }
