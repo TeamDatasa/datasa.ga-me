@@ -15,7 +15,6 @@ import java.util.Optional;
 public interface TripRepository extends JpaRepository<Trip, Long> {
 	
 	List<Trip> findByHostUser_UserIdOrderByCreatedAtDesc(Long hostUserId);
-	
 	/**
      *  =========================
      * U_001 여행 목록 (최신순)
@@ -157,5 +156,26 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("userId") Long userId,
             Pageable pageable
     );
-
+	
+	
+	@Query("""
+	select new datasa.domain.dto.TripListResponseDto(
+    t.tripId,
+    t.title,
+    t.region,
+    t.theme,
+    t.maxParticipants,
+    count(a)
+)
+from Trip t
+left join Application a
+    on a.trip = t
+    and a.status = 'APPROVED'
+where t.hostUser.userId = :hostUserId
+group by t
+order by t.createdAt desc
+""")
+	List<TripListResponseDto> findMyTrips(@Param("hostUserId") Long hostUserId);
+	
+	
 }

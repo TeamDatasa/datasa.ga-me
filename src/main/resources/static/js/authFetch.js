@@ -1,34 +1,33 @@
-/**
- * 인증이 필요한 API 호출용 공통 fetch 래퍼
- * - Authorization: Bearer <token>
- * - credentials: include (쿠키 인증도 지원)
- */
-async function authFetch(url, options = {}) {
-    const token = localStorage.getItem("accessToken");
+export async function authFetch(url, options = {}) {
 
     const headers = {
         ...(options.headers || {})
     };
 
-    // JSON body 기본 헤더
-    if (!headers["Content-Type"] && !(options.body instanceof FormData)) {
+    // JSON body일 때만 Content-Type 자동 세팅
+    if (!headers["Content-Type"] && options.body && !(options.body instanceof FormData)) {
         headers["Content-Type"] = "application/json";
-    }
-
-    // JWT 헤더 자동 추가
-    if (token && token.trim()) {
-        headers["Authorization"] = `Bearer ${token}`;
     }
 
     const response = await fetch(url, {
         ...options,
         headers,
-        credentials: "include"
+        credentials: "include", // ⭐ 쿠키 JWT 핵심
     });
 
-    // 인증 실패 로그 (디버깅용)
-    if (response.status === 401 || response.status === 403) {
-        console.warn("AUTH FAIL:", response.status, url);
+    // 🔥 인증 만료 / 실패 → 자동 로그아웃
+    if (response.status === 401) {
+        console.warn("AUTH EXPIRED:", url);
+
+        try {
+            await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (e) {}
+
+        window.location.href = "/";
+        throw new Error("UNAUTHORIZED");
     }
 
     return response;

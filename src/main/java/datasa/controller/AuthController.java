@@ -6,8 +6,11 @@ import datasa.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +20,14 @@ public class AuthController {
 	
 	private final AuthService authService;
 	
-	@GetMapping("/api/auth/me")
+	@GetMapping("/me")
 	public ResponseEntity<Void> me() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if (auth == null || !auth.isAuthenticated()
+				|| "anonymousUser".equals(String.valueOf(auth.getPrincipal()))) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
 		return ResponseEntity.ok().build();
 	}
 	
@@ -46,4 +55,25 @@ public class AuthController {
 				.header(HttpHeaders.SET_COOKIE, cookie.toString())
 				.body(res);
 	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<Void> logout() {
+		
+		ResponseCookie cookie = ResponseCookie.from("access_token", "")
+				.httpOnly(true)
+				.path("/")
+				.sameSite("Lax")
+				.maxAge(0)
+				.build();
+		
+		ResponseCookie jsession = ResponseCookie.from("JSESSIONID", "")
+				.path("/")
+				.maxAge(0)
+				.build();
+		
+		return ResponseEntity.ok()
+				.header(HttpHeaders.SET_COOKIE, cookie.toString())
+				.build();
+	}
+	
 }

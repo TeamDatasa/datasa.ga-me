@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const guestMenu = document.getElementById("guestMenu");
   const userMenu = document.getElementById("userMenu");
   const logoutBtn = document.getElementById("logoutBtn");
@@ -6,16 +6,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!guestMenu || !userMenu) return;
 
-  // ✅ 토스트 (DOMContentLoaded 안으로 넣는 게 안전)
+  // ✅ 로그인 직후 토스트
   if (sessionStorage.getItem("justLoggedIn") === "1") {
     sessionStorage.removeItem("justLoggedIn");
     toast?.classList.add("is-show");
     setTimeout(() => toast?.classList.remove("is-show"), 2000);
   }
 
-  const token = localStorage.getItem("accessToken");
+  // ✅ 로그인 여부 확인 (쿠키 기반 JWT → me API로 판단)
+  let isLogin = false;
+  try {
+    const res = await fetch("/api/auth/api/auth/me", {
+      method: "GET",
+      credentials: "include", // ⭐ 쿠키 필수
+    });
+    isLogin = res.ok;
+  } catch (e) {
+    isLogin = false;
+  }
 
-  if (token && token.trim()) {
+  if (isLogin) {
     guestMenu.style.display = "none";
     userMenu.style.display = "flex";
   } else {
@@ -23,11 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
     userMenu.style.display = "none";
   }
 
-  logoutBtn?.addEventListener("click", () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("email");
-    localStorage.removeItem("role");
+  // ✅ 로그아웃 (서버에서 쿠키 만료)
+  logoutBtn?.addEventListener("click", async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) {
+      // 실패해도 강제 이동
+    }
     window.location.href = "/";
   });
 });
