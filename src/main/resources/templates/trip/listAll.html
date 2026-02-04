@@ -15,7 +15,9 @@
 
 <div class="top-bar">
     <h1>전체 작성글 리스트</h1>
-    <a th:href="@{/api/trip/write}">게시글 작성</a>
+
+    <!-- UI는 노출, 클릭 시 role 체크 -->
+    <a id="writeTripLink" th:href="@{/api/trip/write}">게시글 작성</a>
 </div>
 
 <div th:if="${boardList == null or #lists.isEmpty(boardList)}" class="muted">
@@ -42,53 +44,46 @@
 
     <tbody>
     <tr th:each="trip : ${boardList}">
+        <!-- 1) ID -->
         <td class="nowrap" th:text="${trip.tripId}">1</td>
 
+        <!-- 2) 제목 -->
         <td>
-            <div>
-                <a th:href="@{/api/trip/detail/{id}(id=${trip.tripId})}">
-                    <strong th:text="${trip.title}">제목</strong>
-                </a>
-            </div>
-
-            <div class="muted desc" th:if="${trip.description == null}">-</div>
-
-            <div class="muted desc"
-                 th:if="${trip.description != null and trip.description.length() <= 80}"
-                 th:text="${trip.description}">
-                설명
-            </div>
-
-            <div class="muted desc"
-                 th:if="${trip.description != null and trip.description.length() > 80}"
-                 th:text="${trip.description.substring(0, 80) + '...'}">
-                설명
-            </div>
+            <a th:href="@{/api/trip/detail/{id}(id=${trip.tripId})}">
+                <strong th:text="${trip.title}">제목</strong>
+            </a>
         </td>
 
-        <td class="nowrap">
-            <div th:text="${trip.hostName}">호스트명</div>
-            <div class="muted" th:text="'ID: ' + ${trip.hostUserId}">ID: 1</div>
-        </td>
+        <!-- 3) 호스트 -->
+        <td class="nowrap" th:text="${trip.hostName}">호스트명</td>
 
+        <!-- 4) 상태 -->
         <td class="nowrap">
             <span class="badge" th:text="${trip.status}">OPEN</span>
         </td>
 
-        <td class="nowrap" th:text="${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')}">-</td>
-        <td class="nowrap" th:text="${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')}">-</td>
+        <!-- 5) 시작 -->
+        <td class="nowrap" th:text="${trip.startAt != null ? #temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
 
+        <!-- 6) 종료 -->
+        <td class="nowrap" th:text="${trip.endAt != null ? #temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+
+        <!-- 7) 인원 -->
         <td class="nowrap" th:text="${trip.maxParticipants}">10</td>
+
+        <!-- 8) 소요 -->
         <td class="nowrap" th:text="${trip.durationMinutes}">120</td>
 
+        <!-- 9) 비용 -->
         <td class="nowrap"
             th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">
             -
         </td>
 
-        <td class="nowrap" th:text="${#temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm')}">-</td>
+        <!-- 10) 작성일 -->
+        <td class="nowrap" th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
 
-        <!-- 좋아요 -->
+        <!-- 11) 좋아요 -->
         <td class="nowrap">
             <button type="button"
                     class="like-btn"
@@ -99,7 +94,7 @@
             </button>
         </td>
 
-        <!-- 삭제 -->
+        <!-- 12) 삭제 -->
         <td class="nowrap">
             <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
                   onsubmit="return confirm('삭제하시겠습니까?');"
@@ -112,6 +107,30 @@
 </table>
 
 <script>
+    // 게시글 작성 클릭 시 role 검사 (가이드=HOST만 허용)
+    document.addEventListener("DOMContentLoaded", () => {
+        const writeLink = document.getElementById("writeTripLink");
+        if (!writeLink) return;
+
+        writeLink.addEventListener("click", (e) => {
+            const token = localStorage.getItem("accessToken");
+            const role = localStorage.getItem("role"); // USER / HOST
+
+            if (!token || !token.trim()) {
+                e.preventDefault();
+                alert("로그인 후 이용 가능합니다.");
+                window.location.href = "/login";
+                return;
+            }
+
+            if (role !== "HOST") {
+                e.preventDefault();
+                alert("역할이 가이드일 경우에만 작성 가능합니다. 마이페이지에서 역할 신청을 해주세요");
+                window.location.href = "/mypage";
+            }
+        });
+    });
+
     async function toggleTripLike(btn) {
         const tripId = btn.getAttribute("data-trip-id");
         btn.disabled = true;
@@ -119,16 +138,16 @@
         try {
             const res = await fetch(`/api/trip/${tripId}/like`, {
                 method: "POST",
-                headers: { "Accept": "application/json" }
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
             });
 
-            if (!res.ok) throw new Error(res.status);
+            if (!res.ok) {
+                alert("좋아요 처리에 실패했습니다.");
+                return;
+            }
 
-            const data = await res.json(); // {liked: boolean, count: number}
-            btn.setAttribute("data-liked", String(data.liked));
-            btn.querySelector(".heart").innerText = data.liked ? "❤" : "♡";
-            btn.querySelector(".like-count").innerText = data.count;
-
+            window.location.reload();
         } finally {
             btn.disabled = false;
         }
