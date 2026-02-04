@@ -4,6 +4,7 @@ package datasa.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_chat_room_trip", columnList = "trip_id")
         }
 )
+@Setter
 @Getter
 @NoArgsConstructor
 public class ChatRoom {
@@ -40,4 +42,6 @@ public class ChatRoom {
     public ChatRoom(Trip trip) {
         this.trip = trip;
     }
+
+
 }

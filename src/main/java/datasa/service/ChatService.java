@@ -2,6 +2,7 @@ package datasa.service;
 
 import datasa.domain.dto.ChatMessageRequestDto;
 import datasa.domain.dto.ChatMessageResponseDto;
+import datasa.domain.dto.ChatRoomResponseDto;
 import datasa.domain.entity.*;
 import datasa.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -21,6 +26,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatMemberRepository chatMemberRepository;
+    private final ApplicationRepository applicationRepository;
 
     private final UserRepository userRepository;
     private final TripRepository tripRepository;

@@ -4,6 +4,7 @@ package datasa.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
         }
 )
 @Getter
+@Setter
 @NoArgsConstructor
 public class ChatMember {
 
@@ -62,5 +64,6 @@ public class ChatMember {
     public void markAsRead() {
         this.readAt = LocalDateTime.now();
     }
+
 
 }
