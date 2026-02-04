@@ -59,7 +59,7 @@ public class AuthController {
 	@PostMapping("/logout")
 	public ResponseEntity<Void> logout() {
 		
-		ResponseCookie cookie = ResponseCookie.from("access_token", "")
+		ResponseCookie access = ResponseCookie.from("access_token", "")
 				.httpOnly(true)
 				.path("/")
 				.sameSite("Lax")
@@ -72,8 +72,10 @@ public class AuthController {
 				.build();
 		
 		return ResponseEntity.ok()
-				.header(HttpHeaders.SET_COOKIE, cookie.toString())
+				.header(HttpHeaders.SET_COOKIE, access.toString())
+				.header(HttpHeaders.SET_COOKIE, jsession.toString())
 				.build();
 	}
+	
 	
 }
