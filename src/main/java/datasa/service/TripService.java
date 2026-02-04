@@ -10,9 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -139,6 +142,15 @@ public class TripService {
 			throw new RuntimeException("수정 권한이 없습니다.");
 		}
 		
+		LocalDateTime limitTime = trip.getStartAt().minusDays(7);
+		if (LocalDateTime.now().isAfter(limitTime)) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"여정 시작일 7일 전까지만 수정이 가능합니다."
+			);
+		}
+		
+		
 		trip.setTitle(req.getTitle());
 		trip.setDescription(req.getDescription());
 		trip.setRegion(req.getRegion());
@@ -149,10 +161,8 @@ public class TripService {
 		trip.setEndAt(req.getEndAt());
 		trip.setTheme(req.getTheme());
 		
-		// ✅ 기존 일정 삭제
 		tripLocationRepository.deleteByTrip(trip);
 		
-		// ✅ 새 일정 저장 (write와 동일 로직)
 		if (req.getSchedulePlaces() != null) {
 			int order = 1;
 			for (TripWriteSchedulePlaceRequest p : req.getSchedulePlaces()) {
@@ -164,17 +174,31 @@ public class TripService {
 	
 	
 	@Transactional
-	public void deleteTrip(Long tripId, Long loginUserId) {
-		Trip trip = tripRepository.findById(tripId)
-				.orElseThrow(() -> new EntityNotFoundException("게시글 없습니다. id=" + tripId));
+	public void deleteTrip(Long tripId, String email) {
 		
-		Long hostId = trip.getHostUser().getUserId();
-		if (!hostId.equals(loginUserId)) {
-			throw new RuntimeException("삭제 권한이 없습니다.");
+		Trip trip = tripRepository.findById(tripId)
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."
+				));
+		
+		if (!trip.getHostUser().getEmail().equals(email)) {
+			throw new ResponseStatusException(
+					HttpStatus.FORBIDDEN, "삭제 권한이 없습니다."
+			);
+		}
+		
+		LocalDateTime limitTime = trip.getStartAt().minusDays(7);
+		if (LocalDateTime.now().isAfter(limitTime)) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"여정 시작일 7일 전까지만 삭제가 가능합니다."
+			);
 		}
 		
 		tripRepository.delete(trip);
 	}
+
+
 	
 	
 	/**

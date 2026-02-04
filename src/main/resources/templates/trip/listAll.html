@@ -38,7 +38,6 @@
         <th class="nowrap">비용(KRW)</th>
         <th class="nowrap">작성일</th>
         <th class="nowrap">좋아요</th>
-        <th class="nowrap">삭제</th>
     </tr>
     </thead>
 
@@ -63,10 +62,13 @@
         </td>
 
         <!-- 5) 시작 -->
-        <td class="nowrap" th:text="${trip.startAt != null ? #temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+        <td class="nowrap"
+            th:text="${trip.startAt != null ? #temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm') : '-'}">-
+        </td>
 
         <!-- 6) 종료 -->
-        <td class="nowrap" th:text="${trip.endAt != null ? #temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+        <td class="nowrap" th:text="${trip.endAt != null ? #temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm') : '-'}">-
+        </td>
 
         <!-- 7) 인원 -->
         <td class="nowrap" th:text="${trip.maxParticipants}">10</td>
@@ -81,7 +83,9 @@
         </td>
 
         <!-- 10) 작성일 -->
-        <td class="nowrap" th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+        <td class="nowrap"
+            th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-
+        </td>
 
         <!-- 11) 좋아요 -->
         <td class="nowrap">
@@ -92,15 +96,6 @@
                 <span class="heart" th:text="${trip.likedByMe} ? '❤' : '♡'">♡</span>
                 <span class="like-count" th:text="${trip.likeCount}">0</span>
             </button>
-        </td>
-
-        <!-- 12) 삭제 -->
-        <td class="nowrap">
-            <form th:action="@{/api/trip/delete/{id}(id=${trip.tripId})}" method="post"
-                  onsubmit="return confirm('삭제하시겠습니까?');"
-                  style="display:inline;">
-                <button type="submit">삭제</button>
-            </form>
         </td>
     </tr>
     </tbody>

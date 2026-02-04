@@ -131,7 +131,6 @@ public class TripController {
 		req.setEndAt(detail.getEndAt());
 		req.setTheme(detail.getTheme());
 		
-		// ✅ TripLocation → schedulePlaces 변환
 		if (detail.getLocations() != null) {
 			req.setSchedulePlaces(
 					detail.getLocations().stream()
