@@ -80,7 +80,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			log.info("[JWT] authenticated: email={}, {} {}", email, method, path);
 			
 		} catch (Exception e) {
-			// ✅ 여기서 삼키면 안 됩니다. 원인 확인용 로그
 			SecurityContextHolder.clearContext();
 			log.error("[JWT] auth failed: {} {} / msg={}", method, path, e.getMessage(), e);
 		}

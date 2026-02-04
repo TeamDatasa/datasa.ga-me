@@ -29,6 +29,18 @@ public class SecurityConfig {
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				
 				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(HttpMethod.POST,
+								"/api/auth/login",
+								"/api/auth/signup",
+								"/api/auth/logout",
+								"/api/auth/password/reset",
+								"/api/auth/password/reset-request",
+								"/api/auth/email/send-code",
+								"/api/auth/email/verify-code"
+						).permitAll()
+						.requestMatchers(HttpMethod.GET,
+								"/api/auth/me"
+						).permitAll()
 						// ===== 정적/공개 =====
 						.requestMatchers(
 								"/",
