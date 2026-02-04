@@ -184,9 +184,13 @@ function bindAccountActions() {
 
     // ✅ 2) (선택) 서버 로그아웃도 시도 - 실패해도 무시
     try {
-      await fetch("/logout", { method: "POST", credentials: "same-origin" });
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      console.log("[logout] status:", res.status);
     } catch (e) {
-      // ignore
+      console.warn("[logout] request failed:", e2);
     }
 
     // ✅ 3) 비로그인 메인으로 이동
