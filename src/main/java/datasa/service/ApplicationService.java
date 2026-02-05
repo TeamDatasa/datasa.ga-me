@@ -75,7 +75,8 @@ public class ApplicationService {
     }
 
     /**
-     * U_005 내 신청 상태 조회
+     * U_005 내 신청 상태 조회 (목록)
+	 * 해당 여행에 누가 신청했는지 전부 보여주기
      */
     @Transactional(readOnly = true)
     public  List<ApplicationListResponseDto> getApplicationsByTrip(Long tripId) {
@@ -91,6 +92,12 @@ public class ApplicationService {
                 ))
                 .toList();
     }
+	
+	// 내가 이 여행을 신청했는지 여부 확인
+	@Transactional(readOnly = true)
+	public boolean hasApplied(Long tripId, Long userId) {
+		return applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId);
+	}
 
     // 신청 승인
     @Transactional
@@ -181,6 +188,8 @@ public class ApplicationService {
         // 개발용: 항상 통과
         return;
     }
+
+		
 
 //인증필요
 //    public void validateApprovedUser(Long tripId, Long userId) {

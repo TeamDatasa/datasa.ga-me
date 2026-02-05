@@ -11,9 +11,6 @@ import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-
-
-
     // ✅ 중복 신청 체크
     boolean existsByTrip_TripIdAndUser_UserId(Long tripId, Long userId);
 

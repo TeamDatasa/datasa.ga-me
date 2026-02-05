@@ -2,6 +2,7 @@ package datasa.controller;
 
 
 import datasa.domain.dto.*;
+import datasa.security.CustomUserDetail;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
@@ -75,23 +77,22 @@ public class TripController {
 	
 	
 	@PostMapping("/write")
-	public String write(@ModelAttribute TripWriteRequest request, Model model, Authentication authentication) {
-		System.out.println("신청자 계정 클래스 정보 : " + authentication.getPrincipal().getClass());
-		System.out.println(authentication.getPrincipal());
-		
+	public String write(
+			@ModelAttribute TripWriteRequest request,
+			Model model,
+			@AuthenticationPrincipal CustomUserDetail user
+	) {
 		try {
-			Object principal = authentication.getPrincipal();
-			String email;
-			
-			if (principal instanceof UserDetails userDetails) {
-				email = userDetails.getUsername();
-			} else {
-				// 혹시 principal이 String(email)로 들어올 경우도 대비
-				// 근데 필요 없을 거 같긴함
-				email = String.valueOf(principal);
+			if (user == null) {
+				return "redirect:/login";
 			}
-			tripService.write(email, request);
+			
+			Long userId = user.getUserId();
+			
+			tripService.write(userId, request);
+			
 			return "redirect:/api/trip/listAll";
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			
@@ -107,48 +108,31 @@ public class TripController {
 			return "trip/writeForm";
 		}
 	}
+
 	
 	
 	@GetMapping("/update/{id}")
-	public String updateForm(@PathVariable Long id, Model model, Authentication authentication) {
-		
-		try {
-			Object principal = authentication.getPrincipal();
-			String email;
-			
-			if (principal instanceof UserDetails userDetails) {
-				email = userDetails.getUsername();
-				
-				
-			} else {
-				// 혹시 principal이 String(email)로 들어올 경우도 대비
-				// 근데 필요 없을 거 같긴함
-				email = String.valueOf(principal);
-			}
-			TripDetailResponse detail = tripService.getTripDetail();
-			
-			tripService.write(email, request);
-			return "redirect:/api/trip/listAll";
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-			if (request.getStartAt() == null) {
-				request.setStartAt(LocalDateTime.now());
-			}
-			if (request.getEndAt() == null) {
-				request.setEndAt(LocalDateTime.now().plusDays(3));
-			}
-			
-			model.addAttribute("request", request);
-			model.addAttribute("jsKey", kakaoJsKey);
-			return "trip/writeForm";
+	public String updateForm(
+			@PathVariable Long id,
+			Model model,
+			@AuthenticationPrincipal CustomUserDetail user
+	) {
+		// 1. 로그인 사용자 확인
+		if (user == null) {
+			return "redirect:/login";
 		}
 		
-		// 작성자 검증
-		if (!detail.getHostUser().getUserId().equals(1L)) {
+		Long userId = user.getUserId();
+		
+		// 2. 여행 상세 조회
+		TripDetailResponse detail = tripService.getTripDetail(id, userId);
+		
+		// 3. 작성자 검증 (핵심)
+		if (!detail.getHostUser().getUserId().equals(userId)) {
 			return "redirect:/api/trip/listAll";
 		}
 		
+		// 4. 수정용 Request DTO 생성
 		TripUpdateRequest req = new TripUpdateRequest();
 		req.setTripId(detail.getTripId());
 		req.setTitle(detail.getTitle());
@@ -175,9 +159,11 @@ public class TripController {
 			);
 		}
 		
+		// 5. 모델 세팅
 		model.addAttribute("request", req);
 		model.addAttribute("jsKey", kakaoJsKey);
 		
+		// 6. 수정 폼 반환
 		return "trip/updateForm";
 	}
 	

@@ -342,9 +342,9 @@ public class TripService {
 
 	
 	@Transactional
-	public Long write(String userEmail, TripWriteRequest request) {
-		User hostUser = userRepository.findByEmail(userEmail)
-				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + userEmail));
+	public Long write(Long userId, TripWriteRequest request) {
+		User hostUser = userRepository.findById(userId)
+				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + userId));
 		
 		Trip trip = new Trip();
 		trip.setHostUser(hostUser);
