@@ -286,7 +286,7 @@ public class TripService {
 	}
 	
 	
-	public TripDetailResponse getTripDetail(Long boardNum) {
+	public TripDetailResponse getTripDetail(Long boardNum, Long loginUserId) {
 		Trip entity = tripRepository.findById(boardNum)
 				.orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
 		
@@ -306,12 +306,14 @@ public class TripService {
 				})
 				.toList();
 		
-		// test
-		User stubUser = new User();
-		stubUser.setUserId(TEST_USER_ID);
-		
 		long likeCount = tripLikeRepository.countByTrip(entity);
-		boolean likedByMe = tripLikeRepository.existsByTripAndUser(entity, stubUser);
+		
+		boolean likedByMe = false;
+		if (loginUserId != null) {
+			User u = new User();
+			u.setUserId(loginUserId);
+			likedByMe = tripLikeRepository.existsByTripAndUser(entity, u);
+		}
 		
 		return TripDetailResponse.builder()
 				.tripId(entity.getTripId())
@@ -336,6 +338,7 @@ public class TripService {
 				.hostName(entity.getHostUser().getName())
 				.build();
 	}
+
 
 	
 	@Transactional
