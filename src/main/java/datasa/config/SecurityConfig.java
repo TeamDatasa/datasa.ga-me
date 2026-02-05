@@ -45,6 +45,8 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/",
 								"/index",
+								"/listAll",
+								"/detail/**",
 								"/error",
 								"/favicon.ico",
 								"/css/**",
@@ -65,6 +67,12 @@ public class SecurityConfig {
 						
 						// ✅ 댓글 목록 조회(비로그인 허용)
 						.requestMatchers(HttpMethod.GET, "/api/trips/*/comments").permitAll()
+						
+						.requestMatchers(HttpMethod.GET, "/api/mypage/host/card").authenticated()
+						.requestMatchers(HttpMethod.PATCH, "/api/mypage/host/card").authenticated()
+						.requestMatchers(HttpMethod.GET, "/api/hosts/*/card").permitAll()
+						
+						
 						
 						// 나머지는 인증 필요(댓글 작성/삭제 포함)
 						.anyRequest().authenticated()

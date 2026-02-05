@@ -9,6 +9,37 @@
 
     <title>Trip List</title>
 </head>
+<!-- Host Card Modal -->
+<div id="hostCardModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hostCardTitle">
+        <button class="modal-close" type="button" onclick="closeHostCard()">×</button>
+
+        <div class="modal-header">
+            <div class="avatar-lg" id="hostCardAvatar">?</div>
+            <div class="header-text">
+                <h3 id="hostCardTitle">Host</h3>
+                <p class="meta" id="hostCardMeta">-</p>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="label">MBTI</div>
+                <div class="value" id="hostCardMbti">-</div>
+            </div>
+            <div class="row">
+                <div class="label">Bio</div>
+                <div class="value bio" id="hostCardBio">-</div>
+            </div>
+
+            <p class="notice" id="hostCardNotice" style="display:none;"></p>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-ghost" onclick="closeHostCard()">닫기</button>
+        </div>
+    </div>
+</div>
 
 <body>
 <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
@@ -17,7 +48,7 @@
     <h1>전체 작성글 리스트</h1>
 
     <!-- UI는 노출, 클릭 시 role 체크 -->
-    <a id="writeTripLink" th:href="@{/api/trip/write}">게시글 작성</a>
+    <a id="writeTripLink" th:href="@{/write}">게시글 작성</a>
 </div>
 
 <div th:if="${boardList == null or #lists.isEmpty(boardList)}" class="muted">
@@ -54,7 +85,15 @@
         </td>
 
         <!-- 3) 호스트 -->
-        <td class="nowrap" th:text="${trip.hostName}">호스트명</td>
+        <td class="nowrap">
+            <button type="button"
+                    class="host-link"
+                    th:attr="data-host-id=${trip.hostUserId}, data-host-name=${trip.hostName}"
+                    onclick="openHostCard(this)">
+                <span th:text="${trip.hostName}">호스트명</span>
+            </button>
+        </td>
+
 
         <!-- 4) 상태 -->
         <td class="nowrap">
@@ -101,30 +140,29 @@
     </tbody>
 </table>
 
-<script>
+<script th:inline="javascript">
     // 게시글 작성 클릭 시 role 검사 (가이드=HOST만 허용)
     document.addEventListener("DOMContentLoaded", () => {
-        const writeLink = document.getElementById("writeTripLink");
-        if (!writeLink) return;
+    const writeLink = document.getElementById("writeTripLink");
+    if (!writeLink) return;
 
-        writeLink.addEventListener("click", (e) => {
-            const token = localStorage.getItem("accessToken");
-            const role = localStorage.getItem("role"); // USER / HOST
+    const role = /*[[${role}]]*/ null; // "HOST" / "USER" / null
 
-            if (!token || !token.trim()) {
-                e.preventDefault();
-                alert("로그인 후 이용 가능합니다.");
-                window.location.href = "/login";
-                return;
-            }
+    writeLink.addEventListener("click", (e) => {
+      if (!role) {
+        e.preventDefault();
+        alert("로그인 후 이용 가능합니다.");
+        window.location.href = "/auth/login";
+        return;
+      }
 
             if (role !== "HOST") {
-                e.preventDefault();
-                alert("역할이 가이드일 경우에만 작성 가능합니다. 마이페이지에서 역할 신청을 해주세요");
-                window.location.href = "/mypage";
-            }
-        });
+        e.preventDefault();
+        alert("호스트만 게시글을 작성할 수 있습니다. 마이페이지에서 역할 신청을 해주세요.");
+        window.location.href = "/mypage";
+      }
     });
+  });
 
     async function toggleTripLike(btn) {
         const tripId = btn.getAttribute("data-trip-id");
@@ -148,6 +186,106 @@
         }
     }
 </script>
+<script>
+    const hostCardModal = document.getElementById("hostCardModal");
+
+    function openHostCard(btn) {
+      const hostId = btn.getAttribute("data-host-id");
+      const hostName = btn.getAttribute("data-host-name") || "Host";
+
+      showHostModal();
+      setHostCardLoading(hostName);
+
+      fetch(`/api/hosts/${hostId}/card`, { method: "GET" })
+        .then(async (res) => {
+          if (res.status === 403) {
+            setHostCardPrivate(hostName);
+            return;
+          }
+          if (!res.ok) {
+            setHostCardError(hostName);
+            return;
+          }
+          const data = await res.json();
+          renderHostCard(data);
+        })
+        .catch(() => setHostCardError(hostName));
+    }
+
+    function showHostModal() {
+      hostCardModal.classList.add("open");
+      hostCardModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeHostCard() {
+      hostCardModal.classList.remove("open");
+      hostCardModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    // 바깥 클릭 닫기
+    hostCardModal.addEventListener("click", (e) => {
+      if (e.target === hostCardModal) closeHostCard();
+    });
+
+    // ESC 닫기
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && hostCardModal.classList.contains("open")) closeHostCard();
+    });
+
+    function setHostCardLoading(hostName) {
+      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
+      document.getElementById("hostCardTitle").textContent = hostName;
+      document.getElementById("hostCardMeta").textContent = "불러오는 중...";
+      document.getElementById("hostCardMbti").textContent = "-";
+      document.getElementById("hostCardBio").textContent = "-";
+      const notice = document.getElementById("hostCardNotice");
+      notice.style.display = "none";
+      notice.textContent = "";
+    }
+
+    function setHostCardPrivate(hostName) {
+      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
+      document.getElementById("hostCardTitle").textContent = hostName;
+      document.getElementById("hostCardMeta").textContent = "-";
+      document.getElementById("hostCardMbti").textContent = "-";
+      document.getElementById("hostCardBio").textContent = "-";
+
+      const notice = document.getElementById("hostCardNotice");
+      notice.style.display = "block";
+      notice.textContent = "이 호스트는 카드프로필을 비공개로 설정했습니다.";
+    }
+
+    function setHostCardError(hostName) {
+      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
+      document.getElementById("hostCardTitle").textContent = hostName;
+      document.getElementById("hostCardMeta").textContent = "-";
+      document.getElementById("hostCardMbti").textContent = "-";
+      document.getElementById("hostCardBio").textContent = "-";
+
+      const notice = document.getElementById("hostCardNotice");
+      notice.style.display = "block";
+      notice.textContent = "호스트 정보를 불러오지 못했습니다.";
+    }
+
+    function renderHostCard(data) {
+      const name = data.name ?? "Host";
+      const age = data.age != null ? `${data.age}세` : "-";
+      const gender = data.gender ?? "-";
+
+      document.getElementById("hostCardAvatar").textContent = name ? name[0] : "?";
+      document.getElementById("hostCardTitle").textContent = name;
+      document.getElementById("hostCardMeta").textContent = `${age} · ${gender}`;
+      document.getElementById("hostCardMbti").textContent = data.mbti ?? "-";
+      document.getElementById("hostCardBio").textContent = data.bio ?? "-";
+
+      const notice = document.getElementById("hostCardNotice");
+      notice.style.display = "none";
+      notice.textContent = "";
+    }
+</script>
+
 
 
 </body>
