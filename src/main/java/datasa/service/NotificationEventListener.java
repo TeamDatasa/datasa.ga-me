@@ -1,6 +1,7 @@
 package datasa.service;
 
 import datasa.domain.dto.TripCommentedEvent;
+import datasa.domain.dto.TripLikedEvent;
 import datasa.domain.entity.Notification;
 import datasa.domain.entity.User;
 import datasa.repository.NotificationRepository;
@@ -41,10 +42,34 @@ public class NotificationEventListener {
 				event.commentId()
 		);
 		
-		// ✅ flush까지 강제해서 실제 INSERT 확인
 		notificationRepository.saveAndFlush(n);
 		
 		log.info("[NOTI] saved+flushed notification: id={}, type={}, refId(tripId)={}",
+				n.getNotificationId(), n.getType(), n.getRefId());
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void onTripLiked(TripLikedEvent event) {
+		log.info("[NOTI] TripLikedEvent received: tripId={}, actor={}, owner={}",
+				event.tripId(), event.actorUserId(), event.ownerUserId());
+		
+		if (event.actorUserId().equals(event.ownerUserId())) {
+			log.info("[NOTI] skip (actor == owner)");
+			return;
+		}
+		
+		User ownerRef = userRepository.getReferenceById(event.ownerUserId());
+		
+		Notification n = Notification.tripLike(
+				ownerRef,
+				event.actorUserId(),
+				event.tripId()
+		);
+		
+		notificationRepository.saveAndFlush(n);
+		
+		log.info("[NOTI] saved+flushed like notification: id={}, type={}, refId(tripId)={}",
 				n.getNotificationId(), n.getType(), n.getRefId());
 	}
 }

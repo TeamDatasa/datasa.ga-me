@@ -110,9 +110,39 @@ public class TripController {
 	
 	
 	@GetMapping("/update/{id}")
-	public String updateForm(@PathVariable Long id, Model model) {
+	public String updateForm(@PathVariable Long id, Model model, Authentication authentication) {
 		
-		TripDetailResponse detail = tripService.getTripDetail(id);
+		try {
+			Object principal = authentication.getPrincipal();
+			String email;
+			
+			if (principal instanceof UserDetails userDetails) {
+				email = userDetails.getUsername();
+				
+				
+			} else {
+				// 혹시 principal이 String(email)로 들어올 경우도 대비
+				// 근데 필요 없을 거 같긴함
+				email = String.valueOf(principal);
+			}
+			TripDetailResponse detail = tripService.getTripDetail();
+			
+			tripService.write(email, request);
+			return "redirect:/api/trip/listAll";
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			if (request.getStartAt() == null) {
+				request.setStartAt(LocalDateTime.now());
+			}
+			if (request.getEndAt() == null) {
+				request.setEndAt(LocalDateTime.now().plusDays(3));
+			}
+			
+			model.addAttribute("request", request);
+			model.addAttribute("jsKey", kakaoJsKey);
+			return "trip/writeForm";
+		}
 		
 		// 작성자 검증
 		if (!detail.getHostUser().getUserId().equals(1L)) {
@@ -159,34 +189,34 @@ public class TripController {
 	}
 	
 	
-	//	게시글 (상세)읽기
 	@GetMapping("/detail/{id}")
 	public String detail(@PathVariable Long id, Model model, Authentication authentication) {
 		
-		TripDetailResponse response = tripService.getTripDetail(id);
-		model.addAttribute("trip", response);
-		
 		boolean isLogin = authentication != null && authentication.isAuthenticated()
-				&& !(authentication.getPrincipal() instanceof String s && "anonymousUser".equals(s)); // 추가
+				&& !(authentication.getPrincipal() instanceof String s && "anonymousUser".equals(s));
 		
-		Long userId = null;  // 추가
-		boolean isMine = false; // 추가
+		Long userId = null;
+		boolean isMine = false;
 		
-		// 추가: 로그인 상태면 userId 계산 (현재 principal은 UserDetails 객체)
 		if (isLogin && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails ud) {
-			String email = ud.getUsername(); // 추가
-			userId = tripService.findUserIdByEmail(email); // 추가 (아래 4번에서 추가할 메서드)
-			if (userId != null && response.getHostUserId() != null) {
-				isMine = userId.equals(response.getHostUserId()); // 추가
-			}
+			String email = ud.getUsername();
+			userId = tripService.findUserIdByEmail(email);
 		}
 		
-		model.addAttribute("isLogin", isLogin); // 추가
-		model.addAttribute("userId", userId);   // 추가
-		model.addAttribute("isMine", isMine);   // 추가
+		TripDetailResponse response = tripService.getTripDetail(id, userId);
+		model.addAttribute("trip", response);
+		
+		if (userId != null && response.getHostUserId() != null) {
+			isMine = userId.equals(response.getHostUserId());
+		}
+		
+		model.addAttribute("isLogin", isLogin);
+		model.addAttribute("userId", userId);
+		model.addAttribute("isMine", isMine);
 		
 		return "trip/detail";
 	}
+
 
 	
 }
