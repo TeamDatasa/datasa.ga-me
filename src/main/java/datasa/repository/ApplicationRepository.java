@@ -1,12 +1,18 @@
 package datasa.repository;
 
 import datasa.domain.entity.Application;
+import datasa.domain.entity.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
+
+
+
 
     // ✅ 중복 신청 체크
     boolean existsByTrip_TripIdAndUser_UserId(Long tripId, Long userId);
@@ -40,6 +46,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	);
 	
 	long countByUser_UserIdAndStatus(Long userId, Application.Status status);
-	
+
+
+    // 내가 승인된 여행 목록
+    @Query("""
+    select a.trip
+    from Application a
+    where a.user.userId = :userId
+      and a.status = 'APPROVED'
+    order by a.applicationId desc
+""")
+List<Trip> findApprovedTripsForChat(@Param("userId") Long userId);
+
+
+
 }
 

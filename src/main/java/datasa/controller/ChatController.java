@@ -2,6 +2,9 @@ package datasa.controller;
 
 import datasa.domain.dto.ChatMessageRequestDto;
 import datasa.domain.dto.ChatMessageResponseDto;
+import datasa.domain.dto.ChatRoomListDto;
+import datasa.domain.dto.ChatRoomResponseDto;
+import datasa.service.ChatRoomService;
 import datasa.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -12,12 +15,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
+    private final ChatRoomService chatRoomService;
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
@@ -67,6 +77,18 @@ public class ChatController {
 
         model.addAttribute("tripId", tripId);
         model.addAttribute("roomId", roomId);
-        return "chat-room";
+        return "/chat/chat-room";
     }
+
+
+    @GetMapping("/chat/rooms")
+    public String chatRoomList(
+            @RequestParam Long userId,
+            Model model
+    ) {
+        model.addAttribute("userId", userId);
+        return "chat/chat-room-list";
+    }
+
+
 }
