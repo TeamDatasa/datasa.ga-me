@@ -38,8 +38,11 @@ function setRoleUI(role) {
 
   const hostPanel = document.getElementById("hostPanel");
   const userPanel = document.getElementById("userPanel");
+  const hostCardPanel = document.getElementById("hostCardPanel");
+
   if (hostPanel) hostPanel.style.display = role === "HOST" ? "block" : "none";
   if (userPanel) userPanel.style.display = role === "USER" ? "block" : "none";
+  if (hostCardPanel) hostCardPanel.style.display = role === "HOST" ? "block" : "none";
 
   const roleBadge = document.getElementById("roleBadge");
   if (roleBadge) roleBadge.textContent = role ?? "-";
@@ -51,11 +54,36 @@ function setHint(msg = "") {
 }
 
 // =============================
+// Host Card Profile (Public Toggle)
+// =============================
+async function loadHostCardPublicStatus() {
+  const res = await authFetch("/api/mypage/host/card", { method: "GET" });
+  if (!res || !res.ok) return;
+
+  const data = await res.json();
+  const toggle = document.getElementById("hostCardPublicToggle");
+  if (toggle) toggle.checked = !!data.isPublic;
+}
+
+async function updateHostCardPublic(isPublic) {
+  const res = await authFetch("/api/mypage/host/card", {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify({ isPublic })
+  });
+
+  if (!res || !res.ok) {
+    alert("카드프로필 공개 설정 변경에 실패했습니다.");
+    await loadHostCardPublicStatus(); // 서버 값으로 복구
+  }
+}
+
+// =============================
 // Load profile
 // =============================
 async function loadProfile() {
   const res = await authFetch("/api/mypage/profile", { method: "GET" });
-  if (!res) return; // 401이면 authFetch가 리다이렉트 처리했을 수 있음
+  if (!res) return;
 
   if (!res.ok) {
     alert("Failed to load profile.");
@@ -89,8 +117,13 @@ async function loadProfile() {
 
   document.getElementById("bio").value = data.bio ?? "";
 
-  // ===== Role UI (pills/panels/badge) =====
+  // ===== Role UI =====
   setRoleUI(data.role ?? "USER");
+
+  // ✅ HOST면 카드프로필 공개 상태도 로드
+  if ((data.role ?? "USER") === "HOST") {
+    await loadHostCardPublicStatus();
+  }
 }
 
 // =============================
@@ -108,7 +141,6 @@ function bindProfileSave() {
       birthDate: document.getElementById("birthDate").value,
       gender: document.getElementById("gender").value,
 
-      // country name -> code
       countryCode: countryNameToCode(document.getElementById("country")?.value),
 
       region: document.getElementById("region").value.trim(),
@@ -125,6 +157,7 @@ function bindProfileSave() {
 
     const res = await authFetch("/api/mypage/profile", {
       method: "PUT",
+      headers: authHeaders(),
       body: JSON.stringify(payload)
     });
     if (!res) return;
@@ -143,12 +176,12 @@ function bindProfileSave() {
 // Role change (IMMEDIATE save)
 // =============================
 async function setRole(role) {
-  // UI 먼저 반영 (즉시 체감)
+  // UI 먼저 반영
   setRoleUI(role);
 
-  // ✅ 쿠키 기반 authFetch를 쓰는 게 핵심
   const res = await authFetch("/api/mypage/role", {
     method: "PATCH",
+    headers: authHeaders(),
     body: JSON.stringify({ role })
   });
   if (!res) return;
@@ -160,29 +193,23 @@ async function setRole(role) {
     return;
   }
 
-  // ✅ 여기서 절대 이동하지 말기
   setHint("Role updated.");
-
-  // ✅ 서버에서 저장된 role 다시 받아와서 UI 확정
   await loadProfile();
 }
 
 window.setRole = setRole;
-
 
 // =============================
 // Logout / Delete
 // =============================
 function bindAccountActions() {
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
-    // ✅ 1) 프론트 토큰/정보 삭제 (이게 핵심)
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userId");
     localStorage.removeItem("email");
     localStorage.removeItem("role");
     sessionStorage.removeItem("justLoggedIn");
 
-    // ✅ 2) (선택) 서버 로그아웃도 시도 - 실패해도 무시
     try {
       const res = await fetch("/api/auth/logout", {
         method: "POST",
@@ -190,13 +217,11 @@ function bindAccountActions() {
       });
       console.log("[logout] status:", res.status);
     } catch (e) {
-      console.warn("[logout] request failed:", e2);
+      console.warn("[logout] request failed:", e);
     }
 
-    // ✅ 3) 비로그인 메인으로 이동
     window.location.href = "/";
   });
-
 
   document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
     const ok = confirm("Are you sure you want to delete your account?");
@@ -214,7 +239,6 @@ function bindAccountActions() {
     window.location.href = "/";
   });
 
-  // resetPwBtn이 실제 DOM에 없을 수도 있으니 optional
   document.getElementById("resetPwBtn")?.addEventListener("click", () => {
     window.location.href = "/auth/forgot-password";
   });
@@ -227,8 +251,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   bindProfileSave();
   bindAccountActions();
 
-  // 초기 UI는 loadProfile이 서버 값으로 덮어씀
+  // 초기 UI는 서버값(loadProfile)로 확정됨
   setRoleUI(document.getElementById("currentRole")?.value || "USER");
+
+  // ✅ 토글 이벤트
+  const toggle = document.getElementById("hostCardPublicToggle");
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      updateHostCardPublic(toggle.checked);
+    });
+  }
 
   await loadProfile();
 });

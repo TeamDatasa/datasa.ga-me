@@ -77,6 +77,10 @@ public class User {
 	@Column(name = "email_verified", nullable = false)
 	private Boolean emailVerified = false;
 	
+	@Column(name = "host_card_public", nullable = false)
+	private Boolean hostCardPublic = false;
+	
+	
 	@PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -161,6 +165,21 @@ public class User {
 	public void changeRole(Role role) {
 		this.role = role;
 	}
+	
+	
+	// 카드프로필
+	public void toggleHostCardPublic(boolean isPublic) {
+		if (this.role != Role.HOST) {
+			throw new IllegalStateException("HOST만 카드프로필을 공개할 수 있습니다.");
+		}
+		this.hostCardPublic = isPublic;
+	}
+	
+	public boolean isHostCardPublic() {
+		return Boolean.TRUE.equals(this.hostCardPublic);
+	}
+	
+	
 	
 	
 	

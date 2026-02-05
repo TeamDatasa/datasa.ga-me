@@ -2,13 +2,14 @@ package datasa.controller;
 
 
 import datasa.domain.dto.*;
+import datasa.domain.entity.User;
+import datasa.repository.UserRepository;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 
@@ -16,14 +17,13 @@ import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Console;
 import java.util.List;
 
 import java.time.LocalDateTime;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/trip")
+@RequestMapping
 @Slf4j
 public class TripController {
 	
@@ -33,8 +33,10 @@ public class TripController {
 	 */
 	private static final Long TEST_USER_ID = 1L;
 	private final TripService tripService;
+	private final UserRepository userRepository;
 	@Value("${kakao.maps.js-key}")
 	private String kakaoJsKey;
+	private Authentication authentication;
 	
 	// json api 여행리스트
 	@GetMapping("/mainList")
@@ -53,24 +55,76 @@ public class TripController {
 	//	 동식ver List
 	@GetMapping("/listAll")
 	public String listAll(Model model) {
+		
+		// 글 목록
 		List<TripListResponse> boardList = tripService.getListAll();
 		model.addAttribute("boardList", boardList);
+		
+		// 로그인/role
+		String role = null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated()
+				&& !"anonymousUser".equals(auth.getPrincipal())) {
+			
+			String email = auth.getName();
+			User user = userRepository.findByEmail(email).orElse(null);
+			if (user != null) role = user.getRole().name(); // HOST / USER
+		}
+		model.addAttribute("role", role);
+		log.info(">>> /listAll role={}", role);
+		
 		return "trip/listAll";
 	}
+	
+	@GetMapping("/api/trip/listAll")
+	public String listAllAlias() {
+		return "redirect:/listAll";
+	}
+	
+	
 	
 	@GetMapping("/write")
 	public String wrtieForm(@ModelAttribute TripWriteRequest request, Model model) {
 		
-		if (request.getStartAt() == null) {
-			request.setStartAt(LocalDateTime.now());
+		// 로그인 체크
+		if (authentication == null || !authentication.isAuthenticated()
+				|| "anonymousUser".equals(String.valueOf(authentication.getPrincipal()))) {
+			return "redirect:/auth/login";
 		}
-		if (request.getEndAt() == null) {
-			request.setEndAt(LocalDateTime.now().plusDays(3));
+		
+		// email 구해서 유저 조회
+		Object principal = authentication.getPrincipal();
+		String email = (principal instanceof UserDetails ud) ? ud.getUsername() : String.valueOf(principal);
+		
+		User user = userRepository.findByEmail(email).orElse(null);
+		if (user == null) return "redirect:/auth/login";
+		
+		// HOST만 가능
+		if (user.getRole() != User.Role.HOST) {
+			return "redirect:/mypage"; // 또는 권한 안내 페이지
 		}
+		
+		// ✅ 카드프로필 공개 필수
+		if (!user.getHostCardPublic()) {
+			// 마이페이지로 보내고 안내(프론트에서 alert 띄우고 싶으면 query param)
+			return "redirect:/mypage?needHostCardPublic=1";
+		}
+		
+		if (request.getStartAt() == null) request.setStartAt(LocalDateTime.now());
+		if (request.getEndAt() == null) request.setEndAt(LocalDateTime.now().plusDays(3));
 		
 		model.addAttribute("request", request);
 		model.addAttribute("jsKey", kakaoJsKey);
 		return "trip/writeForm";
+	}
+	
+	@PostMapping("/api/trip/write")
+	public String writeApi(
+			@ModelAttribute TripWriteRequest request,
+			Model model,
+			Authentication authentication
+	) {
+		return write(request, model, authentication); // 기존 로직 재사용
 	}
 	
 	
@@ -187,6 +241,12 @@ public class TripController {
 		
 		return "trip/detail";
 	}
-
+	
+	@GetMapping("/api/trip/detail/{id}")
+	public String detailAlias(@PathVariable Long id) {
+		return "redirect:/detail/" + id;
+	}
+	
+	
 	
 }
