@@ -44,14 +44,6 @@ public class TripController {
 		return "trip-test";
 	}
 	
-	//신청페이지 만든다고 만든 여행상세페이지
-	@GetMapping("/{tripId}")
-	public String detailView(@PathVariable Long tripId, Model model) {
-		model.addAttribute("tripId", tripId);
-		return "trip-detail"; // templates/trip-detail.html
-	}
-	
-	
 	//	 동식ver List
 	@GetMapping("/listAll")
 	public String listAll(Model model) {
@@ -108,8 +100,6 @@ public class TripController {
 			return "trip/writeForm";
 		}
 	}
-
-	
 	
 	@GetMapping("/update/{id}")
 	public String updateForm(
@@ -175,34 +165,21 @@ public class TripController {
 	}
 	
 	
-	@GetMapping("/detail/{id}")
-	public String detail(@PathVariable Long id, Model model, Authentication authentication) {
+	@GetMapping("/detail/{tripId}")
+	public String detail(
+			@PathVariable("tripId") Long tripId,
+			Model model,
+			@AuthenticationPrincipal CustomUserDetail user
+	) {
+		Long userId = (user != null) ? user.getUserId() : null;
 		
-		boolean isLogin = authentication != null && authentication.isAuthenticated()
-				&& !(authentication.getPrincipal() instanceof String s && "anonymousUser".equals(s));
+		TripDetailResponse response = tripService.getTripDetail(tripId, userId);
 		
-		Long userId = null;
-		boolean isMine = false;
-		
-		if (isLogin && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails ud) {
-			String email = ud.getUsername();
-			userId = tripService.findUserIdByEmail(email);
-		}
-		
-		TripDetailResponse response = tripService.getTripDetail(id, userId);
 		model.addAttribute("trip", response);
-		
-		if (userId != null && response.getHostUserId() != null) {
-			isMine = userId.equals(response.getHostUserId());
-		}
-		
-		model.addAttribute("isLogin", isLogin);
-		model.addAttribute("userId", userId);
-		model.addAttribute("isMine", isMine);
+		model.addAttribute("currentUserId", userId);
 		
 		return "trip/detail";
 	}
-
-
+	
 	
 }

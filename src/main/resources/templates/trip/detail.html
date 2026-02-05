@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
 
     <title>여행 글 상세</title>
 </head>
@@ -53,6 +54,13 @@
             <p th:text="${trip.description}">본문</p>
         </section>
 
+        <!-- ✅ 여정 신청 버튼 -->
+        <section class="trip-apply-section">
+            <button type="button" id="applyBtn" class="btn primary btn-apply" style="width:100%;">
+                여정 신청하기
+            </button>
+        </section>
+
         <section class="comments">
             <div class="comments-head">
                 <h2 class="section-title">댓글</h2>
@@ -76,80 +84,15 @@
     </div>
 </main>
 
+<!-- ✅ Thymeleaf 변수 주입 (중요) -->
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
+    const hostUserId = /*[[${trip.hostUserId}]]*/ 0;      // TripDetailResponse에 getHostUserId() 있어야 함
+    const currentUserId = /*[[${currentUserId}]]*/ null;
 </script>
 
 <script th:src="@{/js/authFetch.js}"></script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("commentForm");
-        const contentEl = document.getElementById("commentContent");
-        const listEl = document.getElementById("commentList");
-        const countEl = document.getElementById("commentCount");
-
-        function escapeHtml(str) {
-            return String(str)
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
-        }
-
-        async function loadComments() {
-            const res = await authFetch(`/api/trips/${tripId}/comments`, { method: "GET" });
-            if (!res.ok) return;
-
-            const data = await res.json();
-            countEl.textContent = data.length;
-
-            listEl.innerHTML = "";
-
-            data.forEach(c => {
-                const li = document.createElement("li");
-                li.className = "comment-item";
-                li.innerHTML = `
-                  <div class="comment-head">
-                    <span class="comment-author">${escapeHtml(c.userName)}</span>
-                    <span class="comment-date">${new Date(c.createdAt).toLocaleString()}</span>
-                  </div>
-                  <div class="comment-body">${escapeHtml(c.content)}</div>
-                `;
-
-                // ✅ 빠진 부분: 실제로 DOM에 추가해야 화면에 보입니다.
-                listEl.appendChild(li);
-            });
-        }
-
-        form.addEventListener("submit", async e => {
-            e.preventDefault();
-
-            const content = contentEl.value.trim();
-            if (!content) return;
-
-            const res = await authFetch(`/api/trips/${tripId}/comments`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    parentCommentId: null,
-                    content
-                })
-            });
-
-            if (!res.ok) {
-                alert("댓글 등록에 실패했습니다.");
-                return;
-            }
-
-            contentEl.value = "";
-            await loadComments();
-        });
-
-        loadComments();
-    });
-</script>
+<script th:src="@{/js/trip-apply.js(v=${#dates.createNow().time})}"></script>
 
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>

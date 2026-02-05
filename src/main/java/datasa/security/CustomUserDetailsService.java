@@ -3,10 +3,13 @@ package datasa.security;
 import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private final UserRepository userRepository;
 	
 	@Override
-	public UserDetails loadUserByUsername(String email)
+	public CustomUserDetail loadUserByUsername(String email)
 			throws UsernameNotFoundException {
 		
 		User user = userRepository.findByEmail(email)
@@ -24,10 +27,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 		User.Role r = (user.getRole() == null) ? User.Role.USER : user.getRole();
 		String role = "ROLE_" + r.name();
 		
-		return org.springframework.security.core.userdetails.User
-				.withUsername(user.getEmail())
-				.password(user.getPasswordHash())
-				.authorities(role)
+		return CustomUserDetail.builder()
+				.userId(user.getUserId())
+				.userEmail(user.getEmail())
+				.passwordHash(user.getPasswordHash())
+				.authorities(List.of(new SimpleGrantedAuthority(role)))
 				.build();
 
 	}
