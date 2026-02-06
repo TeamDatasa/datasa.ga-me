@@ -1,53 +1,74 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
     <title>My Applications</title>
-    <link rel="stylesheet" href="/css/users/mypage-user.css"/>
+    <link rel="stylesheet" href="/css/users/mypage-applications.css"/>
 </head>
 <body>
 
-<h2>My Applications</h2>
+<div class="page">
+    <header class="topbar">
+        <div class="brand">ga-me</div>
+        <a class="btn btn-ghost" href="/mypage/details/user">Back</a>
+    </header>
 
-<table border="1">
-    <thead>
-    <tr>
-        <th>Trip</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-    </thead>
+    <main class="container">
+        <section class="card">
+            <div class="card-head">
+                <div>
+                    <h1>My Applications</h1>
+                    <p class="sub">Recent applications (pending/approved/rejected).</p>
+                </div>
+            </div>
 
-    <tbody>
-    <tr th:each="a : ${applications}">
-        <td th:text="${a.tripTitle}">Trip title</td>
+            <!-- ✅ 비어있을 때 -->
+            <div class="empty" th:if="${applications == null || #lists.isEmpty(applications)}">
+                <div class="empty-box">
+                    No applications yet.
+                </div>
+            </div>
 
-        <td th:text="${a.status}">STATUS</td>
+            <!-- ✅ 리스트 -->
+            <div class="list" th:if="${applications != null && !#lists.isEmpty(applications)}">
+                <article class="item" th:each="a : ${applications}">
+                    <div class="item-left">
+                        <div class="title" th:text="${a.tripTitle}">Trip title</div>
 
-        <td>
-            <!-- ✅ 승인됨 → 채팅 입장 -->
-            <a class="btn btn-primary"
-               th:if="${a.status.name() == 'APPROVED'}"
-               th:href="@{/chat/room/{tripId}(tripId=${a.tripId}, userId=${userId})}">
-                Chat
-            </a>
+                        <div class="meta">
+              <span class="pill"
+                    th:classappend="${a.status.name() == 'PENDING'} ? ' pill-pending' :
+                                    (${a.status.name() == 'APPROVED'} ? ' pill-approved' : ' pill-rejected')">
+                <span th:text="${a.status}">PENDING</span>
+              </span>
+                        </div>
+                    </div>
 
-            <!-- ⏳ 대기중 -->
-            <span th:if="${a.status.name() == 'PENDING'}"
-                  class="badge pending">
-                Waiting
+                    <div class="item-right">
+                        <!-- ✅ 승인됨 → 채팅 입장 -->
+                        <a class="btn btn-primary"
+                           th:if="${a.status.name() == 'APPROVED'}"
+                           th:href="@{/chat/room/{tripId}(tripId=${a.tripId})}">
+                            Chat
+                        </a>
+
+                        <!-- ⏳ 대기중 -->
+                        <span th:if="${a.status.name() == 'PENDING'}"
+                              class="hint">
+              Waiting
             </span>
 
-            <!-- ❌ 거절 -->
-            <span th:if="${a.status.name() == 'REJECTED'}"
-                  class="badge rejected">
-                Rejected
+                        <!-- ❌ 거절 -->
+                        <span th:if="${a.status.name() == 'REJECTED'}"
+                              class="hint">
+              Rejected
             </span>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<a class="btn btn-ghost" href="/mypage">Back</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
 
 </body>
 </html>

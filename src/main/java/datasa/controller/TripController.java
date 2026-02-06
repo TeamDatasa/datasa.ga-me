@@ -118,7 +118,7 @@ public class TripController {
 			Model model,
 			@AuthenticationPrincipal CustomUserDetail user
 	) {
-		return write(request, model, user); // 기존 로직 재사용
+		return write(request, model, user); // 기존 로직 재사용dksxk
 	}
 	
 	
