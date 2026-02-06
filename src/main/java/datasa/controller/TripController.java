@@ -116,9 +116,9 @@ public class TripController {
 	public String writeApi(
 			@ModelAttribute TripWriteRequest request,
 			Model model,
-			Authentication authentication
+			@AuthenticationPrincipal CustomUserDetail user
 	) {
-		return write(request, model, authentication); // 기존 로직 재사용
+		return write(request, model, user); // 기존 로직 재사용
 	}
 	
 	
