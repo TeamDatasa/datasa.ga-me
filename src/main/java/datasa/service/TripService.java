@@ -472,7 +472,13 @@ public class TripService {
 				.map(User::getUserId)
 				.orElse(null);
 	}
-	
+
+    @Transactional(readOnly = true)
+    public List<Trip> getTripsByHost(Long hostUserId) {
+        return tripRepository.findByHostUser_UserIdOrderByCreatedAtDesc(hostUserId);
+
+
+}
 }
 
 
