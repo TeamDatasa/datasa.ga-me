@@ -143,16 +143,24 @@
                 <h2 class="yw-section__title">추천 코스</h2>
                 <a class="yw-section__link" href="/courses">더보기</a>
             </div>
-
+<!--            &lt;!&ndash; JS가 카드들을 여기에 렌더링 &ndash;&gt;-->
+<!--            <div class="yw-cards" id="recommendList">-->
+<!--                &lt;!&ndash; 초기 상태(옵션) &ndash;&gt;-->
+<!--                <article class="yw-card yw-card&#45;&#45;empty">-->
+<!--                    <div class="yw-card__body">-->
+<!--                        <div class="yw-card__title">추천 코스 불러오는 중…</div>-->
+<!--                    </div>-->
+<!--                </article>-->
+<!--            </div>-->
             <div class="yw-cards">
-                <article class="yw-card" th:each="course : ${recommendCourses}">
+                <article class="yw-card" th:each="course : ${recommendCourses}"th:onclick="|location.href='api/trip/detail/' + ${course.tripId}|">
                     <div class="yw-card__thumb"></div>
                     <div class="yw-card__body">
                         <div class="yw-card__title" th:text="${course.title}">코스 제목</div>
                         <div class="yw-card__meta">
                             <span th:text="${course.region}">지역</span>
                             <span class="yw-dot">•</span>
-                            <span th:text="${course.duration}">소요시간</span>
+                            <span th:text="${course.source}">AI</span>
                         </div>
                     </div>
                 </article>
@@ -165,7 +173,6 @@
                     </div>
                 </article>
             </div>
-        </div>
     </section>
 </main>
 

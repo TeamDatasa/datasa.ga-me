@@ -26,7 +26,8 @@
                 <p class="hint" style="margin:10px 0 0;">Manage your listed tours.</p>
             </a>
 
-            <a class="card" href="/host/applications">
+            <a class="card" href="/host//trips/3/applications?
+       hostUserId=1">
                 <div class="card-title">Applications</div>
                 <div class="card-meta">Approve / Reject</div>
                 <p class="hint" style="margin:10px 0 0;">Review and manage applicants.</p>
@@ -36,7 +37,37 @@
         <div class="panel" style="margin-top: 18px;">
             <h3>My Hosted Tours</h3>
             <p class="hint">Tours you created. Manage schedules and applicants.</p>
-            <div class="empty">No tours yet.</div>
+
+            <!-- 여행 있을 때 -->
+            <div th:if="${!#lists.isEmpty(hostedTours)}">
+                <div class="tour-card" th:each="t : ${hostedTours}">
+                    <div class="tour-card-inner">
+
+                        <h3 th:text="${t.title}">Trip Title</h3>
+
+                        <p class="tour-meta">
+                            <span th:text="${t.region}">JEJU</span>
+                            ·
+                            <span th:text="${#temporals.format(t.startAt, 'yyyy-MM-dd HH:mm')}"></span>
+                            ~
+                            <span th:text="${#temporals.format(t.endAt, 'yyyy-MM-dd HH:mm')}"></span>
+                        </p>
+
+                        <div class="actions">
+                            <a class="btn btn-primary"
+                               th:href="@{/host/trips/{tripId}/applications(tripId=${t.tripId})}">
+                                신청자 확인
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 여행 없을 때 -->
+            <div class="empty" th:if="${#lists.isEmpty(hostedTours)}">
+                No tours yet.
+            </div>
         </div>
 
         <div class="panel">

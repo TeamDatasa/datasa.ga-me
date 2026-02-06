@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,4 +185,8 @@ order by t.createdAt desc
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Trip t where t.tripId = :tripId")
     Optional<Trip> findByIdForUpdate(@Param("tripId") Long tripId);
+
+   List<Trip> findByHostUser_UserIdOrderByTripIdDesc(Long hostUserId);
+
+    List<Trip> findByHostUser_UserId(Long hostUserId);
 }
