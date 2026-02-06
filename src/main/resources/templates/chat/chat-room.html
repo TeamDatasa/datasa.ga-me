@@ -220,6 +220,8 @@ body {
     </div>
 </div>
 <button onclick="leaveRoom()">나가기</button>
+<button onclick="goToChatRooms()">채팅방목록으로</button>
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
@@ -229,6 +231,10 @@ body {
     window.ROOM_ID = [[${roomId}]];
     const params = new URLSearchParams(window.location.search);
     window.USER_ID = Number(params.get("userId") ?? 1);
+
+function goToChatRooms() {
+    window.location.href = "/chat/rooms?userId=${userId}";
+}
 </script>
 
 <script src="/js/chat-room.js"></script>

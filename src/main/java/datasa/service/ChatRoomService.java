@@ -104,5 +104,55 @@ public class ChatRoomService {
     }
 
 
+    /**
+     * 🔗 여행 신청 승인 시 채팅방 연결
+     * - trip 당 chatRoom 1개
+     * - host + 승인된 user를 ChatMember로 연결
+     */
+    @Transactional
+    public void connectChatMember(Trip trip, User approvedUser) {
+
+        // 1️⃣ ChatRoom 조회 or 생성
+        ChatRoom room = chatRoomRepository
+                .findByTrip_TripId(trip.getTripId())
+                .orElseGet(() -> {
+                    ChatRoom newRoom = new ChatRoom();
+                    newRoom.setTrip(trip);
+                    newRoom.setCreatedAt(LocalDateTime.now());
+                    return chatRoomRepository.save(newRoom);
+                });
+
+        // 2️⃣ 호스트 ChatMember 생성 (없으면)
+        User host = trip.getHostUser();
+        chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), host.getUserId())
+                .orElseGet(() -> {
+                    ChatMember hostMember = new ChatMember();
+                    hostMember.setChatRoom(room);
+                    hostMember.setUser(host);
+                    hostMember.setJoinedAt(LocalDateTime.now());
+                    return chatMemberRepository.save(hostMember);
+                });
+
+        // 3️⃣ 승인된 사용자 ChatMember 생성 or 복구
+        chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), approvedUser.getUserId())
+                .ifPresentOrElse(
+                        member -> {
+                            // 이미 있었는데 나간 상태라면 재입장 처리
+                            if (!member.isActive()) {
+                                member.rejoin();
+                            }
+                        },
+                        () -> {
+                            ChatMember member = new ChatMember();
+                            member.setChatRoom(room);
+                            member.setUser(approvedUser);
+                            member.setJoinedAt(LocalDateTime.now());
+                            chatMemberRepository.save(member);
+                        }
+                );
+    }
+
 }
 

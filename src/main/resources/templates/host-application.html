@@ -1,20 +1,74 @@
-<!-- host-application.html -->
-<button onclick="approve(5)">승인</button>
-<button onclick="reject(5)">거절</button>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>신청자 관리</title>
+</head>
+<body>
+
+<h2>신청자 관리</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>닉네임</th>
+        <th>상태</th>
+        <th>관리</th>
+    </tr>
+    </thead>
+    <tbody id="application-body"></tbody>
+</table>
 
 <script>
-    const hostUserId = 2; // 테스트용 호스트
-    const applicationId = 32; // DB에서 확인한 값
+    const tripId = [[${tripId}]];
+    const hostUserId = [[${hostUserId}]];
+
+    function renderRow(app) {
+      let actionHtml = "";
+
+      if (app.status === "PENDING") {
+        actionHtml = `
+          <button onclick="approve(${app.applicationId})">승인</button>
+          <button onclick="reject(${app.applicationId})">거절</button>
+        `;
+      } else if (app.status === "APPROVED") {
+        actionHtml = `<span>승인됨</span>`;
+      } else if (app.status === "REJECTED") {
+        actionHtml = `<span>거절됨</span>`;
+      }
+
+      return `
+        <tr>
+          <td>${app.userName}</td>
+          <td>${app.status}</td>
+          <td>${actionHtml}</td>
+        </tr>
+      `;
+    }
+
+    function load() {
+      fetch(`/api/applications/host/trips/${tripId}?hostUserId=${hostUserId}`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById("application-body");
+          tbody.innerHTML = data.map(renderRow).join("");
+        });
+    }
 
     function approve(id) {
       fetch(`/api/applications/${id}/approve?hostUserId=${hostUserId}`, {
         method: "POST"
-      }).then(() => alert("승인 완료"));
+      }).then(() => load()); // ✅ 새로고침 없이 상태 반영
     }
 
     function reject(id) {
       fetch(`/api/applications/${id}/reject?hostUserId=${hostUserId}`, {
         method: "POST"
-      }).then(() => alert("거절 완료"));
+      }).then(() => load());
     }
+
+    load();
 </script>
+
+
+</body>
+</html>

@@ -2,6 +2,7 @@ package datasa.service;
 
 import datasa.domain.dto.ApplicationCreateResponseDto;
 import datasa.domain.dto.ApplicationListResponseDto;
+import datasa.domain.dto.MyApplicationDetailDto;
 import datasa.domain.entity.Application;
 import datasa.repository.ChatMemberRepository;
 import datasa.repository.ChatRoomRepository;
@@ -29,7 +30,7 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
-
+    private final ChatRoomService chatRoomService;
 
     /**
      * U_004 여행 신청
@@ -74,12 +75,13 @@ public class ApplicationService {
         );
     }
 
+
     /**
      * U_005 내 신청 상태 조회 (목록)
-	 * 해당 여행에 누가 신청했는지 전부 보여주기
+     * 해당 여행에 누가 신청했는지 전부 보여주기
      */
     @Transactional(readOnly = true)
-    public  List<ApplicationListResponseDto> getApplicationsByTrip(Long tripId) {
+    public List<ApplicationListResponseDto> getApplicationsByTrip(Long tripId) {
 
         return applicationRepository.findByTrip_TripId(tripId)
                 .stream()
@@ -87,75 +89,83 @@ public class ApplicationService {
                         app.getApplicationId(),
                         app.getUser().getUserId(),
                         app.getUser().getName(),
-                        app.getStatus().name(),
+                        app.getStatus(),
                         app.getCreatedAt()
                 ))
                 .toList();
     }
-	
-	// 내가 이 여행을 신청했는지 여부 확인
-	@Transactional(readOnly = true)
-	public boolean hasApplied(Long tripId, Long userId) {
-		return applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId);
-	}
+
+    // 내가 이 여행을 신청했는지 여부 확인
+    @Transactional(readOnly = true)
+    public boolean hasApplied(Long tripId, Long userId) {
+        return applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId);
+    }
+
+
+    // 호스트 신청 관리
+    public List<Application> getApplicationsByTripForHost(Long tripId, Long hostUserId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
+
+        // 🔒 호스트 권한 체크
+        if (!trip.getHostUser().getUserId().equals(hostUserId)) {
+            throw new AccessDeniedException("신청자 목록 조회 권한 없음");
+        }
+
+        return applicationRepository.findByTrip_TripId(tripId);
+    }
+
 
     // 신청 승인
     @Transactional
     public void approve(Long applicationId, Long hostUserId) {
 
         Application app = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("신청이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("신청 없음"));
 
-        Trip trip = app.getTrip();
+        Trip trip = tripRepository.findByIdForUpdate(app.getTrip().getTripId())
+                .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
-        // 1) 호스트만 승인 가능
+        // 1️⃣ 호스트 체크
         if (!trip.getHostUser().getUserId().equals(hostUserId)) {
-            throw new IllegalStateException("호스트만 승인할 수 있습니다.");
+            throw new AccessDeniedException("승인 권한 없음");
         }
 
-        // 2) PENDING만 처리
+        // 2️⃣ 상태 체크
         if (app.getStatus() != Application.Status.PENDING) {
-            throw new IllegalStateException("이미 처리된 신청입니다.");
+            throw new IllegalStateException("이미 처리된 신청");
         }
 
-        // 3) 정원 체크(승인 전)
-        long approvedCount = applicationRepository.countByTrip_TripIdAndStatus(
-                trip.getTripId(), Application.Status.APPROVED
+        // 3️⃣ 승인된 신청자 수 (호스트 제외)
+        int approvedCount = Math.toIntExact(
+                applicationRepository.countByTrip_TripIdAndStatus(
+                        trip.getTripId(),
+                        Application.Status.APPROVED
+                )
         );
-        if (approvedCount >= trip.getMaxParticipants()) {
-            throw new IllegalStateException("정원이 초과되었습니다.");
+
+        // 🔥 현재 총 인원 = 승인된 신청자 + 호스트 1명
+        int currentTotalParticipants = approvedCount + 1;
+
+        // 3-1️⃣ 정원 초과 체크
+        if (currentTotalParticipants >= trip.getMaxParticipants()) {
+            throw new IllegalStateException("정원 초과");
         }
 
-        // 4) 승인 처리
-        app.setStatus(Application.Status.APPROVED);
+        // 4️⃣ 승인 처리
+        app.approve(); // status = APPROVED, decidedAt = now
 
-        // ==========================
-        // 5) 승인 시 채팅방 생성/참여
-        // ==========================
-        ChatRoom room = chatRoomRepository.findByTrip(trip)
-                .orElseGet(() -> {
-                    ChatRoom newRoom = chatRoomRepository.save(new ChatRoom(trip));
+        // 🔥 승인 후 총 인원 (이번 승인 포함)
+        int totalAfterApprove = currentTotalParticipants + 1;
 
-                    // 호스트 자동 참여
-                    chatMemberRepository.save(new ChatMember(newRoom, trip.getHostUser()));
-                    return newRoom;
-                });
-
-        // 승인된 신청자 참여(중복 방지)
-        chatMemberRepository.findByChatRoomAndUser(room, app.getUser())
-                .orElseGet(() -> chatMemberRepository.save(new ChatMember(room, app.getUser())));
-
-        // ==========================
-        // 6) 승인 후 정원 도달 시 CLOSED
-        // ==========================
-        long afterApprovedCount = approvedCount + 1;
-        if (afterApprovedCount >= trip.getMaxParticipants()) {
-            trip.setStatus(Trip.Status.CLOSED);
+        // 5️⃣ 정원 도달 → 모집 마감
+        if (totalAfterApprove >= trip.getMaxParticipants()) {
+            trip.close(); // status = CLOSED
         }
+
+        // 6️⃣ 채팅방 연결
+        chatRoomService.connectChatMember(trip, app.getUser());
     }
-
-
-
 
 
 
@@ -164,23 +174,21 @@ public class ApplicationService {
     public void reject(Long applicationId, Long hostUserId) {
 
         Application app = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new IllegalArgumentException("신청이 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("신청 없음"));
 
-        // 1️⃣ 호스트 권한 체크
-        Long realHostId = app.getTrip().getHostUser().getUserId();
-        if (!realHostId.equals(hostUserId)) {
-            throw new IllegalStateException("호스트만 거절할 수 있습니다.");
+        Trip trip = app.getTrip();
+
+        if (!trip.getHostUser().getUserId().equals(hostUserId)) {
+            throw new AccessDeniedException("거절 권한 없음");
         }
 
-        // 2️⃣ 상태 체크
         if (app.getStatus() != Application.Status.PENDING) {
-            throw new IllegalStateException("이미 처리된 신청입니다.");
+            throw new IllegalStateException("이미 처리된 신청");
         }
 
-        // 3️⃣ 거절 처리
-        app.setStatus(Application.Status.REJECTED);
-        app.setDecidedAt(LocalDateTime.now());
+        app.reject();
     }
+
 
 
     @Transactional(readOnly = true)
@@ -189,8 +197,21 @@ public class ApplicationService {
         return;
     }
 
-		
 
+    @Transactional(readOnly = true)
+    public List<MyApplicationDetailDto> getMyApplicationDetails(Long userId) {
+
+        return applicationRepository
+                .findTop20ByUser_UserIdOrderByApplicationIdDesc(userId)
+                .stream()
+                .map(MyApplicationDetailDto::from)
+                .toList();
+    }
+
+
+
+
+}
 //인증필요
 //    public void validateApprovedUser(Long tripId, Long userId) {
 //
@@ -206,4 +227,4 @@ public class ApplicationService {
 //            throw new AccessDeniedException("승인된 사용자만 접근할 수 있습니다.");
 //        }
 //    }
-}
+

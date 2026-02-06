@@ -36,6 +36,6 @@ public class MyApplicationsController {
 		
 		model.addAttribute("applications", applications);
 		model.addAttribute("status", status);
-		return "users/myApplication";
+		return "users/mypage-application-list";
 	}
 }
