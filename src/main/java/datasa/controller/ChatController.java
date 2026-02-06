@@ -4,6 +4,12 @@ import datasa.domain.dto.ChatMessageRequestDto;
 import datasa.domain.dto.ChatMessageResponseDto;
 import datasa.domain.dto.ChatRoomListDto;
 import datasa.domain.dto.ChatRoomResponseDto;
+import datasa.domain.entity.ChatMember;
+import datasa.domain.entity.ChatRoom;
+import datasa.domain.entity.User;
+import datasa.repository.ChatMemberRepository;
+import datasa.repository.ChatRoomRepository;
+import datasa.repository.UserRepository;
 import datasa.service.ChatRoomService;
 import datasa.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +17,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +38,9 @@ public class ChatController {
     private final ChatService chatService;
     private final ChatRoomService chatRoomService;
     private final SimpMessagingTemplate messagingTemplate;
-
+    private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMemberRepository chatMemberRepository;
     /**
      * 클라이언트 SEND:
      *   /app/chat.send/{roomId}
@@ -71,14 +82,46 @@ public class ChatController {
         return (Long) userIdObj;
     }
 
-    @GetMapping("chat/room/{tripId}")
-    public String chatRoom(@PathVariable Long tripId, Model model) {
-        Long roomId = chatService.getOrCreateRoomIdByTrip(tripId);
+    @GetMapping("/chat/room/{tripId}")
+    public String chatRoom(
+            @PathVariable Long tripId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model
+    ) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
 
-        model.addAttribute("tripId", tripId);
+        // 1️⃣ 로그인 유저
+        String email = userDetails.getUsername();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+
+        Long userId = user.getUserId();
+
+        // 2️⃣ 채팅방 찾기
+        ChatRoom room = chatRoomRepository.findByTrip_TripId(tripId)
+                .orElseThrow(() -> new IllegalStateException("채팅방 없음"));
+
+        Long roomId = room.getRoomId();
+
+        // 3️⃣ ChatMember 검증 (이미 있는 레포 사용)
+        ChatMember member = chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
+                .orElseThrow(() -> new IllegalStateException("채팅방 멤버 아님"));
+
+        if (!member.isActive()) {
+            throw new AccessDeniedException("채팅방에서 나간 사용자");
+        }
+
+        // 4️⃣ 화면 전달
         model.addAttribute("roomId", roomId);
-        return "/chat/chat-room";
+        model.addAttribute("userId", userId);
+
+        return "chat/chat-room";
     }
+
+
 
 
     @GetMapping("/chat/rooms")

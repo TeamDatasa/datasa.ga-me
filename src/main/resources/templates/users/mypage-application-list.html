@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Applications</title>
+    <link rel="stylesheet" href="/css/users/mypage-user.css"/>
+</head>
+<body>
+
+<h2>My Applications</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Trip</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="a : ${applications}">
+        <td th:text="${a.tripTitle}">Trip title</td>
+
+        <td th:text="${a.status}">STATUS</td>
+
+        <td>
+            <!-- ✅ 승인됨 → 채팅 입장 -->
+            <a class="btn btn-primary"
+               th:if="${a.status.name() == 'APPROVED'}"
+               th:href="@{/chat/room/{tripId}(tripId=${a.tripId}, userId=${userId})}">
+                Chat
+            </a>
+
+            <!-- ⏳ 대기중 -->
+            <span th:if="${a.status.name() == 'PENDING'}"
+                  class="badge pending">
+                Waiting
+            </span>
+
+            <!-- ❌ 거절 -->
+            <span th:if="${a.status.name() == 'REJECTED'}"
+                  class="badge rejected">
+                Rejected
+            </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a class="btn btn-ghost" href="/mypage">Back</a>
+
+</body>
+</html>

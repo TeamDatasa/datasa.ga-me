@@ -5,6 +5,7 @@ import datasa.domain.dto.ApplicationListResponseDto;
 import datasa.security.CustomUserDetail;
 import datasa.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,22 @@ public class ApplicationController {
 	) {
 		return applicationService.getApplicationsByTrip(tripId);
 	}
-	
+
+
+    @GetMapping("/host/trips/{tripId}")
+    public List<ApplicationListResponseDto> listByTripForHost(
+            @PathVariable Long tripId,
+            @RequestParam Long hostUserId   // 🔥 지금은 테스트용
+    ) {
+        return applicationService.getApplicationsByTripForHost(tripId, hostUserId)
+                .stream()
+                .map(ApplicationListResponseDto::from)
+                .toList();
+    }
+
+
+
+
 	// 신청
 	@PostMapping("/trips/{tripId}")
 	public ApplicationCreateResponseDto apply(
@@ -49,23 +65,27 @@ public class ApplicationController {
 			throw e;
 		}
 	}
-	
-	
-	@PostMapping("/{applicationId}/approve")
-	public void approve(
-			@PathVariable Long applicationId,
-			@RequestParam Long hostUserId
-	) {
-		applicationService.approve(applicationId, hostUserId);
-	}
-	
-	@PostMapping("/{applicationId}/reject")
-	public void reject(
-			@PathVariable Long applicationId,
-			@RequestParam Long hostUserId
-	) {
-		applicationService.reject(applicationId, hostUserId);
-	}
+
+
+    @PostMapping("/{applicationId}/approve")
+    public ResponseEntity<?> approve(
+            @PathVariable Long applicationId,
+            @RequestParam Long hostUserId
+    ) {
+        applicationService.approve(applicationId, hostUserId);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("/{applicationId}/reject")
+    public ResponseEntity<?> reject(
+            @PathVariable Long applicationId,
+            @RequestParam Long hostUserId
+    ) {
+        applicationService.reject(applicationId, hostUserId);
+        return ResponseEntity.ok().build();
+    }
+
 	
 	
 }

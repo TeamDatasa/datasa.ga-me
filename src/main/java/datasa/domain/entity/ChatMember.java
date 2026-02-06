@@ -65,5 +65,9 @@ public class ChatMember {
         this.readAt = LocalDateTime.now();
     }
 
+    public void rejoin() {
+        this.leftAt = null;
+        this.joinedAt = LocalDateTime.now();
+    }
 
 }

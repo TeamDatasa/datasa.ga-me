@@ -53,6 +53,15 @@ public class Application {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void approve() {
+        this.status = Application.Status.APPROVED;
+        this.decidedAt = LocalDateTime.now();
+    }
+
+    public void reject() {
+        this.status = Application.Status.REJECTED;
+        this.decidedAt = LocalDateTime.now();
+    }
 
 
     /* ===== ENUM ===== */

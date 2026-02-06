@@ -3,9 +3,11 @@ package datasa.repository;
 import datasa.domain.dto.TripDetailResponseDto;
 import datasa.domain.dto.TripListResponseDto;
 import datasa.domain.entity.Trip;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -176,6 +178,10 @@ group by t
 order by t.createdAt desc
 """)
 	List<TripListResponseDto> findMyTrips(@Param("hostUserId") Long hostUserId);
-	
-	
+
+
+// 동시 승인 방지
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from Trip t where t.tripId = :tripId")
+    Optional<Trip> findByIdForUpdate(@Param("tripId") Long tripId);
 }

@@ -77,6 +77,10 @@ public class Trip {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void close() {
+        this.status = Status.CLOSED;
+    }
+
     /* ===== ENUM ===== */
 	public enum Status {
 		DRAFT, OPEN, CLOSED

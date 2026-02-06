@@ -211,3 +211,7 @@ async function loadHistory(page = 0) {
   const data = await res.json();
   data.content.reverse().forEach(appendMessage);
 }
+
+
+
+

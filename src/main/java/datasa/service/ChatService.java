@@ -90,23 +90,35 @@ public class ChatService {
         }
     }
 
+
     /**
      * (선택) tripId로 방 생성/조회가 필요하면 이 메서드로 통일하면 좋음
      * - trip 1개 = chatroom 1개
      */
-    @Transactional
-    public Long getOrCreateRoomIdByTrip(Long tripId) {
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new IllegalArgumentException("여행이 존재하지 않습니다. tripId=" + tripId));
 
-        return chatRoomRepository.findByTrip_TripId(tripId)
-                .map(ChatRoom::getRoomId)
-                .orElseGet(() -> {
-                    ChatRoom newRoom = new ChatRoom(trip);
-                    chatRoomRepository.save(newRoom);
-                    return newRoom.getRoomId();
-                });
-    }
+        @Transactional
+        public Long getRoomIdForEntry(Long tripId, Long userId) {
+
+            // 1️⃣ 승인 여부 검증
+            applicationService.validateApprovedUser(tripId, userId);
+
+            // 2️⃣ 채팅방 조회
+            ChatRoom room = chatRoomRepository.findByTrip_TripId(tripId)
+                    .orElseThrow(() -> new IllegalStateException("채팅방 없음"));
+
+            // 3️⃣ ChatMember 검증
+            ChatMember member = chatMemberRepository
+                    .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), userId)
+                    .orElseThrow(() -> new IllegalStateException("채팅방 멤버 아님"));
+
+            // 4️⃣ 나갔다가 재입장 허용
+            if (!member.isActive()) {
+                member.rejoin(); // leftAt = null
+            }
+
+            return room.getRoomId();
+        }
+
 
     //메세지 조회
     @Transactional(readOnly = true)
@@ -178,8 +190,6 @@ public class ChatService {
                 .translatedText(translated)
                 .build();
     }
-
-
 
 
 }

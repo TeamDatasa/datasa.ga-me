@@ -81,6 +81,11 @@
                             Edit Review
                         </a>
 
+                        <a class="btn btn-primary"
+                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId()})}">
+                            Chat
+                        </a>
+
                         <!-- ✅ Delete Review -> 링크 (삭제 확인 페이지 추천) -->
                         <a class="btn btn-danger"
                            th:if="${t.reviewId() != null}"
