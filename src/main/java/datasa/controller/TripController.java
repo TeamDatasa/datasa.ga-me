@@ -126,7 +126,7 @@ public class TripController {
 	public String write(
 			@ModelAttribute TripWriteRequest request,
 			Model model,
-			@AuthenticationPrincipal CustomUserDetail user
+			Authentication authentication
 	) {
 		try {
 			if (user == null) {
