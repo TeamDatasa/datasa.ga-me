@@ -58,6 +58,7 @@ public class SecurityConfig {
 								"/auth/**",
 								"/api/auth/**"
 						).permitAll()
+						.requestMatchers(HttpMethod.GET, "/reset-password**").permitAll()
 						
 						// ✅ HTML 상세 페이지(비로그인 허용)
 						.requestMatchers(HttpMethod.GET, "/trip/detail/**").permitAll()
