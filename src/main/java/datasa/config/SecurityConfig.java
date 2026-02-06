@@ -60,13 +60,13 @@ public class SecurityConfig {
 						).permitAll()
 						
 						// ✅ HTML 상세 페이지(비로그인 허용)
-						.requestMatchers(HttpMethod.GET, "/api/trip/detail/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/trip/detail/**").permitAll()
 						
 						// ✅ 여행 API 조회(비로그인 허용)
-						.requestMatchers(HttpMethod.GET, "/api/trips/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/trips/**").permitAll()
 						
 						// ✅ 댓글 목록 조회(비로그인 허용)
-						.requestMatchers(HttpMethod.GET, "/api/trips/*/comments").permitAll()
+						.requestMatchers(HttpMethod.GET, "/trips/*/comments").permitAll()
 						
 						.requestMatchers(HttpMethod.GET, "/api/mypage/host/card").authenticated()
 						.requestMatchers(HttpMethod.PATCH, "/api/mypage/host/card").authenticated()

@@ -53,7 +53,7 @@
             <p th:text="${trip.description}">본문</p>
         </section>
 
-        <!-- ✅ 여정 신청 버튼 -->
+        <!-- 여정 신청 버튼 -->
         <section class="trip-apply-section">
             <button type="button" id="applyBtn" class="btn primary btn-apply" style="width:100%;">
                 여정 신청하기
@@ -80,13 +80,38 @@
             <ul id="commentList" class="comment-list"></ul>
         </section>
 
+        <!-- ✅ 작성자라면 노출 -->
+        <section th:if="${isOwner}" style="margin-top:20px;">
+            <div class="form-actions" style="display:flex; gap:10px; justify-content:flex-end;">
+
+                <!-- 수정: 기간 지나면 비활성 -->
+                <a class="btn"
+                   th:classappend="${canEditDelete} ? '' : ' disabled'"
+                   th:href="${canEditDelete} ? @{/trip/update/{id}(id=${trip.tripId})} : @{/trip/detail/{id}(id=${trip.tripId})}"
+                   th:attr="aria-disabled=${!canEditDelete}">
+                    수정
+                </a>
+
+                <!-- 삭제: CSRF 비활성화 상태라 _csrf 가 null -> hidden input 제거 -->
+                <form th:action="@{/trip/delete/{tripId}(tripId=${trip.tripId})}"
+                      method="post"
+                      th:onsubmit="${canEditDelete} ? 'return confirm(''정말 삭제하시겠습니까?'');' : 'return false;'">
+                    <button type="submit" class="btn danger" th:disabled="${!canEditDelete}">삭제</button>
+                </form>
+            </div>
+
+            <p class="muted small" style="text-align:right; margin-top:8px;" th:if="${!canEditDelete}">
+                여정 시작 7일 전이 지나 수정/삭제가 불가능합니다.
+            </p>
+        </section>
+
     </div>
 </main>
 
-<!-- ✅ Thymeleaf 변수 주입 (중요) -->
+<!-- Thymeleaf 변수 주입 (중요) -->
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
-    const hostUserId = /*[[${trip.hostUserId}]]*/ 0;      // TripDetailResponse에 getHostUserId() 있어야 함
+    const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
     const currentUserId = /*[[${currentUserId}]]*/ null;
 </script>
 

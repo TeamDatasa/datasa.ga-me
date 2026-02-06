@@ -150,7 +150,6 @@ public class TripService {
 			);
 		}
 		
-		
 		trip.setTitle(req.getTitle());
 		trip.setDescription(req.getDescription());
 		trip.setRegion(req.getRegion());
@@ -161,8 +160,10 @@ public class TripService {
 		trip.setEndAt(req.getEndAt());
 		trip.setTheme(req.getTheme());
 		
-		tripLocationRepository.deleteByTrip(trip);
+		// ✅ 기존 위치 전부 삭제를 "먼저" DB에 반영(Flush)
+		tripLocationRepository.deleteAllByTripId(trip.getTripId());
 		
+		// ✅ 새로 저장
 		if (req.getSchedulePlaces() != null) {
 			int order = 1;
 			for (TripWriteSchedulePlaceRequest p : req.getSchedulePlaces()) {
@@ -171,6 +172,7 @@ public class TripService {
 			}
 		}
 	}
+
 	
 	
 	@Transactional

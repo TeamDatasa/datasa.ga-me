@@ -16,7 +16,7 @@
 <body>
 <h1 class="tw-title">여행 글 작성</h1>
 
-<form th:action="@{/api/trip/write}" method="post" th:object="${request}">
+<form th:action="@{/trip/write}" method="post" th:object="${request}">
 
     <div>
         <label for="title">제목</label><br/>
@@ -146,7 +146,6 @@
         <label for="startAt">시작 일자/시간</label><br/>
         <input id="startAt" type="datetime-local"
                th:field="*{startAt}"
-               th:value="${request.startAt != null ? #temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
                required/>
     </div>
     <br/>
@@ -155,7 +154,6 @@
         <label for="endAt">끝나는 일자/시간</label><br/>
         <input id="endAt" type="datetime-local"
                th:field="*{endAt}"
-               th:value="${request.endAt != null ? #temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
                required/>
     </div>
     <br/>
@@ -359,17 +357,15 @@
         renderSchedulePlaces();
     }
 
-    // ====== (사용자께서 편집한 코드) ======
     document.addEventListener('DOMContentLoaded', function () {
         loadSchedulePlacesFromHidden();
         renderSchedulePlaces();
     });
 
     function loadSchedulePlacesFromHidden() {
-        const hiddenRoot = document.getElementById('scheduleHiddenFieldsServer'); // ✅ 서버용 div
+        const hiddenRoot = document.getElementById('scheduleHiddenFieldsServer');
         if (!hiddenRoot) return;
 
-        // placeName input을 기준으로 index를 추출해서 복원
         const placeNameInputs = hiddenRoot.querySelectorAll('input[name^="schedulePlaces["][name$=".placeName"]');
         if (!placeNameInputs || placeNameInputs.length === 0) return;
 
@@ -401,7 +397,7 @@
 
     function renderSchedulePlaces() {
         const listEl = document.getElementById('scheduleList');
-        const hiddenEl = document.getElementById('scheduleHiddenFields'); // ✅ JS 제출용 div
+        const hiddenEl = document.getElementById('scheduleHiddenFields');
 
         listEl.innerHTML = '';
         hiddenEl.innerHTML = '';
@@ -437,7 +433,6 @@
 
             left.appendChild(title);
 
-            // ✅ lat/lng가 있을 때만 표시
             if (p.lat != null && p.lng != null && Number.isFinite(p.lat) && Number.isFinite(p.lng)) {
                 const sub = document.createElement('div');
                 sub.style.fontSize = '12px';
@@ -457,7 +452,6 @@
             row.appendChild(btn);
             listEl.appendChild(row);
 
-            // ✅ 제출용 hidden inputs 생성
             hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeId`, p.placeId));
             hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeName`, p.placeName));
             hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].address`, p.address));
@@ -465,7 +459,6 @@
             hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lng`, p.lng == null ? '' : String(p.lng)));
         });
     }
-    // ====== /편집 코드 ======
 
     function makeHidden(name, value) {
         const input = document.createElement('input');

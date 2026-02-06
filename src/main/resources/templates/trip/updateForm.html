@@ -14,7 +14,7 @@
 <body>
 <h1>여행 글 수정</h1>
 
-<form th:action="@{/api/trip/update}" method="post" th:object="${request}">
+<form th:action="@{/trip/update}" method="post" th:object="${request}">
 
     <!-- 필수 -->
     <input type="hidden" th:field="*{tripId}"/>
@@ -227,7 +227,7 @@
 
     <br/>
     <button type="submit">수정</button>
-    <a th:href="@{/api/trip/detail/{id}(id=${request.tripId})}">취소</a>
+    <a th:href="@{/trip/detail/{id}(id=${request.tripId})}">취소</a>
 </form>
 
 <script>

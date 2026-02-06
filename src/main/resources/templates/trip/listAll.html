@@ -48,7 +48,7 @@
     <h1>전체 작성글 리스트</h1>
 
     <!-- UI는 노출, 클릭 시 role 체크 -->
-    <a id="writeTripLink" th:href="@{/write}">게시글 작성</a>
+    <a id="writeTripLink" th:href="@{/trip/write}">게시글 작성</a>
 </div>
 
 <div th:if="${boardList == null or #lists.isEmpty(boardList)}" class="muted">
@@ -79,7 +79,7 @@
 
         <!-- 2) 제목 -->
         <td>
-            <a th:href="@{/api/trip/detail/{id}(id=${trip.tripId})}">
+            <a th:href="@{/trip/detail/{id}(id=${trip.tripId})}">
                 <strong th:text="${trip.title}">제목</strong>
             </a>
         </td>
