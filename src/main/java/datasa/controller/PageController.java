@@ -2,17 +2,21 @@ package datasa.controller;
 
 import datasa.domain.dto.AuthResponse;
 import datasa.domain.dto.RoleUpdateRequest;
+import datasa.domain.dto.TripListResponseDto;
 import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import datasa.security.JwtTokenProvider;
 import datasa.service.MyPageUserService;
+import datasa.service.TripService;
 import datasa.service.UserRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -27,6 +31,7 @@ public class PageController {
 	private final MyPageUserService myPageUserService;
 	private final UserRoleService userRoleService;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final TripService tripService;
 	
 	// ====== PAGES ======
 	
@@ -47,7 +52,7 @@ public class PageController {
 		String email = userDetails.getUsername();
 		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		model.addAttribute("user", user);                // mypage에서 user.role 사용 가능
+		model.addAttribute("user", user);
 		model.addAttribute("role", user.getRole().name());
 		
 		return "users/mypage";
@@ -134,4 +139,12 @@ public class PageController {
 				.header(HttpHeaders.SET_COOKIE, cookie.toString())
 				.body(body);
 	}
+	
+	@GetMapping("/chat-room")
+	public String chatRoomList() {
+		return "chat/chat-room";
+	}
+	
+	
+	
 }

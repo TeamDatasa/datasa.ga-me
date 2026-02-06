@@ -121,8 +121,26 @@
                 </form>
             </section>
 
+            <section class="panel" id="hostCardPanel" style="display:none;">
+                <h3>Host Card Profile</h3>
+
+                <div class="row" style="display:flex; align-items:center; gap:12px;">
+                    <label style="margin:0;">Public Card Profile</label>
+
+                    <label class="switch">
+                        <input type="checkbox" id="hostCardPublicToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <p class="hint">
+                    카드프로필을 공개해야 게시글을 작성할 수 있으며,
+                    다른 사용자에게 최소 정보(이름, 나이, 성별, MBTI, Bio)가 표시됩니다.
+                </p>
+            </section>
+
             <section class="panel" id="hostPanel" style="display:none;">
-                <h3>Guide Menu</h3>
+                <h3>Host Menu</h3>
                 <div class="grid">
                     <a class="card" href="/host/trips">Manage My Tours</a>
                     <a class="card" href="/host/applications">Manage Applications</a>

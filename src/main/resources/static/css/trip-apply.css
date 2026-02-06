@@ -1,0 +1,9 @@
+.trip-apply-section {
+  margin: 16px 0;
+}
+
+.btn-apply.is-disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 1;
+}
