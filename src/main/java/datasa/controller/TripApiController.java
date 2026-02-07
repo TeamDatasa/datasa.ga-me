@@ -32,12 +32,12 @@ public class TripApiController {
 	/** U_002 */
 	@GetMapping("/mainList")
 	public Page<TripListResponseDto> searchTrips(
-			@RequestParam(required = false) List<String> languages,
-			@RequestParam(required = false) String region,
-			@RequestParam(required = false) String theme,
-			@RequestParam(defaultValue = "latest") String order,
-			Pageable pageable
-	) {
+            @RequestParam String order,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String theme,
+            @RequestParam(required = false) List<String> languages,
+            Pageable pageable
+    ) {
 		return tripService.searchTrips(
 				languages, region, theme, order, pageable
 		);

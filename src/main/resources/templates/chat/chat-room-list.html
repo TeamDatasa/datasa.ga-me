@@ -161,9 +161,9 @@
             const card = document.createElement("div");
             card.className = "chat-room-card";
 
-            card.onclick = () => {
-                location.href = `/chat/room/${trip.tripId}?userId=${userId}`;
-            };
+    card.addEventListener("click", () => {
+        window.location.href = `/chat/room/${room.tripId}`;
+    });
 
             const timeText = room.lastMessageAt
                 ? formatTime(room.lastMessageAt)

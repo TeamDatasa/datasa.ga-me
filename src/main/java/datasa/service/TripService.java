@@ -228,25 +228,39 @@ public class TripService {
 	 * - 언어(복수) / 지역 / 테마
 	 * - latest / popular 지원
 	 */
-	public Page<TripListResponseDto> searchTrips(
-			List<String> languages,
-			String region,
-			String theme,
-			String order,
-			Pageable pageable
-	) {
-		if ("popular".equalsIgnoreCase(order)) {
-			
-			return tripRepository.searchByFiltersPopular(
-					region, theme, languages, pageable
-			);
-		}
-		
-		return tripRepository.searchByFilters(
-				region, theme, languages, pageable
-		);
-	}
-	
+    public Page<TripListResponseDto> searchTrips(
+            List<String> languages,
+            String region,
+            String theme,
+            String order,
+            Pageable pageable
+    ) {
+
+        boolean hasLang = (languages != null && !languages.isEmpty());
+
+        if ("popular".equals(order)) {
+            if (hasLang) {
+                return tripRepository.searchByFiltersPopular(
+                        region, theme, languages, pageable
+                );
+            } else {
+                return tripRepository.searchByFiltersPopularNoLang(
+                        region, theme, pageable
+                );
+            }
+        } else { // latest
+            if (hasLang) {
+                return tripRepository.searchByFilters(
+                        region, theme, languages, pageable
+                );
+            } else {
+                return tripRepository.searchByFiltersNoLang(
+                        region, theme, pageable
+                );
+            }
+        }
+    }
+
 	/**
 	 * 여행 상세페이지에서 언어랑 승인인원
 	 * 및 신청

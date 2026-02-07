@@ -114,6 +114,13 @@ public class ChatController {
             throw new AccessDeniedException("채팅방에서 나간 사용자");
         }
 
+
+        System.out.println("======================================");
+        System.out.println("[CHAT ROOM ENTER]");
+        System.out.println("tripId = " + tripId);
+        System.out.println("email  = " + email);
+        System.out.println("userId = " + userId);
+
         // 4️⃣ 화면 전달
         model.addAttribute("roomId", roomId);
         model.addAttribute("userId", userId);
@@ -123,15 +130,36 @@ public class ChatController {
 
 
 
-
     @GetMapping("/chat/rooms")
-    public String chatRoomList(
-            @RequestParam Long userId,
+    public String chatRooms(
+            @AuthenticationPrincipal UserDetails userDetails,
             Model model
     ) {
-        model.addAttribute("userId", userId);
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow();
+
+        List<ChatRoom> rooms =
+                chatMemberRepository.findActiveChatRoomsByUserId(user.getUserId());
+
+        String email = userDetails.getUsername();
+        User user1 = userRepository.findByEmail(email)
+                .orElseThrow();
+        Long userId = user1.getUserId();
+        System.out.println("======================================");
+        System.out.println("[CHAT ROOMS]");
+        System.out.println("email   = " + email);
+        System.out.println("userId  = " + userId);
+        System.out.println("======================================");
+        model.addAttribute("rooms", rooms);
+        model.addAttribute("userId", user.getUserId());
+
         return "chat/chat-room-list";
     }
+
 
 
 }

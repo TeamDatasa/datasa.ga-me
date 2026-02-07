@@ -5,6 +5,8 @@ import datasa.domain.entity.ChatMember;
 import datasa.domain.entity.ChatRoom;
 import datasa.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 
 import java.util.List;
@@ -33,6 +35,16 @@ public interface ChatMemberRepository extends JpaRepository<ChatMember, Long> {
 
     Optional<ChatMember>
     findByChatRoom_RoomIdAndUser_UserId(Long roomId, Long userId);
+
+    @Query("""
+select cm.chatRoom
+from ChatMember cm
+where cm.user.userId = :userId
+  and cm.leftAt is null
+order by cm.joinedAt desc
+""")
+    List<ChatRoom> findActiveChatRoomsByUserId(@Param("userId") Long userId);
+
 }
 
 
