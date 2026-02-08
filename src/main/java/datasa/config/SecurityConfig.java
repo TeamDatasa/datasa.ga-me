@@ -73,6 +73,9 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.PATCH, "/api/mypage/host/card").authenticated()
 						.requestMatchers(HttpMethod.GET, "/api/hosts/*/card").permitAll()
 						
+						.requestMatchers(HttpMethod.DELETE, "/api/auth/withdraw").authenticated()
+						
+						
 						
 						
 						// 나머지는 인증 필요(댓글 작성/삭제 포함)
