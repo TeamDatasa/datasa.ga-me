@@ -22,25 +22,28 @@ public class AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	
 	@Transactional
-	public void signup(SignupRequest request) {
-		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new IllegalArgumentException("Email is already in use.");
+	public void signup(SignupRequest req) {
+		// ✅ 이메일 중복 선 체크 (500 방지)
+		if (userRepository.existsByEmail(req.getEmail())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
 		}
 		
-		String hashed = passwordEncoder.encode(request.getPassword());
+		String encoded = passwordEncoder.encode(req.getPassword());
 		
-		// request.role이 null이면 USER로
-		User.Role role = (request.getRole() == null) ? User.Role.USER : request.getRole();
+		// ✅ role null 들어와도 USER로 보정
+		User.Role role = (req.getRole() == null) ? User.Role.USER : req.getRole();
 		
-		User user = User.create(
-				request.getEmail(),
-				hashed,
-				request.getName(),
-				role
-		);
+		User user = User.create(req.getEmail(), encoded, req.getName(), role);
+		
+		// ✅ 추가 정보 세팅
+		user.setBirthDate(req.getBirthDate());
+		user.setGender(req.getGender());
+		user.setCountryCode(req.getCountryCode());
+		user.setRegion(req.getRegion());
 		
 		userRepository.save(user);
 	}
+	
 	
 	
 	public AuthResponse login(LoginRequest request) {
@@ -71,6 +74,35 @@ public class AuthService {
 				role
 		);
 	}
-
+	
+	@Transactional
+	public void withdraw(String email) {
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResponseStatusException(
+						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."
+				));
+		
+		if (user.getStatus() != null && user.getStatus() != User.Status.ACTIVE) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, "이미 탈퇴된 계정입니다."
+			);
+		}
+		
+		// 1️⃣ 상태 변경
+		user.deactivate();
+		
+		// 2️⃣ 이메일 인증 무효화
+		user.setEmailVerified(false);
+		
+		// 3️⃣ ⭐️ 재가입 허용 핵심 로직 (이메일 변경)
+		String deletedEmail = user.getEmail() + "__deleted__" + user.getUserId();
+		user.setEmail(deletedEmail);
+		
+		// 4️⃣ (선택) 비밀번호 무효화
+		user.changePassword(
+				passwordEncoder.encode("DELETED-" + user.getUserId() + "-" + System.currentTimeMillis())
+		);
+	}
+	
 	
 }

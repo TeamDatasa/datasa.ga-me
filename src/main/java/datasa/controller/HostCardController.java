@@ -18,7 +18,7 @@ public class HostCardController {
 	
 	private final UserRepository userRepository;
 	
-	// ✅ 공개여부 조회
+	// ✅ 공개 여부 조회 (새로고침 시 체크 유지 핵심)
 	@GetMapping
 	public HostCardPublicResponse getPublic(Authentication authentication) {
 		User user = requireUser(authentication);
@@ -27,12 +27,12 @@ public class HostCardController {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "HOST만 가능합니다.");
 		}
 		
-		return new HostCardPublicResponse(user.getHostCardPublic());
+		return new HostCardPublicResponse(Boolean.TRUE.equals(user.getHostCardPublic()));
 	}
 	
-	// ✅ 공개여부 변경
+	// ✅ 공개 여부 변경 (DB에 1 저장)
 	@PatchMapping
-	public void updatePublic(
+	public HostCardPublicResponse updatePublic(
 			@RequestBody HostCardUpdateRequest req,
 			Authentication authentication
 	) {
@@ -42,11 +42,24 @@ public class HostCardController {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "HOST만 가능합니다.");
 		}
 		
-		boolean isPublic = req.getIsPublic() != null && req.getIsPublic();
+		boolean isPublic = Boolean.TRUE.equals(req.getIsPublic());
+		
+		System.out.println("[PATCH host/card] email=" + user.getEmail()
+				+ ", req.isPublic=" + req.getIsPublic());
+		
 		user.setHostCardPublic(isPublic);
-		userRepository.save(user);
+		
+		// 🔥 이게 핵심 (flush 안 하면 반영 안 된 것처럼 보일 수 있음)
+		userRepository.saveAndFlush(user);
+		
+		System.out.println("[AFTER save] db.hostCardPublic=" + user.getHostCardPublic());
+		
+		return new HostCardPublicResponse(user.getHostCardPublic());
 	}
 	
+	// =========================
+	// 🔒 로그인 유저 보장
+	// =========================
 	private User requireUser(Authentication authentication) {
 		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
@@ -55,8 +68,11 @@ public class HostCardController {
 		Object principal = authentication.getPrincipal();
 		String email;
 		
-		if (principal instanceof UserDetails ud) email = ud.getUsername();
-		else email = String.valueOf(principal);
+		if (principal instanceof UserDetails ud) {
+			email = ud.getUsername();
+		} else {
+			email = String.valueOf(principal);
+		}
 		
 		if (email == null || email.isBlank() || "anonymousUser".equals(email)) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");

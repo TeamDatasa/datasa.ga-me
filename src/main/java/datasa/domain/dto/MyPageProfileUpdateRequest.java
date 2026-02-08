@@ -11,20 +11,10 @@ import java.time.LocalDate;
 @Setter
 public class MyPageProfileUpdateRequest {
 	
-	@NotBlank
 	private String name;
-	
-	@NotNull
-	@Past
 	private LocalDate birthDate;
-	
-	@NotNull
 	private User.Gender gender;
-	
-	@Size(max = 2)
 	private String countryCode;
-	
-	@NotBlank
 	private String region;
 	
 	@Size(max = 4)

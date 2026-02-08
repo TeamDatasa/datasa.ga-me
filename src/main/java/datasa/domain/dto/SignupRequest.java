@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 public class SignupRequest {
@@ -23,4 +25,16 @@ public class SignupRequest {
 	
 	@NotNull
 	private User.Role role;
+	
+	@NotNull
+	private LocalDate birthDate;
+	
+	@NotNull
+	private User.Gender gender;
+	
+	@NotBlank
+	private String countryCode;
+	
+	@NotBlank
+	private String region;
 }

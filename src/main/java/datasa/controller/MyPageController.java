@@ -1,5 +1,7 @@
 package datasa.controller;
 
+import datasa.domain.dto.HostCardPublicResponse;
+import datasa.domain.dto.HostCardUpdateRequest;
 import datasa.domain.dto.MyPageProfileResponse;
 import datasa.domain.dto.MyPageProfileUpdateRequest;
 import datasa.service.MyPageService;
@@ -42,4 +44,5 @@ public class MyPageController {
 		myPageService.deactivateAccount(email);
 		return ResponseEntity.noContent().build();
 	}
+	
 }

@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
     <title>신청자 관리</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f6f6f6; }
+        button { padding: 6px 10px; cursor: pointer; }
+        .muted { color: #777; }
+        .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #ddd; }
+    </style>
 </head>
 <body>
 
 <h2>신청자 관리</h2>
+<p class="muted">Trip ID: <span th:text="${tripId}"></span></p>
 
-<table border="1">
+<table>
     <thead>
     <tr>
         <th>닉네임</th>
@@ -18,57 +28,87 @@
     <tbody id="application-body"></tbody>
 </table>
 
-<script>
+<script th:inline="javascript">
     const tripId = [[${tripId}]];
-    const hostUserId = [[${hostUserId}]];
+
+    function statusLabel(status) {
+      if (status === "PENDING") return "대기";
+      if (status === "APPROVED") return "승인";
+      if (status === "REJECTED") return "거절";
+      if (status === "CANCELED") return "취소";
+      return status || "-";
+    }
 
     function renderRow(app) {
       let actionHtml = "";
 
       if (app.status === "PENDING") {
         actionHtml = `
-          <button onclick="approve(${app.applicationId})">승인</button>
-          <button onclick="reject(${app.applicationId})">거절</button>
+          <button type="button" onclick="approve(${app.applicationId})">승인</button>
+          <button type="button" onclick="reject(${app.applicationId})">거절</button>
         `;
-      } else if (app.status === "APPROVED") {
-        actionHtml = `<span>승인됨</span>`;
-      } else if (app.status === "REJECTED") {
-        actionHtml = `<span>거절됨</span>`;
+      } else {
+        actionHtml = `<span class="muted">처리 완료</span>`;
       }
 
       return `
         <tr>
-          <td>${app.userName}</td>
-          <td>${app.status}</td>
+          <td>${app.userName ?? "-"}</td>
+          <td><span class="badge">${statusLabel(app.status)}</span></td>
           <td>${actionHtml}</td>
         </tr>
       `;
     }
 
     function load() {
-      fetch(`/api/applications/host/trips/${tripId}?hostUserId=${hostUserId}`)
-        .then(res => res.json())
+      // ✅ hostUserId 없이: 서버가 로그인한 host 기준으로 검증/조회
+      fetch(`/api/host/trips/${tripId}/applications`, {
+        method: "GET",
+        credentials: "same-origin"
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("신청 목록을 불러오지 못했습니다.");
+          return res.json();
+        })
         .then(data => {
           const tbody = document.getElementById("application-body");
-          tbody.innerHTML = data.map(renderRow).join("");
+          tbody.innerHTML = (data || []).map(renderRow).join("");
+
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="muted">아직 신청이 없습니다.</td></tr>`;
+          }
+        })
+        .catch(err => {
+          alert(err.message || "오류가 발생했습니다.");
         });
     }
 
     function approve(id) {
-      fetch(`/api/applications/${id}/approve?hostUserId=${hostUserId}`, {
-        method: "POST"
-      }).then(() => load()); // ✅ 새로고침 없이 상태 반영
+      fetch(`/api/host/trips/${tripId}/applications/${id}/approve`, {
+        method: "POST",
+        credentials: "same-origin"
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("승인 처리에 실패했습니다.");
+          return res.text().catch(() => "");
+        })
+        .then(() => load());
     }
 
     function reject(id) {
-      fetch(`/api/applications/${id}/reject?hostUserId=${hostUserId}`, {
-        method: "POST"
-      }).then(() => load());
+      fetch(`/api/host/trips/${tripId}/applications/${id}/reject`, {
+        method: "POST",
+        credentials: "same-origin"
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("거절 처리에 실패했습니다.");
+          return res.text().catch(() => "");
+        })
+        .then(() => load());
     }
 
     load();
 </script>
-
 
 </body>
 </html>

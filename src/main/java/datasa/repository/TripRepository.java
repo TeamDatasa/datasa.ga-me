@@ -169,19 +169,28 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     t.theme,
     t.maxParticipants,
     count(a)
-)
-from Trip t
-left join Application a
-    on a.trip = t
-    and a.status = 'APPROVED'
-where t.hostUser.userId = :hostUserId
-group by t
-order by t.createdAt desc
-""")
+	)
+	from Trip t
+	left join Application a
+		on a.trip = t
+		and a.status = 'APPROVED'
+	where t.hostUser.userId = :hostUserId
+	group by t
+	order by t.createdAt desc
+	""")
 	List<TripListResponseDto> findMyTrips(@Param("hostUserId") Long hostUserId);
-
-
-// 동시 승인 방지
+	
+	@Query("""
+    select t
+    from Trip t
+    join fetch t.hostUser hu
+    where t.tripId = :tripId
+	""")
+	Optional<Trip> findByIdWithHostUser(@Param("tripId") Long tripId);
+	
+	
+	
+	// 동시 승인 방지
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Trip t where t.tripId = :tripId")
     Optional<Trip> findByIdForUpdate(@Param("tripId") Long tripId);

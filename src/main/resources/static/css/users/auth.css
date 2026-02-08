@@ -307,4 +307,33 @@ body{
 .auth-msg.is-success { color: #1a7f37; }
 .auth-msg.is-error { color: #d1242f; }
 
+.modal.hidden { display: none; }
+
+.modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-card{
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+.modal-actions{
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+
+
 

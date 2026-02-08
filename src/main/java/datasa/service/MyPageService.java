@@ -1,5 +1,6 @@
 package datasa.service;
 
+import datasa.domain.dto.HostCardPublicResponse;
 import datasa.domain.dto.MyPageProfileResponse;
 import datasa.domain.dto.MyPageProfileUpdateRequest;
 import datasa.domain.entity.User;
@@ -27,17 +28,10 @@ public class MyPageService {
 	public MyPageProfileResponse updateProfile(String email, MyPageProfileUpdateRequest req) {
 		User user = getActiveUser(email);
 		
-		user.updateProfile(
-				req.getName(),
-				req.getBirthDate(),
-				req.getGender(),
-				req.getCountryCode(),
-				req.getRegion(),
-				req.getMbti(),
-				req.getSmoking(),
-				req.getDrinking(),
-				req.getBio()
-		);
+		if (req.getMbti() != null) user.setMbti(req.getMbti().toUpperCase());
+		if (req.getSmoking() != null) user.setSmoking(req.getSmoking());
+		if (req.getDrinking() != null) user.setDrinking(req.getDrinking());
+		if (req.getBio() != null) user.setBio(req.getBio());
 		
 		return toResponse(user);
 	}
@@ -80,4 +74,22 @@ public class MyPageService {
 				.localVerified(u.getLocalVerified())
 				.build();
 	}
+	
+	@Transactional(readOnly = true)
+	public HostCardPublicResponse getHostCardPublic(String email) {
+		User user = getActiveUser(email);
+		return new HostCardPublicResponse(user.isHostCardPublic());
+	}
+	
+	@Transactional
+	public void updateHostCardPublic(String email, Boolean isPublic) {
+		User user = getActiveUser(email);
+		
+		// null 들어오면 false로 처리(안전)
+		boolean v = Boolean.TRUE.equals(isPublic);
+		
+		// 엔티티가 HOST 검증까지 해줌
+		user.toggleHostCardPublic(v);
+	}
+	
 }

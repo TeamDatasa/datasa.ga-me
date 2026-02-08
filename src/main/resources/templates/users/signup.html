@@ -8,22 +8,22 @@
 <body>
 
 <div class="auth-container">
-    <h1>Sign Up</h1>
-    <p>Create your account</p>
+    <h1>회원가입</h1>
+    <p>계정을 생성해주세요</p>
 
     <form id="signupForm" class="auth-form">
-        <label>Email</label>
+        <label>이메일 주소</label>
         <input type="email" id="email" required />
 
         <div class="email-verify-group">
             <button type="button" id="sendCodeBtn" class="auth-btn secondary-btn">
-                Send Verification Code
+                인증 코드 보내기
             </button>
 
             <div class="email-code-row">
                 <input type="text" id="verificationCode" maxlength="6" placeholder="6-digit code" />
                 <button type="button" id="verifyCodeBtn" class="auth-btn secondary-btn">
-                    Verify
+                    인증하기
                 </button>
             </div>
 
@@ -31,35 +31,67 @@
         </div>
 
 
-        <label>Password</label>
+        <label>비밀번호</label>
         <input type="password" id="password" required />
 
-        <label>Confirm Password</label>
+        <label>비밀번호 확인</label>
         <input type="password" id="passwordConfirm" required />
 
-        <label>Name</label>
+        <label>닉네임</label>
         <input type="text" id="name" name="name" required />
 
-        <label>User Type</label>
+        <label>생년월일</label>
+        <input type="date" id="birthDate" required />
+
+        <label>성별</label>
+        <div class="role-group">
+            <label class="role-option">
+                <input type="radio" name="gender" value="FEMALE" checked> 여성
+            </label>
+            <label class="role-option">
+                <input type="radio" name="gender" value="MALE"> 남성
+            </label>
+            <label class="role-option">
+                <input type="radio" name="gender" value="OTHER"> 기타
+            </label>
+        </div>
+
+        <label>국가</label>
+        <input type="text" id="country" placeholder="예: 대한민국, Korea, Japan" />
+
+
+        <label>지역</label>
+        <input type="text" id="region" placeholder="예: 부산, 도쿄, 서울" required />
+
+        <label>회원 유형</label>
         <div class="role-group">
             <label class="role-option">
                 <input type="radio" name="role" value="USER" checked>
-                Traveler
+                여행자
             </label>
 
             <label class="role-option">
                 <input type="radio" name="role" value="HOST">
-                Guide
+                가이드
             </label>
         </div>
 
+        <div id="mailModal" class="modal hidden">
+            <div class="modal-card">
+                <h3 id="mailModalTitle">인증 메일이 전송되었습니다.</h3>
+                <p id="mailModalMsg">전송이 완료될 때까지 시간이 소요될 수 있습니다.</p>
+                <button type="button" id="mailModalClose" class="auth-btn secondary-btn">확인</button>
+            </div>
+        </div>
 
-        <button type="submit" class="auth-btn" id="signupBtn" disabled>Sign Up</button>
+
+
+        <button type="submit" class="auth-btn" id="signupBtn" disabled>회원가입</button>
     </form>
 
     <div class="auth-footer">
-        Already have an account?
-        <a href="/auth/login">Sign In</a>
+        이미 계정이 있으신가요?
+        <a href="/auth/login">로그인</a>
     </div>
 </div>
 

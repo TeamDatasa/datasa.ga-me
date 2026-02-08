@@ -44,9 +44,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	);
 	
 	long countByUser_UserIdAndStatus(Long userId, Application.Status status);
-
-
-    // 내가 승인된 여행 목록
+	
+	@Query("""
+    select a
+    from Application a
+    join fetch a.user u
+    where a.trip.tripId = :tripId
+    order by a.applicationId desc
+""")
+	List<Application> findByTripIdWithUser(@Param("tripId") Long tripId);
+	
+	
+	
+	// 내가 승인된 여행 목록
     @Query("""
     select a.trip
     from Application a
