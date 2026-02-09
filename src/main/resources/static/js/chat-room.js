@@ -66,7 +66,7 @@ function sendMessage() {
 function appendMessage(message) {
   const chat = document.getElementById("chatMessages");
 
-  const isMe = message.senderId === userId;
+  const isMe = message.senderId === USER_ID;
   const isContinued = lastSenderId === message.senderId;
 
   const wrapper = document.createElement("div");
@@ -75,7 +75,7 @@ function appendMessage(message) {
   if (!isMe) {
     const profile = document.createElement("div");
     profile.className = "profile";
-    profile.innerHTML = `<img src="/images/profile.png" />`;
+    profile.innerHTML = `<img src="/images/default_profile.png" />`;
     if (isContinued) profile.style.visibility = "hidden";
     wrapper.appendChild(profile);
   }
@@ -86,7 +86,7 @@ function appendMessage(message) {
   if (!isMe && !isContinued) {
     const sender = document.createElement("div");
     sender.className = "sender";
-    sender.innerText = message.senderName;
+    sender.innerText = message.senderNickname;
     messageArea.appendChild(sender);
   }
 
