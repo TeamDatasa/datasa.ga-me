@@ -18,75 +18,81 @@ import java.util.Optional;
 public interface TripRepository extends JpaRepository<Trip, Long> {
 	
 	List<Trip> findByHostUser_UserIdOrderByCreatedAtDesc(Long hostUserId);
+	
 	/**
-	 *  =========================
+	 * =========================
 	 * U_001 여행 목록 (최신순)
-	 * ========================= */
+	 * =========================
+	 */
 	@Query("""
-    select new datasa.domain.dto.TripListResponseDto(
-        t.tripId,
-        t.title,
-        t.region,
-        t.theme,
-        t.maxParticipants,
-        count(a)
-    )
-    from Trip t
-    left join Application a
-        on a.trip = t
-        and a.status = 'APPROVED'
-    group by t
-    order by t.tripId desc
-    """)
+			select new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    count(a)
+			)
+			from Trip t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			group by t
+			order by t.tripId desc
+			""")
 	Page<TripListResponseDto> findLatestTrips(Pageable pageable);
 	
 	
-	/** =========================
+	/**
+	 * =========================
 	 * U_001 여행 목록 (인기순)
-	 * ========================= */
+	 * =========================
+	 */
 	@Query("""
-    select new datasa.domain.dto.TripListResponseDto(
-        t.tripId,
-        t.title,
-        t.region,
-        t.theme,
-        t.maxParticipants,
-        count(a)
-    )
-    from Trip t
-    left join Application a
-        on a.trip = t
-        and a.status = 'APPROVED'
-    group by t
-    order by count(a) desc
-    """)
+			select new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    count(a)
+			)
+			from Trip t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			group by t
+			order by count(a) desc
+			""")
 	Page<TripListResponseDto> findPopularTrips(Pageable pageable);
 	
 	
-	/** =========================
+	/**
+	 * =========================
 	 * U_002 여행 검색 (최신순)
-	 * ========================= */
+	 * =========================
+	 */
 	@Query("""
-    select distinct new datasa.domain.dto.TripListResponseDto(
-        t.tripId,
-        t.title,
-        t.region,
-        t.theme,
-        t.maxParticipants,
-        count(a)
-    )
-    from Trip t
-    left join TripLanguage tl on tl.trip = t
-    left join Application a
-        on a.trip = t
-        and a.status = 'APPROVED'
-    where
-        (:region is null or t.region = :region)
-    and (:theme is null or t.theme = :theme)
-    and (:languages is null or tl.languageCode in :languages)
-    group by t
-    order by t.tripId desc
-    """)
+			select distinct new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    count(a)
+			)
+			from Trip t
+			left join TripLanguage tl on tl.trip = t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			where
+			    (:region is null or t.region = :region)
+			and (:theme is null or t.theme = :theme)
+			and (:languages is null or tl.languageCode in :languages)
+			group by t
+			order by t.tripId desc
+			""")
 	Page<TripListResponseDto> searchByFilters(
 			@Param("region") String region,
 			@Param("theme") String theme,
@@ -95,30 +101,32 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 	);
 	
 	
-	/** =========================
+	/**
+	 * =========================
 	 * U_002 여행 검색 (인기순)
-	 * ========================= */
+	 * =========================
+	 */
 	@Query("""
-    select distinct new datasa.domain.dto.TripListResponseDto(
-        t.tripId,
-        t.title,
-        t.region,
-        t.theme,
-        t.maxParticipants,
-        count(a)
-    )
-    from Trip t
-    left join TripLanguage tl on tl.trip = t
-    left join Application a
-        on a.trip = t
-        and a.status = 'APPROVED'
-    where
-        (:region is null or t.region = :region)
-    and (:theme is null or t.theme = :theme)
-    and (:languages is null or tl.languageCode in :languages)
-    group by t
-    order by count(a) desc
-    """)
+			select distinct new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    count(a)
+			)
+			from Trip t
+			left join TripLanguage tl on tl.trip = t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			where
+			    (:region is null or t.region = :region)
+			and (:theme is null or t.theme = :theme)
+			and (:languages is null or tl.languageCode in :languages)
+			group by t
+			order by count(a) desc
+			""")
 	Page<TripListResponseDto> searchByFiltersPopular(
 			@Param("region") String region,
 			@Param("theme") String theme,
@@ -130,31 +138,31 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 	//로그인 안했을때는 최신여행 8개 추천
 	
 	@Query("""
-    select t
-    from Trip t
-    where t.status = 'OPEN'
-    order by t.createdAt desc
-    """)
+			select t
+			from Trip t
+			where t.status = 'OPEN'
+			order by t.createdAt desc
+			""")
 	List<Trip> findTop8Default(Pageable pageable);
 	
 	
 	// ai결과 없을시 같은지역 및 인기순 추천
 	@Query("""
-    select t
-    from Trip t
-    left join Application a
-        on a.trip = t
-        and a.status = 'APPROVED'
-    where
-        t.status = 'OPEN'
-    and t.region = (
-        select u.region
-        from User u
-        where u.userId = :userId
-    )
-    group by t
-    order by count(a) desc
-    """)
+			select t
+			from Trip t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			where
+			    t.status = 'OPEN'
+			and t.region = (
+			    select u.region
+			    from User u
+			    where u.userId = :userId
+			)
+			group by t
+			order by count(a) desc
+			""")
 	List<Trip> findRuleBased(
 			@Param("userId") Long userId,
 			Pageable pageable
@@ -162,32 +170,31 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 	
 	
 	@Query("""
-	select new datasa.domain.dto.TripListResponseDto(
-    t.tripId,
-    t.title,
-    t.region,
-    t.theme,
-    t.maxParticipants,
-    count(a)
-	)
-	from Trip t
-	left join Application a
-		on a.trip = t
-		and a.status = 'APPROVED'
-	where t.hostUser.userId = :hostUserId
-	group by t
-	order by t.createdAt desc
-	""")
+			select new datasa.domain.dto.TripListResponseDto(
+			   t.tripId,
+			   t.title,
+			   t.region,
+			   t.theme,
+			   t.maxParticipants,
+			   count(a)
+			)
+			from Trip t
+			left join Application a
+				on a.trip = t
+				and a.status = 'APPROVED'
+			where t.hostUser.userId = :hostUserId
+			group by t
+			order by t.createdAt desc
+			""")
 	List<TripListResponseDto> findMyTrips(@Param("hostUserId") Long hostUserId);
 	
 	@Query("""
-    select t
-    from Trip t
-    join fetch t.hostUser hu
-    where t.tripId = :tripId
-	""")
+			   select t
+			   from Trip t
+			   join fetch t.hostUser hu
+			   where t.tripId = :tripId
+			""")
 	Optional<Trip> findByIdWithHostUser(@Param("tripId") Long tripId);
-	
 	
 	
 	// 동시 승인 방지
@@ -198,4 +205,61 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 	List<Trip> findByHostUser_UserIdOrderByTripIdDesc(Long hostUserId);
 	
 	List<Trip> findByHostUser_UserId(Long hostUserId);
+	
+	@Query("""
+			select new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    (
+			      select count(a)
+			      from Application a
+			      where a.trip = t
+			        and a.status = datasa.domain.entity.Application.Status.APPROVED
+			    )
+			)
+			from Trip t
+			where t.status = datasa.domain.entity.Trip.Status.OPEN
+			  and (:region is null or t.region = :region)
+			  and (:theme is null or t.theme = :theme)
+			order by (
+			    select count(a2)
+			    from Application a2
+			    where a2.trip = t
+			      and a2.status = datasa.domain.entity.Application.Status.APPROVED
+			) desc
+			""")
+	Page<TripListResponseDto> searchByFiltersPopularNoLang(
+			@Param("region") String region,
+			@Param("theme") String theme,
+			Pageable pageable
+	);
+	
+	@Query("""
+			select new datasa.domain.dto.TripListResponseDto(
+			    t.tripId,
+			    t.title,
+			    t.region,
+			    t.theme,
+			    t.maxParticipants,
+			    count(a)
+			)
+			from Trip t
+			left join Application a
+			    on a.trip = t
+			    and a.status = 'APPROVED'
+			where (:region is null or t.region = :region)
+			  and (:theme is null or t.theme = :theme)
+			  and t.status = 'OPEN'
+			group by t
+			order by t.tripId desc
+			""")
+	Page<TripListResponseDto> searchByFiltersNoLang(
+			@Param("region") String region,
+			@Param("theme") String theme,
+			Pageable pageable
+	);
+	
 }
