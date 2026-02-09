@@ -138,9 +138,6 @@ public class PageController {
 				.body(body);
 	}
 	
-	@GetMapping("/chat-room")
-	public String chatRoomList() {
-		return "chat/chat-room";
-	}
+	
 	
 }

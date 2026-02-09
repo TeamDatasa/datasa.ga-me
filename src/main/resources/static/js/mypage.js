@@ -169,8 +169,17 @@ function bindProfileSave() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    setHint("");
 
-    const mbti = document.getElementById("mbti")?.value?.trim() || null;
+    const mbtiRaw = document.getElementById("mbti")?.value ?? "";
+    const mbtiTrim = mbtiRaw.trim();
+    const mbti = mbtiTrim === "" ? null : mbtiTrim;
+
+    if (mbti && !/^[EI][SN][TF][JP]$/i.test(mbti)) {
+          setHint("MBTI를 제대로 입력해 주세요.");
+          document.getElementById("mbti")?.focus();
+          return;
+        }
 
     const smokingRaw = document.getElementById("smoking")?.value ?? "";
     const smoking = smokingRaw === "" ? null : smokingRaw === "true";
@@ -181,7 +190,12 @@ function bindProfileSave() {
     const bio = document.getElementById("bio")?.value?.trim() || null;
 
     // ✅ 기본정보는 절대 보내지 않음
-    const payload = { mbti, smoking, drinking, bio };
+    const payload = {
+        mbti: mbti ? mbti.toUpperCase() : null,
+        smoking,
+        drinking,
+        bio
+        };
 
     const res = await authFetch("/api/mypage/profile", {
       method: "PUT",
@@ -192,12 +206,12 @@ function bindProfileSave() {
 
     if (res.ok) {
       setHint("저장되었습니다.");
-      await loadProfile();
+     return;
     } else {
-      const text = await res.text().catch(() => "");
-      setHint(text || "저장에 실패했습니다. 입력값을 확인해 주세요.");
-    }
-  });
+          const text = await res.text().catch(() => "");
+          setHint(text || "저장에 실패했습니다. 입력값을 확인해 주세요.");
+        }
+    });
 }
 
 // =============================

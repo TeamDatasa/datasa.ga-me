@@ -17,7 +17,11 @@ public class MyPageProfileUpdateRequest {
 	private String countryCode;
 	private String region;
 	
-	@Size(max = 4)
+	@Size(max = 4, message = "MBTI는 4글자여야 합니다.")
+	@Pattern(
+			regexp = "^(?i)([EI][SN][TF][JP])?$",
+			message = "MBTI를 다시 입력해주세요."
+	)
 	private String mbti;
 	
 	private Boolean smoking;

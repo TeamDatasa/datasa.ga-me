@@ -2,7 +2,7 @@
 /* ===== Color System ===== */
 :root {
   --lemon: #F2E96D;
-  --white: #F1F2F0;
+  --white: #FCFCFB;
   --gray: #566873;
   --sky: #3084F2;
   --blue: #1675F2;
@@ -40,7 +40,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(241, 242, 240, 0.9);
+  background: rgba(252, 252, 251, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -405,7 +405,7 @@ a {
 #tripList {
   display: flex;
   flex-direction: column;
-  gap: 24p\;
+  gap: 24px;
 }
 
 #tripList .yw-card {

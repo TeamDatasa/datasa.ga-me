@@ -13,30 +13,24 @@
     </header>
 
     <section class="panel">
-        <div class="grid">
+        <div class="grid grid--2">
             <a class="card" href="/host/trips/new">
-                <div class="card-title">Create Tour</div>
-                <div class="card-meta">Register a new tour</div>
-                <p class="hint" style="margin:10px 0 0;">Create and publish your tour.</p>
+                <div class="card-title">투어 등록</div>
+                <div class="card-meta">새로운 투어를 등록해요</div>
+                <p class="hint" style="margin:10px 0 0;">투어를 작성하고 공개할 수 있어요.</p>
             </a>
 
             <a class="card" href="/host/trips">
-                <div class="card-title">Manage Tours</div>
-                <div class="card-meta">Edit / Hide / Delete</div>
-                <p class="hint" style="margin:10px 0 0;">Manage your listed tours.</p>
-            </a>
-
-            <a class="card" href="@{/host/trips">
-                <div class="card-title">신청 현황</div>
-                <div class="card-meta">승인 / 거절</div>
-                <p class="hint" style="margin:10px 0 0;">신청자를 확인하고 승인/거절을 처리합니다.</p>
+                <div class="card-title">투어 관리</div>
+                <div class="card-meta">수정 / 삭제</div>
+                <p class="hint" style="margin:10px 0 0;">내가 올린 투어를 관리할 수 있어요.</p>
             </a>
 
         </div>
 
         <div class="panel" style="margin-top: 18px;">
-            <h3>My Hosted Tours</h3>
-            <p class="hint">Tours you created. Manage schedules and applicants.</p>
+            <h3>내가 등록한 투어</h3>
+            <p class="hint">내가 만든 투어의 일정과 신청자를 관리할 수 있어요.</p>
 
             <!-- 여행 있을 때 -->
             <div th:if="${!#lists.isEmpty(hostedTours)}">
@@ -66,14 +60,14 @@
 
             <!-- 여행 없을 때 -->
             <div class="empty" th:if="${#lists.isEmpty(hostedTours)}">
-                No tours yet.
+                아직 등록한 투어가 없어요.
             </div>
         </div>
 
         <div class="panel">
-            <h3>Reviews</h3>
-            <p class="hint">Reviews from users after tours end.</p>
-            <div class="empty">No reviews yet.</div>
+            <h3>후기</h3>
+            <p class="hint">투어 종료 후 작성된 리뷰가 표시돼요.</p>
+            <div class="empty">아직 리뷰가 없어요.</div>
         </div>
         <!-- ✅ HOST content 끝 -->
     </section>

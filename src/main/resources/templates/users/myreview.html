@@ -41,8 +41,6 @@
                         </div>
 
                         <div class="actions">
-                            <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
-
                             <!-- Write -->
                             <a class="btn"
                                th:if="${t.canWrite()}"
