@@ -27,12 +27,17 @@ public class MyPageController {
 	}
 	
 	// 수정
-	@Valid
+
 	@PutMapping("/profile")
 	public ResponseEntity<MyPageProfileResponse> updateProfile(
 			@Valid @RequestBody MyPageProfileUpdateRequest req,
 			Authentication auth
 	) {
+		if (req.getMbti() != null) {
+			req.setMbti(req.getMbti().trim());
+			if (req.getMbti().isBlank()) req.setMbti(null);
+			else req.setMbti(req.getMbti().toUpperCase());
+		}
 		String email = auth.getName();
 		return ResponseEntity.ok(myPageService.updateProfile(email, req));
 	}

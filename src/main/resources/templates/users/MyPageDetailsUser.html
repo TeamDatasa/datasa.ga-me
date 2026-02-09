@@ -13,33 +13,33 @@
     </header>
 
     <section class="panel">
-        <h3>Details</h3>
-        <p class="hint">User detail page</p>
+        <h3>내 정보</h3>
+        <p class="hint">회원 상세 정보 페이지입니다.</p>
 
         <div class="grid">
             <!-- ✅ Application Status -> 링크 -->
             <a class="card card-link" th:href="@{/mypage/applications}">
-                <div class="card-title">Application Status</div>
-                <div class="card-meta">Pending / Approved / Rejected</div>
+                <div class="card-title">신청 현황</div>
+                <div class="card-meta">대기 / 승인 / 거절</div>
 
                 <div class="status-badges">
                     <span class="status pending">
-                        Pending <b th:text="${counts != null ? counts.pending() : 0}">0</b>
+                        대기 <b th:text="${counts != null ? counts.pending() : 0}">0</b>
                     </span>
                     <span class="status approved">
-                        Approved <b th:text="${counts != null ? counts.approved() : 0}">0</b>
+                        승인 <b th:text="${counts != null ? counts.approved() : 0}">0</b>
                     </span>
                     <span class="status rejected">
-                        Rejected <b th:text="${counts != null ? counts.rejected() : 0}">0</b>
+                        거절 <b th:text="${counts != null ? counts.rejected() : 0}">0</b>
                     </span>
                 </div>
             </a>
 
             <!-- ✅ My Reviews -> 링크 -->
             <a class="card card-link" th:href="@{/mypage/reviews}">
-                <div class="card-title">My Reviews</div>
-                <div class="card-meta">Create / Edit / Delete</div>
-                <p class="hint" style="margin:10px 0 0;">You can write reviews after the tour ends.</p>
+                <div class="card-title">내 후기</div>
+                <div class="card-meta">작성 / 수정 / 삭제</div>
+                <p class="hint" style="margin:10px 0 0;">투어 종료 후 후기를 작성할 수 있습니다.</p>
             </a>
         </div>
 
@@ -47,56 +47,53 @@
         <div class="panel" style="margin-top: 18px;">
             <div class="panel-head">
                 <div>
-                    <h3>My Tours</h3>
-                    <p class="hint">Approved tours you joined. Reviews are available after end time.</p>
+                    <h3>내가 참여한 투어</h3>
+                    <p class="hint">승인된 투어 목록입니다. 종료된 투어는 후기 작성이 가능합니다.</p>
                 </div>
 
                 <!-- (선택) My Tours 전용 페이지로 이동 -->
-                <a class="btn btn-ghost" th:href="@{/mypage/tours}">Open</a>
+                <a class="btn btn-ghost" th:href="@{/mypage/tours}">전체 보기</a>
             </div>
 
             <ul class="list" th:if="${myTours != null and !#lists.isEmpty(myTours)}">
                 <li class="list-item" th:each="t : ${myTours}">
-                    <div class="title" th:text="${t.title()}">Tour title</div>
+                    <div class="title" th:text="${t.title()}">투어 제목</div>
                     <div class="meta">
-                        <span th:text="${t.region()}">Region</span>
-                        · <span th:text="${t.startAt()}">Start</span> ~ <span th:text="${t.endAt()}">End</span>
+                        <span th:text="${t.region()}">지역</span>
+                        · <span th:text="${t.startAt()}">시작</span> ~ <span th:text="${t.endAt()}">종료</span>
                     </div>
 
                     <div class="actions">
-                        <!-- View -->
-                        <a class="btn btn-ghost" th:href="@{'/trip/' + ${t.tripId()}}">View</a>
-
                         <!-- ✅ Write Review -> 링크 -->
                         <a class="btn"
                            th:if="${t.canReview()}"
-                           th:href="@{/mypage/reviews/new(tripId=${t.tripId()})}">
-                            Write Review
+                           th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}">
+                            후기 작성
                         </a>
 
                         <!-- ✅ Edit Review -> 링크 -->
                         <a class="btn"
                            th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews/edit(reviewId=${t.reviewId()})}">
-                            Edit Review
+                           th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}">
+                            후기 수정
                         </a>
                         <a class="btn btn-primary"
-                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId})}">
-                            Chat
+                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId()})}">
+                            채팅
                         </a>
 
                         <!-- ✅ Delete Review -> 링크 (삭제 확인 페이지 추천) -->
                         <a class="btn btn-danger"
                            th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews/delete(reviewId=${t.reviewId()})}">
-                            Delete
+                           th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}">
+                            후기 삭제
                         </a>
                     </div>
                 </li>
             </ul>
 
             <div class="empty" th:if="${myTours == null or #lists.isEmpty(myTours)}">
-                No approved tours yet.
+                아직 승인된 투어가 없습니다.
             </div>
         </div>
 
@@ -104,27 +101,27 @@
         <div class="panel">
             <div class="panel-head">
                 <div>
-                    <h3>My Applications</h3>
-                    <p class="hint">Recent applications (pending/approved/rejected).</p>
+                    <h3>내 신청 내역</h3>
+                    <p class="hint">최근 신청한 투어 내역입니다.</p>
                 </div>
 
-                <a class="btn btn-ghost" th:href="@{/mypage/applications}">Open</a>
+                <a class="btn btn-ghost" th:href="@{/mypage/applications}">전체 보기</a>
             </div>
 
             <ul class="list" th:if="${myApplications != null and !#lists.isEmpty(myApplications)}">
                 <li class="list-item" th:each="a : ${myApplications}">
-                    <div class="title" th:text="${a.tripTitle()}">Trip</div>
+                    <div class="title" th:text="${a.tripTitle()}">투어</div>
                     <div class="meta">
-                        <span th:text="${a.status()}">PENDING</span>
+                        <span th:text="${a.status()}">상태</span>
                         <span th:if="${a.message() != null and a.message().length() > 0}">
-                            · <span th:text="${a.message()}">message</span>
+                            · <span th:text="${a.message()}">메세지</span>
                         </span>
                     </div>
                 </li>
             </ul>
 
             <div class="empty" th:if="${myApplications == null or #lists.isEmpty(myApplications)}">
-                No applications yet.
+                신청한 투어가 없습니다.
             </div>
         </div>
 

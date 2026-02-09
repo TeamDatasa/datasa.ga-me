@@ -3,7 +3,7 @@
    =============================== */
 
 :root {
-  --bg: #F1F2F0;
+  --bg: #FCFCFB;
   --card: rgba(255,255,255,0.75);
   --border: rgba(0,0,0,0.08);
   --ink: #0f172a;
@@ -282,7 +282,7 @@ form button[type="submit"]:hover {
   width:52px;
   height:52px;
   border-radius:50%;
-  background:#f1f2f0;
+  background:#FCFCFB;
   display:grid;
   place-items:center;
   font-weight:700;
