@@ -21,6 +21,8 @@ public class NotificationQueryService {
 	
 	private final NotificationRepository notificationRepository;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
+	
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -110,4 +112,5 @@ public class NotificationQueryService {
 		
 		em.flush();
 	}
+	
 }

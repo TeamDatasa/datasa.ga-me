@@ -89,4 +89,17 @@ public class Notification {
 	public void setIsRead(Boolean isRead) {
 		this.isRead = isRead;
 	}
+	
+	// 신청 알림
+	public static Notification tripApply(User owner, String actorName, String tripTitle, Long tripId, Long applicationId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.APPLY;
+		n.refId = tripId;
+		n.title = "여정 신청";
+		n.body = actorName + "님이 " + tripTitle + "여정에 참여신청을 했습니다.";
+		n.isRead = false;
+		return n;
+	}
+	
 }
