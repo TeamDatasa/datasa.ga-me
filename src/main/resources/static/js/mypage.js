@@ -3,26 +3,22 @@ function authHeaders() {
 }
 
 // =============================
-// Country mapping
+// 표시용 변환 함수
 // =============================
-function countryNameToCode(name) {
-  if (!name) return null;
-  const n = name.trim().toLowerCase();
-  const map = {
-    "korea": "KR",
-    "south korea": "KR",
-    "republic of korea": "KR",
-    "japan": "JP",
-    "china": "CN",
-    "usa": "US",
-    "united states": "US"
-  };
-  return map[n] || null;
+function countryCodeToKorean(code) {
+  const map = { KR: "대한민국", JP: "일본", CN: "중국", US: "미국" };
+  return map[code] || code || "-";
 }
 
-function countryCodeToName(code) {
-  const map = { KR: "Korea", JP: "Japan", CN: "China", US: "USA" };
-  return map[code] || code || "";
+function genderToKorean(gender) {
+  const map = { FEMALE: "여성", MALE: "남성", OTHER: "기타" };
+  return map[gender] || "-";
+}
+
+function formatBirthDate(iso) {
+  // 서버에서 "YYYY-MM-DD"로 내려온다고 가정
+  if (!iso) return "-";
+  return iso; // 필요하면 "YYYY. MM. DD."로 포맷도 가능
 }
 
 // =============================
@@ -45,12 +41,28 @@ function setRoleUI(role) {
   if (hostCardPanel) hostCardPanel.style.display = role === "HOST" ? "block" : "none";
 
   const roleBadge = document.getElementById("roleBadge");
-  if (roleBadge) roleBadge.textContent = role ?? "-";
+  if (roleBadge) roleBadge.textContent = roleToLabel(role);
 }
 
 function setHint(msg = "") {
   const hint = document.getElementById("saveHint");
   if (hint) hint.textContent = msg;
+}
+
+// =============================
+// Readonly lock helpers
+// (HTML에서 readonly로 두는 걸 추천하지만, JS에서도 안전하게 잠금)
+// =============================
+function lockBasicFields() {
+  ["name", "birthDate", "gender", "country", "region"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // 기본정보는 무조건 표시용
+    el.readOnly = true;
+    el.setAttribute("readonly", "readonly");
+    el.classList.add("readonly-input");
+  });
 }
 
 // =============================
@@ -61,6 +73,7 @@ async function loadHostCardPublicStatus() {
   if (!res || !res.ok) return;
 
   const data = await res.json();
+  console.log("[host/card GET]", data);
   const toggle = document.getElementById("hostCardPublicToggle");
   if (toggle) toggle.checked = !!data.isPublic;
 }
@@ -69,12 +82,12 @@ async function updateHostCardPublic(isPublic) {
   const res = await authFetch("/api/mypage/host/card", {
     method: "PATCH",
     headers: authHeaders(),
-    body: JSON.stringify({ isPublic })
+    body: JSON.stringify({ isPublic }),
   });
 
   if (!res || !res.ok) {
     alert("카드프로필 공개 설정 변경에 실패했습니다.");
-    await loadHostCardPublicStatus(); // 서버 값으로 복구
+    await loadHostCardPublicStatus();
   }
 }
 
@@ -86,39 +99,60 @@ async function loadProfile() {
   if (!res) return;
 
   if (!res.ok) {
-    alert("Failed to load profile.");
+    alert("프로필 정보를 불러오지 못했습니다.");
     return;
   }
 
   const data = await res.json();
 
   // ===== Top card =====
-  document.getElementById("displayName").textContent = data.name ?? "-";
-  document.getElementById("displayMeta").textContent =
-    `${data.region ?? "-"} · ${data.age ?? "-"} yrs · ${countryCodeToName(data.countryCode) ?? "-"}`;
-  document.getElementById("avatar").textContent = data.name ? data.name[0] : "?";
+  const displayNameEl = document.getElementById("displayName");
+  const displayMetaEl = document.getElementById("displayMeta");
+  const avatarEl = document.getElementById("avatar");
 
-  // ===== Form values =====
-  document.getElementById("name").value = data.name ?? "";
-  document.getElementById("birthDate").value = data.birthDate ?? "";
-  document.getElementById("gender").value = data.gender ?? "";
+  if (displayNameEl) displayNameEl.textContent = data.name ?? "-";
 
+  const meta = `${data.region ?? "-"} · ${data.age ?? "-"}세 · ${countryCodeToKorean(data.countryCode)}`;
+  if (displayMetaEl) displayMetaEl.textContent = meta;
+
+  if (avatarEl) avatarEl.textContent = data.name ? data.name[0] : "?";
+
+  // ===== Form values (기본정보는 표시용) =====
+  const nameEl = document.getElementById("name");
+  const birthEl = document.getElementById("birthDate");
+  const genderEl = document.getElementById("gender");
   const countryEl = document.getElementById("country");
-  if (countryEl) countryEl.value = countryCodeToName(data.countryCode);
+  const regionEl = document.getElementById("region");
 
-  document.getElementById("region").value = data.region ?? "";
-  document.getElementById("mbti").value = data.mbti ?? "";
+  if (nameEl) nameEl.value = data.name ?? "";
+  if (birthEl) birthEl.value = formatBirthDate(data.birthDate);
+  if (genderEl) genderEl.value = genderToKorean(data.gender);
+  if (countryEl) countryEl.value = countryCodeToKorean(data.countryCode);
+  if (regionEl) regionEl.value = data.region ?? "";
 
-  document.getElementById("smoking").value =
-    data.smoking === true ? "true" : data.smoking === false ? "false" : "";
+  // ===== Editable fields =====
+  const mbtiEl = document.getElementById("mbti");
+  const smokingEl = document.getElementById("smoking");
+  const drinkingEl = document.getElementById("drinking");
+  const bioEl = document.getElementById("bio");
 
-  document.getElementById("drinking").value =
-    data.drinking === true ? "true" : data.drinking === false ? "false" : "";
+  if (mbtiEl) mbtiEl.value = data.mbti ?? "";
 
-  document.getElementById("bio").value = data.bio ?? "";
+  if (smokingEl) {
+    smokingEl.value = data.smoking === true ? "true" : data.smoking === false ? "false" : "";
+  }
+
+  if (drinkingEl) {
+    drinkingEl.value = data.drinking === true ? "true" : data.drinking === false ? "false" : "";
+  }
+
+  if (bioEl) bioEl.value = data.bio ?? "";
 
   // ===== Role UI =====
   setRoleUI(data.role ?? "USER");
+
+  // ✅ 기본 정보 잠금
+  lockBasicFields();
 
   // ✅ HOST면 카드프로필 공개 상태도 로드
   if ((data.role ?? "USER") === "HOST") {
@@ -127,7 +161,7 @@ async function loadProfile() {
 }
 
 // =============================
-// Save profile (ONLY on Save button)
+// Save profile (ONLY editable fields)
 // =============================
 function bindProfileSave() {
   const form = document.getElementById("profileForm");
@@ -136,38 +170,32 @@ function bindProfileSave() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const payload = {
-      name: document.getElementById("name").value.trim(),
-      birthDate: document.getElementById("birthDate").value,
-      gender: document.getElementById("gender").value,
+    const mbti = document.getElementById("mbti")?.value?.trim() || null;
 
-      countryCode: countryNameToCode(document.getElementById("country")?.value),
+    const smokingRaw = document.getElementById("smoking")?.value ?? "";
+    const smoking = smokingRaw === "" ? null : smokingRaw === "true";
 
-      region: document.getElementById("region").value.trim(),
-      mbti: document.getElementById("mbti").value.trim() || null,
+    const drinkingRaw = document.getElementById("drinking")?.value ?? "";
+    const drinking = drinkingRaw === "" ? null : drinkingRaw === "true";
 
-      smoking: document.getElementById("smoking").value === "" ? null :
-        document.getElementById("smoking").value === "true",
+    const bio = document.getElementById("bio")?.value?.trim() || null;
 
-      drinking: document.getElementById("drinking").value === "" ? null :
-        document.getElementById("drinking").value === "true",
-
-      bio: document.getElementById("bio").value.trim() || null
-    };
+    // ✅ 기본정보는 절대 보내지 않음
+    const payload = { mbti, smoking, drinking, bio };
 
     const res = await authFetch("/api/mypage/profile", {
       method: "PUT",
       headers: authHeaders(),
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     if (!res) return;
 
     if (res.ok) {
-      setHint("Profile saved successfully.");
+      setHint("저장되었습니다.");
       await loadProfile();
     } else {
       const text = await res.text().catch(() => "");
-      setHint(text || "Failed to save profile. Please check your input.");
+      setHint(text || "저장에 실패했습니다. 입력값을 확인해 주세요.");
     }
   });
 }
@@ -176,24 +204,23 @@ function bindProfileSave() {
 // Role change (IMMEDIATE save)
 // =============================
 async function setRole(role) {
-  // UI 먼저 반영
   setRoleUI(role);
 
   const res = await authFetch("/api/mypage/role", {
     method: "PATCH",
     headers: authHeaders(),
-    body: JSON.stringify({ role })
+    body: JSON.stringify({ role }),
   });
   if (!res) return;
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    alert(text || "Failed to update role. Please try again.");
-    await loadProfile(); // 서버 값으로 되돌리기
+    alert(text || "역할 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    await loadProfile();
     return;
   }
 
-  setHint("Role updated.");
+  setHint("역할이 변경되었습니다.");
   await loadProfile();
 }
 
@@ -211,11 +238,10 @@ function bindAccountActions() {
     sessionStorage.removeItem("justLoggedIn");
 
     try {
-      const res = await fetch("/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
-        credentials: "same-origin"
+        credentials: "same-origin",
       });
-      console.log("[logout] status:", res.status);
     } catch (e) {
       console.warn("[logout] request failed:", e);
     }
@@ -224,18 +250,28 @@ function bindAccountActions() {
   });
 
   document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
-    const ok = confirm("Are you sure you want to delete your account?");
+    const ok = confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 로그인이 불가능합니다.");
     if (!ok) return;
 
     const res = await authFetch("/api/mypage", { method: "DELETE" });
     if (!res) return;
 
     if (!res.ok) {
-      alert("Failed to delete account.");
+      const text = await res.text().catch(() => "");
+      alert(text || "회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
 
-    alert("Your account has been deleted.");
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "same-origin",
+      });
+    } catch (e) {
+      console.warn("[logout after deactivate] request failed:", e);
+    }
+
+    alert("회원 탈퇴가 완료되었습니다.");
     window.location.href = "/";
   });
 
@@ -251,10 +287,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   bindProfileSave();
   bindAccountActions();
 
-  // 초기 UI는 서버값(loadProfile)로 확정됨
   setRoleUI(document.getElementById("currentRole")?.value || "USER");
 
-  // ✅ 토글 이벤트
   const toggle = document.getElementById("hostCardPublicToggle");
   if (toggle) {
     toggle.addEventListener("change", () => {
@@ -264,3 +298,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadProfile();
 });
+
+function roleToLabel(role) {
+  if (role === "HOST") return "Guide";
+  if (role === "USER") return "Traveler";
+  return "-";
+}

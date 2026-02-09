@@ -1,19 +1,15 @@
 package datasa.controller;
 
-import datasa.domain.dto.AuthResponse;
-import datasa.domain.dto.RoleUpdateRequest;
-import datasa.domain.dto.TripListResponseDto;
+import datasa.domain.dto.*;
 import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import datasa.security.JwtTokenProvider;
+import datasa.service.MyPageService;
 import datasa.service.MyPageUserService;
 import datasa.service.TripService;
 import datasa.service.UserRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -87,7 +83,8 @@ public class PageController {
 	
 	@GetMapping("/mypage/details/host")
 	public String detailsHost(
-			@AuthenticationPrincipal UserDetails userDetails
+			@AuthenticationPrincipal UserDetails userDetails,
+			Model model
 	) {
 		String email = userDetails.getUsername();
 		User user = userRepository.findByEmail(email).orElseThrow();
@@ -95,6 +92,7 @@ public class PageController {
 		if (user.getRole() != User.Role.HOST) {
 			return "redirect:/mypage/details/user";
 		}
+		model.addAttribute("hostedTours", tripService.getTripsByHost(user.getUserId()));
 		
 		// ✅ users/MyPageDetailsHost.html
 		return "users/MyPageDetailsHost";
@@ -144,7 +142,5 @@ public class PageController {
 	public String chatRoomList() {
 		return "chat/chat-room";
 	}
-	
-	
 	
 }

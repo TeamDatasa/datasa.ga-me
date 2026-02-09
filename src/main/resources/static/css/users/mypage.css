@@ -576,6 +576,18 @@ a {
   cursor: pointer;
 }
 
+.readonly-input {
+  background-color: #f4f4f4;
+  color: #555;
+  cursor: default;
+}
+
+.readonly-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+
 
 
 

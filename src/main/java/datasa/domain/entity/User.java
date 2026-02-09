@@ -179,6 +179,12 @@ public class User {
 		return Boolean.TRUE.equals(this.hostCardPublic);
 	}
 	
+	// 이메일 변경
+	public void changeEmail(String newEmail) {
+		this.email = newEmail;
+	}
+	
+	
 	
 	
 	
