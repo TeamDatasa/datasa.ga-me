@@ -26,6 +26,7 @@ public class TripLikeService {
 	private final ApplicationEventPublisher eventPublisher;
 	private final RatingService ratingService;
 	
+	@Transactional
 	public TripLikeResult toggleLike(Long tripId, User user) {
 		Trip trip = tripRepository.findById(tripId)
 				.orElseThrow(() -> new IllegalArgumentException("Trip 없음"));

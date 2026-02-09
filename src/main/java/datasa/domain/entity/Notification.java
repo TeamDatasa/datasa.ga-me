@@ -54,13 +54,32 @@ public class Notification {
 		}
 	}
 	
-	public static Notification tripLike(User owner, Long actorUserId, Long tripId) {
+	public static Notification tripLike(User owner, String actorName, String tripTitle, Long tripId) {
 		Notification n = new Notification();
 		n.user = owner;
 		n.type = Type.LIKE;
 		n.refId = tripId;
 		n.title = "좋아요";
-		n.body = "내 게시글에 좋아요가 달렸습니다. (userId=" + actorUserId + ")";
+		
+		String safeActor = actorName == null ? "누군가" : actorName.trim();
+		String safeTitle = tripTitle == null ? "내 게시글" : tripTitle.trim();
+		
+		// ✅ 너무 길면 제목만 먼저 줄이기 (여유 있게)
+		if (safeTitle.length() > 60) {
+			safeTitle = safeTitle.substring(0, 60) + "...";
+		}
+		if (safeActor.length() > 30) {
+			safeActor = safeActor.substring(0, 30) + "...";
+		}
+		
+		String body = safeActor + "님이 \"" + safeTitle + "\" 게시글에 좋아요를 눌렀습니다.";
+		
+		// ✅ 최종적으로 body 255 초과 방지
+		if (body.length() > 255) {
+			body = body.substring(0, 252) + "...";
+		}
+		
+		n.body = body;
 		n.isRead = false;
 		return n;
 	}

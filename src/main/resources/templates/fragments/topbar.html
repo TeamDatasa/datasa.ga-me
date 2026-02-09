@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
+<!-- 파일: src/main/resources/templates/fragments/topbar.html -->
 <div th:fragment="notifTopbar">
     <div class="notif-wrap" data-notif-wrap>
         <!-- 🔔 종 버튼 -->
@@ -8,6 +9,9 @@
             <span class="notif-icon">🔔</span>
             <span class="notif-badge" data-notif-badge style="display:none;">0</span>
         </button>
+
+        <!-- ✅ 토스트(즉시 알림) 컨테이너 추가 -->
+        <div class="notif-toast-area" data-notif-toast-area></div>
 
         <!-- 팝오버 -->
         <div class="notif-popover" data-notif-popover>
@@ -26,5 +30,6 @@
         </div>
     </div>
 </div>
+
 </body>
 </html>

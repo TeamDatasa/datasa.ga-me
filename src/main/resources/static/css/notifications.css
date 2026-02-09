@@ -101,7 +101,7 @@
 }
 
 .notif-item {
-  position: relative; /* ✅ 삭제 버튼 위치 기준 */
+  position: relative; /* 삭제 버튼 위치 기준 */
   padding: 12px 14px;
   border-bottom: 1px solid var(--notif-border);
 }
@@ -119,7 +119,7 @@
   font-weight: 800;
   margin-bottom: 4px;
   color: var(--notif-text);
-  padding-right: 34px; /* ✅ X 버튼 공간 확보 */
+  padding-right: 34px; /* X 버튼 공간 확보 */
 }
 
 .notif-item__body {
@@ -127,14 +127,14 @@
   opacity: 0.92;
   margin-bottom: 6px;
   color: var(--notif-text);
-  padding-right: 34px; /* ✅ X 버튼 공간 확보 */
+  padding-right: 34px; /* X 버튼 공간 확보 */
 }
 
 .notif-item__meta {
   font-size: 12px;
   opacity: 0.65;
   color: var(--notif-gray);
-  padding-right: 34px; /* ✅ X 버튼 공간 확보 */
+  padding-right: 34px; /* X 버튼 공간 확보 */
 }
 
 .notif-item__link {
@@ -154,7 +154,7 @@
   color: var(--notif-gray);
 }
 
-/* ✅ X 삭제 버튼 */
+/* X 삭제 버튼 */
 .notif-item__delete {
   position: absolute;
   top: 10px;
@@ -176,3 +176,48 @@
 .notif-item__delete:hover {
   filter: brightness(0.97);
 }
+
+/* 파일: src/main/resources/static/css/notifications.css */
+
+/* 토스트 영역 */
+.notif-toast-area {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+}
+
+/* 토스트 카드 */
+.notif-toast {
+  width: min(360px, calc(100vw - 28px));
+  background: var(--notif-bg);
+  border: 1px solid var(--notif-border);
+  border-radius: 16px;
+  box-shadow: var(--notif-shadow);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.notif-toast__title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--notif-text);
+  margin-bottom: 4px;
+}
+
+.notif-toast__body {
+  font-size: 13px;
+  color: var(--notif-text);
+  opacity: 0.92;
+}
+
+.notif-toast__meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--notif-gray);
+  opacity: 0.7;
+}
+

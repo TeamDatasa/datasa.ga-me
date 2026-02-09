@@ -1,3 +1,4 @@
+// 파일: src/main/resources/static/js/notifications.js
 (function () {
   const wrap = document.querySelector('[data-notif-wrap]');
   if (!wrap) return;
@@ -9,7 +10,14 @@
   const empty = popover ? popover.querySelector('[data-notif-empty]') : null;
   const markReadBtn = popover ? popover.querySelector('[data-notif-markread]') : null;
 
+  // `추가: 토스트 영역
+  const toastArea = wrap.querySelector('[data-notif-toast-area]');
+
   let pollingTimer = null;
+
+  // `추가: 이전 unread 값/마지막 토스트로 띄운 알림ID 기억
+  let lastUnreadCount = null;
+  let lastToastNotificationId = null;
 
   function setBadge(count) {
     const n = Number(count || 0);
@@ -31,18 +39,9 @@
   }
 
   function buildTargetUrl(n) {
-    // refId를 tripId로 쓰는 기준
     if (!n || !n.refId) return null;
-
-    // ✅ 프로젝트 라우팅에 맞게 수정 가능
-    // 기존 코드: `/trip/${n.refId}` 는 실제로는 `/trip/detail/{id}`일 가능성이 큼
-    if (n.type === 'COMMENT' || n.type === 'LIKE') {
-      return `/trip/detail/${n.refId}`;
-    }
-    // 신청/승인 같은 타입도 trip 상세로 보내고 싶으면:
-    if (n.type === 'APPLY' || n.type === 'APPROVED' || n.type === 'REJECTED') {
-      return `/trip/detail/${n.refId}`;
-    }
+    if (n.type === 'COMMENT' || n.type === 'LIKE') return `/trip/detail/${n.refId}`;
+    if (n.type === 'APPLY' || n.type === 'APPROVED' || n.type === 'REJECTED') return `/trip/detail/${n.refId}`;
     return null;
   }
 
@@ -54,22 +53,80 @@
     });
 
     if (res.status === 401 || res.status === 403) {
-      // 로그인 상태가 아니면 알림 UI 숨김
       wrap.style.display = 'none';
       throw new Error('AUTH_BLOCKED');
     }
 
-    if (!res.ok) {
-      throw new Error('HTTP_' + res.status);
-    }
-
+    if (!res.ok) throw new Error('HTTP_' + res.status);
     if (res.status === 204) return null;
     return res.json();
   }
 
+  // 추가: 토스트 표시
+  function showToast(notification) {
+    if (!toastArea || !notification) return;
+
+    // 같은 알림을 중복 토스트 방지
+    if (notification.notificationId && notification.notificationId === lastToastNotificationId) return;
+    lastToastNotificationId = notification.notificationId || lastToastNotificationId;
+
+    const url = buildTargetUrl(notification);
+
+    const toast = document.createElement('div');
+    toast.className = 'notif-toast';
+
+    const title = document.createElement('div');
+    title.className = 'notif-toast__title';
+    title.textContent = notification.title || '알림';
+
+    const body = document.createElement('div');
+    body.className = 'notif-toast__body';
+    body.textContent = notification.body || '';
+
+    const meta = document.createElement('div');
+    meta.className = 'notif-toast__meta';
+    meta.textContent = formatTime(notification.createdAt);
+
+    toast.appendChild(title);
+    toast.appendChild(body);
+    toast.appendChild(meta);
+
+    toast.addEventListener('click', () => {
+      if (url) window.location.href = url;
+    });
+
+    toastArea.appendChild(toast);
+
+    // 4초 후 자동 제거
+    setTimeout(() => {
+      toast.remove();
+    }, 4000);
+  }
+
+  // `변경: unread 갱신 시 증가 감지 → 최신 알림 1개 토스트
   async function refreshUnread() {
     const data = await apiJson('/api/notifications/unread-count');
-    setBadge(data ? data.unreadCount : 0);
+    const current = data ? Number(data.unreadCount || 0) : 0;
+
+    // 최초 1회는 비교하지 않고 기준만 세팅
+    if (lastUnreadCount === null) {
+      lastUnreadCount = current;
+      setBadge(current);
+      return;
+    }
+
+    // 증가했으면 최신 알림 1개 가져와 토스트
+    if (current > lastUnreadCount) {
+      try {
+        const items = await apiJson('/api/notifications?limit=1');
+        if (items && items.length > 0) {
+          showToast(items[0]);
+        }
+      } catch (_) {}
+    }
+
+    lastUnreadCount = current;
+    setBadge(current);
   }
 
   function render(items) {
@@ -88,19 +145,16 @@
       li.className = 'notif-item';
       if (!n.isRead) li.classList.add('is-unread');
 
-      // ✅ (질문하신) dataset: "이 li가 어떤 알림(id)인지" 저장하는 용도
-      // 꼭 필요하진 않지만, 디버깅/추가기능에 좋음
       li.dataset.notifId = n.notificationId;
 
       const url = buildTargetUrl(n);
 
-      // ✅ 전체 클릭 이동 영역
       const container = document.createElement(url ? 'a' : 'div');
       if (url) {
         container.href = url;
         container.className = 'notif-item__link';
       } else {
-        container.className = 'notif-item__link'; // 스타일 통일
+        container.className = 'notif-item__link';
       }
 
       const title = document.createElement('div');
@@ -119,7 +173,6 @@
       container.appendChild(body);
       container.appendChild(meta);
 
-      // ✅ X 삭제 버튼
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'notif-item__delete';
@@ -127,7 +180,6 @@
       delBtn.textContent = '×';
 
       delBtn.addEventListener('click', async (e) => {
-        // a 링크 이동 방지 + 버블링 방지
         e.preventDefault();
         e.stopPropagation();
 
@@ -136,20 +188,10 @@
 
         try {
           await apiJson(`/api/notifications/${encodeURIComponent(id)}`, { method: 'DELETE' });
-
-          // 화면에서 즉시 제거
           li.remove();
-
-          // 남은 항목 0이면 empty 표시
-          if (list.children.length === 0) {
-            empty.style.display = 'block';
-          }
-
-          // unread 배지 갱신
+          if (list.children.length === 0) empty.style.display = 'block';
           await refreshUnread();
-        } catch (_) {
-          // 실패 시 조용히 종료 (원하면 alert/toast 가능)
-        }
+        } catch (_) {}
       });
 
       li.appendChild(delBtn);
@@ -223,7 +265,6 @@
     } catch (_) {}
   });
 
-  // 초기 로딩
   refreshUnread().catch(() => {});
   startPolling();
 })();
