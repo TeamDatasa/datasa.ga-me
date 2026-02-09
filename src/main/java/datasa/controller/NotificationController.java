@@ -34,6 +34,17 @@ public class NotificationController {
 		return Map.of("unreadCount", notificationQueryService.unreadCount(authentication));
 	}
 	
+	// 알림 삭제(단건)
+	@DeleteMapping("/{notificationId}")
+	public ResponseEntity<Void> deleteOne(
+			Authentication authentication,
+			@PathVariable Long notificationId
+	) {
+		notificationQueryService.deleteOne(authentication, notificationId);
+		return ResponseEntity.noContent().build();
+	}
+	
+	
 	// 모두 읽음 처리
 	@PostMapping("/read-all")
 	public ResponseEntity<Void> readAll(Authentication authentication) {
