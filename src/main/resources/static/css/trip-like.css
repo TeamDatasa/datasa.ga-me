@@ -1,0 +1,31 @@
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+}
+
+.like-btn__icon {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.like-btn__count {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.like-btn.is-liked .like-btn__icon {
+  font-weight: 900;
+}
+
+.like-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.72; /* 로딩이 과하게 튀지 않게 */
+}
