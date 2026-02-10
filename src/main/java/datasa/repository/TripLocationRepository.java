@@ -20,9 +20,10 @@ public interface TripLocationRepository extends JpaRepository<TripLocation, Long
 	List<TripLocation> findByTrip_TripIdOrderByOrderNoAsc(Long tripId);
 	
 	void deleteByTrip(Trip trip);
-	
-	@Modifying(flushAutomatically = true, clearAutomatically = true)
+
+	@Modifying
 	@Query("delete from TripLocation tl where tl.trip.tripId = :tripId")
-	int deleteAllByTripId(@Param("tripId") Long tripId);
+	void deleteAllByTripId(@Param("tripId") Long tripId);
+
 	
 }
