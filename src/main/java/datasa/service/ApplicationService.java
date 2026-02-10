@@ -23,65 +23,65 @@ public class ApplicationService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
     private final ChatRoomService chatRoomService;
-	private final NotificationRepository notificationRepository;
-	
-	
-	/**
+    private final NotificationRepository notificationRepository;
+
+
+    /**
      * U_004 여행 신청
      */
-	// trip 신청
-	@Transactional
-	public ApplicationCreateResponseDto applyTrip(Long tripId, Long userId) {
-		
-		Trip trip = tripRepository.findById(tripId)
-				.orElseThrow(() -> new IllegalArgumentException("여행이 존재하지 않습니다."));
-		
-		if (trip.getStatus() != Trip.Status.OPEN) {
-			throw new IllegalStateException("신청 가능한 여행이 아닙니다.");
-		}
-		
-		if (applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId)) {
-			throw new IllegalStateException("이미 신청한 여행입니다.");
-		}
-		
-		long approvedCount =
-				applicationRepository.countByTrip_TripIdAndStatus(
-						tripId, Application.Status.APPROVED
-				);
-		
-		if (approvedCount >= trip.getMaxParticipants()) {
-			throw new IllegalStateException("정원이 초과되었습니다.");
-		}
-		
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
-		
-		Application app = new Application();
-		app.setTrip(trip);
-		app.setUser(user);
-		app.setStatus(Application.Status.PENDING);
-		
-		applicationRepository.save(app);
-		
-		// 신청 알림 생성 (호스트한테)
-		User host = trip.getHostUser();
-		if (host != null && host.getUserId() != null && !host.getUserId().equals(userId)) {
-			Notification n = Notification.tripApply(
-					host,
-					user.getName(),
-					trip.getTitle(),
-					trip.getTripId(),
-					app.getApplicationId()
-			);
-			notificationRepository.save(n);
-		}
-		
-		return new ApplicationCreateResponseDto(
-				app.getApplicationId(),
-				tripId,
-				app.getStatus().name()
-		);
-	}
+    // trip 신청
+    @Transactional
+    public ApplicationCreateResponseDto applyTrip(Long tripId, Long userId) {
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("여행이 존재하지 않습니다."));
+
+        if (trip.getStatus() != Trip.Status.OPEN) {
+            throw new IllegalStateException("신청 가능한 여행이 아닙니다.");
+        }
+
+        if (applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId)) {
+            throw new IllegalStateException("이미 신청한 여행입니다.");
+        }
+
+        long approvedCount =
+                applicationRepository.countByTrip_TripIdAndStatus(
+                        tripId, Application.Status.APPROVED
+                );
+
+        if (approvedCount >= trip.getMaxParticipants()) {
+            throw new IllegalStateException("정원이 초과되었습니다.");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
+
+        Application app = new Application();
+        app.setTrip(trip);
+        app.setUser(user);
+        app.setStatus(Application.Status.PENDING);
+
+        applicationRepository.save(app);
+
+        // 신청 알림 생성 (호스트한테)
+        User host = trip.getHostUser();
+        if (host != null && host.getUserId() != null && !host.getUserId().equals(userId)) {
+            Notification n = Notification.tripApply(
+                    host,
+                    user.getName(),
+                    trip.getTitle(),
+                    trip.getTripId(),
+                    app.getApplicationId()
+            );
+            notificationRepository.save(n);
+        }
+
+        return new ApplicationCreateResponseDto(
+                app.getApplicationId(),
+                tripId,
+                app.getStatus().name()
+        );
+    }
 
 
     /**
@@ -115,7 +115,7 @@ public class ApplicationService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
-        // 🔒 호스트 권한 체크
+        // 호스트 권한 체크
         if (!trip.getHostUser().getUserId().equals(hostUserId)) {
             throw new AccessDeniedException("신청자 목록 조회 권한 없음");
         }
@@ -134,12 +134,24 @@ public class ApplicationService {
         Trip trip = tripRepository.findByIdForUpdate(app.getTrip().getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
-        // 권한 / 상태 체크 생략
+        // 호스트 권한 체크
+        if (!trip.getHostUser().getUserId().equals(hostUserId)) {
+            throw new AccessDeniedException("승인 권한 없음");
+        }
+
+        // 상태 체크(중복 승인 방지)
+        if (app.getStatus() != Application.Status.PENDING) {
+            throw new IllegalStateException("이미 처리된 신청");
+        }
 
         app.approve();
         applicationRepository.saveAndFlush(app);
 
-        // 🔥 여기서 chat_room 먼저 생성
+        // 신청자에게 승인 알림 생성
+        Notification n = Notification.tripApplicationApproved(app.getUser(), trip.getTitle(), trip.getTripId());
+        notificationRepository.save(n);
+
+        // 여기서 chat_room 먼저 생성
         ChatRoom room = chatRoomRepository
                 .findByTrip_TripId(trip.getTripId())
                 .orElseGet(() -> {
@@ -149,13 +161,12 @@ public class ApplicationService {
                     return chatRoomRepository.saveAndFlush(newRoom);
                 });
 
-        // 🔥 host member
+        // host member
         createChatMemberIfAbsent(room, trip.getHostUser());
 
-        // 🔥 승인된 유저 member
+        // 승인된 유저 member
         createChatMemberIfAbsent(room, app.getUser());
     }
-
 
 
     //신청 거절
@@ -176,8 +187,12 @@ public class ApplicationService {
         }
 
         app.reject();
-    }
+        applicationRepository.saveAndFlush(app);
 
+        // 신청자에게 거절 알림 생성
+        Notification n = Notification.tripApplicationRejected(app.getUser(), trip.getTitle(), trip.getTripId());
+        notificationRepository.save(n);
+    }
 
 
     @Transactional(readOnly = true)
@@ -215,12 +230,6 @@ public class ApplicationService {
                         }
                 );
     }
-
-
-
-
-
-
 
 }
 //인증필요

@@ -3,9 +3,11 @@ package datasa.service;
 import datasa.domain.dto.HostApplicationItem;
 import datasa.domain.dto.TripListResponse;
 import datasa.domain.entity.Application;
+import datasa.domain.entity.Notification;
 import datasa.domain.entity.Trip;
 import datasa.domain.entity.User;
 import datasa.repository.ApplicationRepository;
+import datasa.repository.NotificationRepository;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class HostTripService {
 	private final TripRepository tripRepository;
 	private final ApplicationRepository applicationRepository;
 	private final UserRepository userRepository;
+	private final NotificationRepository notificationRepository;
 	
 	@Transactional(readOnly = true)
 	public List<TripListResponse> getMyTrips(Long hostUserId) {
@@ -60,19 +63,39 @@ public class HostTripService {
 	// =========================
 	public void approveApplication(Long tripId, Long applicationId, String hostEmail) {
 		Application a = getOwnedApplication(tripId, applicationId, hostEmail);
-		if (a.getStatus() != Application.Status.PENDING) return; // 이미 처리됨이면 무시
+		if (a.getStatus() != Application.Status.PENDING) return;
+
 		a.approve();
+
+		Trip trip = a.getTrip();
+		User applicant = a.getUser();
+
+		// 신청자에게 승인 알림 저장
+		if (applicant != null && applicant.getUserId() != null) {
+			Notification n = Notification.tripApplicationApproved(applicant, trip.getTitle(), trip.getTripId());
+			notificationRepository.save(n);
+		}
 	}
-	
+
 	public void rejectApplication(Long tripId, Long applicationId, String hostEmail) {
 		Application a = getOwnedApplication(tripId, applicationId, hostEmail);
 		if (a.getStatus() != Application.Status.PENDING) return;
+
 		a.reject();
+
+		Trip trip = a.getTrip();
+		User applicant = a.getUser();
+
+		// 신청자에게 거절 알림 저장
+		if (applicant != null && applicant.getUserId() != null) {
+			Notification n = Notification.tripApplicationRejected(applicant, trip.getTitle(), trip.getTripId());
+			notificationRepository.save(n);
+		}
 	}
 	
 	private Application getOwnedApplication(Long tripId, Long applicationId, String hostEmail) {
 		
-		// ✅ 내 투어인지 검증
+		// 내 투어인지 검증
 		getTripApplications(tripId, hostEmail);
 		
 		Application a = applicationRepository.findById(applicationId)

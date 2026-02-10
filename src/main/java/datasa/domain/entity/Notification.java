@@ -120,5 +120,42 @@ public class Notification {
 		n.isRead = false;
 		return n;
 	}
-	
+
+	// 신청 결과(승인) 알림
+	public static Notification tripApplicationApproved(User owner, String tripTitle, Long tripId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.APPROVED;
+		n.refId = tripId;
+		n.title = "여정 신청 결과";
+
+		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
+		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
+
+		String body = "[" + safeTitle + "]여정 신청 결과 : 수락되었습니다.";
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+
+		n.body = body;
+		n.isRead = false;
+		return n;
+	}
+
+	// 신청 결과(거절) 알림
+	public static Notification tripApplicationRejected(User owner, String tripTitle, Long tripId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.REJECTED;
+		n.refId = tripId;
+		n.title = "여정 신청 결과";
+
+		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
+		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
+
+		String body = "[" + safeTitle + "]여정 신청 결과 : 거절되었습니다.";
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+
+		n.body = body;
+		n.isRead = false;
+		return n;
+	}
 }
