@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
     <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/trip-detail.css(v=${#dates.createNow().time})}">
 
-    <title>여행 글 상세</title>
+    <title>여정 상세</title>
 </head>
 
 <body>
@@ -42,63 +42,139 @@
     </div>
 </header>
 
-<main class="page">
-    <div class="container">
+<main class="dt-page">
+    <div class="dt-container">
+        <div class="dt-grid">
 
-        <header class="post-header">
-            <h1 th:text="${trip.title}">제목</h1>
-
-            <!-- ✅ 상세 좋아요 버튼(목록과 동일 규격) -->
-            <div class="post-actions">
-                <button class="like-btn"
-                        type="button"
-                        data-like-btn
-                        th:attr="data-trip-id=${trip.tripId},
-                         data-liked=${trip.likedByMe},
-                         data-count=${trip.likeCount}">
-          <span class="like-btn__icon" data-like-icon
-                th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
-                    <span class="like-btn__count" data-like-count
-                          th:text="${trip.likeCount}">0</span>
-                </button>
-            </div>
-        </header>
-
-        <section class="post-body">
-            <p th:text="${trip.description}">본문</p>
-        </section>
-
-        <!-- 여정 신청 버튼 -->
-        <section class="trip-apply-section">
-            <button type="button" id="applyBtn" class="btn primary btn-apply" style="width:100%;">
-                여정 신청하기
-            </button>
-        </section>
-
-        <section class="comments">
-            <div class="comments-head">
-                <h2 class="section-title">댓글</h2>
-                <span class="muted small" id="commentCount">0</span>
-            </div>
-
-            <form id="commentForm" class="comment-form">
-        <textarea id="commentContent"
-                  class="textarea"
-                  rows="3"
-                  placeholder="댓글을 입력하세요"></textarea>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn primary">등록</button>
+            <section class="dt-card dt-main">
+                <div class="dt-breadcrumb">
+                    <a href="/trip/listAll" class="dt-link">여행</a>
+                    <span class="dt-sep">/</span>
+                    <span class="dt-muted">여정 상세</span>
                 </div>
-            </form>
 
-            <ul id="commentList" class="comment-list"></ul>
-        </section>
+                <header class="dt-head">
+                    <div class="dt-title-wrap">
+                        <h1 class="dt-title" th:text="${trip.title}">여정 제목</h1>
 
+                        <div class="dt-meta">
+                            <span class="dt-chip" th:text="${trip.region} ?: '지역 미정'">지역</span>
+                            <span class="dt-dot">•</span>
+                            <span class="dt-muted">모집 정원</span>
+                            <span class="dt-strong" th:text="${trip.maxParticipants}">0</span>
+
+                        </div>
+                    </div>
+
+                    <div class="dt-actions">
+                        <button class="dt-like"
+                                type="button"
+                                data-like-btn
+                                th:attr="data-trip-id=${trip.tripId},
+                             data-liked=${trip.likedByMe},
+                             data-count=${trip.likeCount}">
+                            <span class="dt-like__icon" data-like-icon th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
+                            <span class="dt-like__count" data-like-count th:text="${trip.likeCount}">0</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="dt-divider"></div>
+
+                <section class="dt-section">
+                    <h2 class="dt-section-title">여정 소개</h2>
+                    <p class="dt-desc" th:text="${trip.description}">설명</p>
+                </section>
+
+                <section class="dt-section">
+                    <h2 class="dt-section-title">댓글</h2>
+
+                    <div class="dt-comment-head">
+                        <span class="dt-muted">총</span>
+                        <span id="commentCount" class="dt-strong">0</span>
+                        <span class="dt-muted">개</span>
+                    </div>
+
+                    <form id="commentForm" class="dt-comment-form">
+            <textarea id="commentContent"
+                      class="dt-textarea"
+                      rows="3"
+                      placeholder="댓글을 입력하세요"></textarea>
+
+                        <div class="dt-comment-actions">
+                            <button type="submit" class="dt-btn dt-btn--primary">등록</button>
+                        </div>
+                    </form>
+
+                    <ul id="commentList" class="dt-comment-list"></ul>
+                </section>
+            </section>
+
+            <aside class="dt-side">
+                <div class="dt-card dt-side-card">
+                    <div class="dt-side-top">
+                        <div class="dt-side-title">여정 참여</div>
+                        <div class="dt-side-sub dt-muted">신청 후 호스트 승인 시 확정됩니다.</div>
+                    </div>
+
+                    <button type="button" id="applyBtn" class="dt-btn dt-btn--primary dt-btn--block">
+                        여정 신청하기
+                    </button>
+
+                    <div class="dt-side-info">
+                        <div class="dt-kv">
+                            <span class="dt-k">상태</span>
+                            <span class="dt-v" th:text="${trip.status}">OPEN</span>
+                        </div>
+                        <div class="dt-kv">
+                            <span class="dt-k">시작일</span>
+                            <span class="dt-v"
+                                  th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
+                        </div>
+
+                        <div class="dt-kv">
+                            <span class="dt-k">종료일</span>
+                            <span class="dt-v"
+                                  th:text="${trip.endAt != null} ? ${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="dt-card dt-side-card" th:if="${isOwner}">
+                    <div class="dt-side-top">
+                        <div class="dt-side-title">내 게시글 관리</div>
+                        <div class="dt-side-sub dt-muted">수정/삭제는 정책에 따라 제한될 수 있습니다.</div>
+                    </div>
+
+                    <div class="dt-owner-actions">
+                        <a class="dt-btn dt-btn--ghost dt-btn--block"
+                           th:href="@{|/trip/update/${trip.tripId}|}"
+                           th:classappend="${!canEditDelete} ? ' dt-disabled' : ''"
+                           th:attr="aria-disabled=${!canEditDelete}"
+                           th:onclick="${!canEditDelete} ? 'return false;' : null">
+                            수정
+                        </a>
+
+                        <form id="deleteTripForm" th:action="@{|/trip/delete/${trip.tripId}|}" method="post">
+                            <button type="submit"
+                                    class="dt-btn dt-btn--danger dt-btn--block"
+                                    th:disabled="${!canEditDelete}">
+                                삭제
+                            </button>
+                        </form>
+
+                        <p class="dt-hint" th:if="${!canEditDelete}">
+                            여정 시작 7일 전부터 수정/삭제가 불가능합니다.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
     </div>
 </main>
 
-<!-- Thymeleaf 변수 주입 -->
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
@@ -111,6 +187,7 @@
 <script th:src="@{/js/notifications.js}"></script>
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-comments.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/trip-delete.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>
