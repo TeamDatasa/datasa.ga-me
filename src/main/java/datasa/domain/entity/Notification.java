@@ -158,4 +158,25 @@ public class Notification {
 		n.isRead = false;
 		return n;
 	}
+
+	public static Notification tripCommentCreated(User owner, String actorName, String tripTitle, Long tripId, Long commentId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.COMMENT;
+		n.refId = tripId;
+		n.title = "댓글";
+
+		String safeActor = (actorName == null || actorName.isBlank()) ? "누군가" : actorName.trim();
+		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "내 게시글" : tripTitle.trim();
+
+		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
+		if (safeActor.length() > 30) safeActor = safeActor.substring(0, 30) + "...";
+
+		String body = safeActor + "님이 \"" + safeTitle + "\" 여정에 댓글을 달았습니다.";
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+
+		n.body = body;
+		n.isRead = false;
+		return n;
+	}
 }
