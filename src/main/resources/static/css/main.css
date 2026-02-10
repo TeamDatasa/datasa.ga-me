@@ -418,18 +418,18 @@ a {
   font-size: 18px;
 }
 
-@media (max-width: 1024px) {
-  .yw-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ✅ HERO 그리드 안에 들어간 "이번주 추천 코스" 섹션 정렬 보정 */
+.yw-hero__inner > .yw-section {
+  padding: 0;              /* 섹션 기본 패딩 제거(우측 튀는 느낌 방지) */
 }
 
-@media (max-width: 640px) {
-  .yw-cards {
-    grid-template-columns: 1fr;
-  }
-
-  .yw-filter {
-    gap: 8px;
-  }
+.yw-hero__inner > .yw-section > .yw-container {
+  width: 100%;             /* ✅ 오른쪽 컬럼 폭 그대로 꽉 채우기 */
+  margin: 0;               /* ✅ 가운데 정렬(margin auto) 제거 */
 }
+
+/* (선택) 추천 코스 헤더 줄도 오른쪽 끝까지 자연스럽게 */
+.yw-hero__inner > .yw-section .yw-section__head--row {
+  padding-right: 0;
+}
+

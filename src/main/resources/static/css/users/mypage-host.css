@@ -172,4 +172,173 @@ a.card:hover{
   margin-right: auto;
 }
 
+/* translate dropdown (auth pages style reused) */
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.auth-lang{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.translate-select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.7);
+  outline:none;
+  font-size:13px;
+  cursor:pointer;
+}
+
+/* =========================
+   Reviews (Host) - polished
+   ========================= */
+
+/* 후기 리스트 컨테이너 */
+#reviewList{
+  margin-top: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
+/* 기존 review-card 개선 */
+.review-card{
+  margin-top: 0;                 /* #reviewList가 gap 관리 */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  padding: 14px 14px 12px;
+}
+
+/* 상단 라인(좌: 제목, 우: 평점) */
+.review-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+/* 좌측 제목 영역 */
+.review-title{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+
+  font-weight: var(--fw-s);
+  font-size: 14px;
+  letter-spacing: var(--ls);
+}
+
+/* "reviewTrip:" 같은 라벨/키가 보일 때 대비 */
+.review-title .label,
+.review-meta .label{
+  font-weight: var(--fw-m);
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+/* 평점 pill */
+.review-badge{
+  flex: 0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(22,117,242,0.18);
+  background: rgba(22,117,242,0.08);
+
+  font-size: 12px;
+  font-weight: var(--fw-m);
+  white-space: nowrap;
+}
+
+/* 메타(작성일 등) */
+.review-meta{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+/* 본문 */
+.review-content{
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: rgba(17,19,24,0.92);
+}
+
+/* 카드 안에 불필요한 panel이 또 들어가면(중첩 패널 제거용) */
+.panel .panel{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 12px;
+}
+
+/* =========================
+   HOST tours (review-card style)
+   ========================= */
+
+.tour-card{
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background:#fff;
+  box-shadow: var(--shadow-sm);
+  padding: 14px;
+}
+
+.tour-card-inner h3{
+  margin: 0;
+  font-weight: var(--fw-s);
+  font-size: 14px;
+  letter-spacing: var(--ls);
+}
+
+.tour-meta{
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tour-meta span{
+  white-space: nowrap;
+}
+
+.tour-actions{
+  margin-top: 10px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* 버튼 살짝 정리 (이미 있으면 덮어쓰기됨) */
+.btn.btn-primary{
+  border-color: rgba(22,117,242,0.22);
+  background: rgba(22,117,242,0.10);
+}
+
+/* ✅ (선택) 투어 목록이 너무 길어지면 카드 간격 줄이기 */
+.tour-card + .tour-card{
+  margin-top: 10px;
+}
+
+
+
 

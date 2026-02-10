@@ -587,6 +587,33 @@ a {
   box-shadow: none;
 }
 
+/* ===== Language Select ===== */
+.auth-lang{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:12px;
+}
+
+.translate-select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.7);
+  outline:none;
+}
+
+/* 로그아웃 버튼 = 번역 셀렉트 완전 동일화 */
+#logoutBtn.btn.btn-ghost{
+  padding: 10px 12px;          /* translate-select와 동일 */
+  height: 44px;                /* 시각적으로 동일한 높이 */
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1;
+  color: #3084F2;               /* 기존 유지 */
+  background: rgba(255,255,255,.7);
+  border: 1px solid rgba(0,0,0,.12);
+}
+
 
 
 

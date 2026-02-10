@@ -276,3 +276,25 @@ a{ color:inherit; text-decoration:none; }
   flex-wrap:wrap;
 }
 
+/* translate dropdown (auth pages style reused) */
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.auth-lang{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.translate-select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.7);
+  outline:none;
+  font-size:13px;
+  cursor:pointer;
+}
+
