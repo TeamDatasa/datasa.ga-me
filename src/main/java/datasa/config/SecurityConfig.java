@@ -48,6 +48,8 @@ public class SecurityConfig {
 								"/listAll",
 								"/detail/**",
 								"/error",
+								"/community",
+								"/trip/listAll",
 								"/favicon.ico",
 								"/css/**",
 								"/js/**",

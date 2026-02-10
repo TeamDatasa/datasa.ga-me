@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>Sign In</title>
@@ -8,31 +8,49 @@
 <body>
 
 <div class="auth-container">
-    <h1>로그인</h1>
-    <p>다시 만나서 반가워요. 로그인해주세요.</p>
+
+    <!-- ✅ 언어 드롭다운 -->
+    <div class="auth-lang">
+        <select id="langSelect" class="translate-select"></select>
+    </div>
+
+    <h1 data-i18n="login.title">로그인</h1>
+    <p data-i18n="login.subtitle">다시 만나서 반가워요. 로그인해주세요.</p>
 
     <form id="loginForm" class="auth-form">
-        <label>이메일 주소</label>
-        <input type="email" id="email" placeholder="email@example.com" required />
+        <label data-i18n="login.emailLabel">이메일 주소</label>
+        <input
+                type="email"
+                id="email"
+                data-i18n-placeholder="login.emailPlaceholder"
+                placeholder="email@example.com"
+                required
+        />
 
-        <label>비밀번호</label>
-        <input type="password" id="password" placeholder="Password" required />
+        <label data-i18n="login.passwordLabel">비밀번호</label>
+        <input
+                type="password"
+                id="password"
+                data-i18n-placeholder="login.passwordPlaceholder"
+                placeholder="Password"
+                required
+        />
 
-        <button type="submit" class="auth-btn">로그인</button>
+        <button type="submit" class="auth-btn" data-i18n="login.submit">로그인</button>
     </form>
 
     <div class="auth-footer">
-        <a th:href="@{/auth/forgot-password}" class="forgot-link">
+        <a th:href="@{/auth/forgot-password}" class="forgot-link" data-i18n="login.forgot">
             비밀번호를 잊으셨나요?
         </a>
     </div>
 
-
     <div class="auth-footer">
-        <a href="/auth/signup">회원가입</a>
+        <a href="/auth/signup" data-i18n="login.signup">회원가입</a>
     </div>
 </div>
 
+<script src="/js/auth-i18n-login.js"></script>
 <script src="/js/login.js"></script>
 </body>
 </html>

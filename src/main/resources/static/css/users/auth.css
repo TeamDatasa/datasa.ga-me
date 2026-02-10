@@ -334,6 +334,19 @@ body{
   gap: 8px;
 }
 
+.auth-lang{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:12px;
+}
+.translate-select{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:rgba(255,255,255,.7);
+  outline:none;
+}
+
 
 
 

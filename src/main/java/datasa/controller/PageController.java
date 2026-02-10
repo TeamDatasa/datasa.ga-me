@@ -138,6 +138,12 @@ public class PageController {
 				.body(body);
 	}
 	
+	@GetMapping("/community")
+	public String community() {
+		return "users/community";
+	}
+	
+	
 	
 	
 }

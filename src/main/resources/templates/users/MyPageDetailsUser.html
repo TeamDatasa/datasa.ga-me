@@ -5,107 +5,120 @@
     <title>My Page Details</title>
     <link rel="stylesheet" href="/css/users/mypage-user.css" />
 </head>
+
 <body>
 <div class="details-wrap">
     <header class="details-top">
         <div class="brand">ga-me</div>
-        <a class="btn btn-ghost" href="/mypage">Back</a>
+
+        <div class="top-actions">
+            <div class="auth-lang">
+                <select id="langSelect" class="translate-select">
+                    <option value="ko">한국어</option>
+                    <option value="ja">日本語</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <a class="btn btn-ghost" href="/mypage" data-i18n="back">Back</a>
+        </div>
     </header>
 
     <section class="panel">
-        <h3>내 정보</h3>
-        <p class="hint">회원 상세 정보 페이지입니다.</p>
+        <h3 data-i18n="myInfo">내 정보</h3>
+        <p class="hint" data-i18n="myInfoHint">회원 상세 정보 페이지입니다.</p>
 
         <div class="grid">
-            <!-- ✅ Application Status -> 링크 -->
             <a class="card card-link" th:href="@{/mypage/applications}">
-                <div class="card-title">신청 현황</div>
-                <div class="card-meta">대기 / 승인 / 거절</div>
+                <div class="card-title" data-i18n="applicationStatus">신청 현황</div>
+                <div class="card-meta" data-i18n="applicationStatusMeta">대기 / 승인 / 거절</div>
 
                 <div class="status-badges">
-                    <span class="status pending">
-                        대기 <b th:text="${counts != null ? counts.pending() : 0}">0</b>
-                    </span>
+          <span class="status pending">
+            <span data-i18n="pending">대기</span>
+            <b th:text="${counts != null ? counts.pending() : 0}">0</b>
+          </span>
                     <span class="status approved">
-                        승인 <b th:text="${counts != null ? counts.approved() : 0}">0</b>
-                    </span>
+            <span data-i18n="approved">승인</span>
+            <b th:text="${counts != null ? counts.approved() : 0}">0</b>
+          </span>
                     <span class="status rejected">
-                        거절 <b th:text="${counts != null ? counts.rejected() : 0}">0</b>
-                    </span>
+            <span data-i18n="rejected">거절</span>
+            <b th:text="${counts != null ? counts.rejected() : 0}">0</b>
+          </span>
                 </div>
             </a>
 
-            <!-- ✅ My Reviews -> 링크 -->
             <a class="card card-link" th:href="@{/mypage/reviews}">
-                <div class="card-title">내 후기</div>
-                <div class="card-meta">작성 / 수정 / 삭제</div>
-                <p class="hint" style="margin:10px 0 0;">투어 종료 후 후기를 작성할 수 있습니다.</p>
+                <div class="card-title" data-i18n="myReviews">내 후기</div>
+                <div class="card-meta" data-i18n="myReviewsMeta">작성 / 수정 / 삭제</div>
+                <p class="hint" style="margin:10px 0 0;" data-i18n="myReviewsHint">
+                    투어 종료 후 후기를 작성할 수 있습니다.
+                </p>
             </a>
         </div>
 
-        <!-- ✅ My Tours: 링크 이동만 -->
         <div class="panel" style="margin-top: 18px;">
             <div class="panel-head">
                 <div>
-                    <h3>내가 참여한 투어</h3>
-                    <p class="hint">승인된 투어 목록입니다. 종료된 투어는 후기 작성이 가능합니다.</p>
+                    <h3 data-i18n="myTours">내가 참여한 투어</h3>
+                    <p class="hint" data-i18n="myToursHint">승인된 투어 목록입니다. 종료된 투어는 후기 작성이 가능합니다.</p>
                 </div>
-
-                <!-- (선택) My Tours 전용 페이지로 이동 -->
-                <a class="btn btn-ghost" th:href="@{/mypage/tours}">전체 보기</a>
+                <a class="btn btn-ghost" th:href="@{/mypage/tours}" data-i18n="viewAll">전체 보기</a>
             </div>
 
             <ul class="list" th:if="${myTours != null and !#lists.isEmpty(myTours)}">
                 <li class="list-item" th:each="t : ${myTours}">
                     <div class="title" th:text="${t.title()}">투어 제목</div>
+
                     <div class="meta">
                         <span th:text="${t.region()}">지역</span>
                         · <span th:text="${t.startAt()}">시작</span> ~ <span th:text="${t.endAt()}">종료</span>
                     </div>
 
                     <div class="actions">
-                        <!-- ✅ Write Review -> 링크 -->
                         <a class="btn"
                            th:if="${t.canReview()}"
-                           th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}">
+                           th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}"
+                           data-i18n="writeReview">
                             후기 작성
                         </a>
 
-                        <!-- ✅ Edit Review -> 링크 -->
                         <a class="btn"
                            th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}">
+                           th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}"
+                           data-i18n="editReview">
                             후기 수정
                         </a>
+
                         <a class="btn btn-primary"
-                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId()})}">
+                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId()})}"
+                           data-i18n="chat">
                             채팅
                         </a>
 
-                        <!-- ✅ Delete Review -> 링크 (삭제 확인 페이지 추천) -->
                         <a class="btn btn-danger"
                            th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}">
+                           th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}"
+                           data-i18n="deleteReview">
                             후기 삭제
                         </a>
                     </div>
                 </li>
             </ul>
 
-            <div class="empty" th:if="${myTours == null or #lists.isEmpty(myTours)}">
+            <div class="empty" th:if="${myTours == null or #lists.isEmpty(myTours)}" data-i18n="emptyTours">
                 아직 승인된 투어가 없습니다.
             </div>
         </div>
 
-        <!-- ✅ My Applications: 링크 이동만 (목록 페이지로) -->
         <div class="panel">
             <div class="panel-head">
                 <div>
-                    <h3>내 신청 내역</h3>
-                    <p class="hint">최근 신청한 투어 내역입니다.</p>
+                    <h3 data-i18n="myApplications">내 신청 내역</h3>
+                    <p class="hint" data-i18n="myApplicationsHint">최근 신청한 투어 내역입니다.</p>
                 </div>
-
-                <a class="btn btn-ghost" th:href="@{/mypage/applications}">전체 보기</a>
+                <a class="btn btn-ghost" th:href="@{/mypage/applications}" data-i18n="viewAll">전체 보기</a>
             </div>
 
             <ul class="list" th:if="${myApplications != null and !#lists.isEmpty(myApplications)}">
@@ -114,19 +127,21 @@
                     <div class="meta">
                         <span th:text="${a.status()}">상태</span>
                         <span th:if="${a.message() != null and a.message().length() > 0}">
-                            · <span th:text="${a.message()}">메세지</span>
-                        </span>
+              · <span th:text="${a.message()}">메세지</span>
+            </span>
                     </div>
                 </li>
             </ul>
 
-            <div class="empty" th:if="${myApplications == null or #lists.isEmpty(myApplications)}">
+            <div class="empty" th:if="${myApplications == null or #lists.isEmpty(myApplications)}" data-i18n="emptyApplications">
                 신청한 투어가 없습니다.
             </div>
         </div>
-
-
     </section>
 </div>
+
+<!-- ✅ 여기로 옮기기 -->
+<script src="/js/mypage-user-i18n.js"></script>
+<script src="/js/mypage-details.js"></script>
 </body>
 </html>

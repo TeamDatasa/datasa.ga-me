@@ -298,6 +298,7 @@ function bindAccountActions() {
 // Init
 // =============================
 document.addEventListener("DOMContentLoaded", async () => {
+  bindMyPageLanguageSelect();
   bindProfileSave();
   bindAccountActions();
 
@@ -318,3 +319,170 @@ function roleToLabel(role) {
   if (role === "USER") return "Traveler";
   return "-";
 }
+
+/* =============================
+   i18n (MyPage)
+============================= */
+const MY_LANG_KEY = "mypageLang";
+
+const I18N = {
+  ko: {
+    "basic.title": "기본 정보",
+    "basic.nickname": "닉네임",
+    "basic.nicknameHint": "닉네임은 회원가입 후 변경할 수 없습니다.",
+    "basic.birth": "생년월일",
+    "basic.birthHint": "생년월일은 회원가입 후 변경할 수 없습니다.",
+    "basic.gender": "성별",
+    "basic.genderHint": "성별은 회원가입 후 변경할 수 없습니다.",
+    "basic.country": "국가",
+    "basic.countryHint": "국가는 회원가입 후 변경할 수 없습니다.",
+    "basic.region": "지역",
+    "basic.regionHint": "지역은 회원가입 후 변경할 수 없습니다.",
+    "basic.role": "회원 유형",
+    "basic.roleHint": "Guide로 전환 시 투어 등록 및 관리 기능이 활성화됩니다.",
+
+    "role.traveler": "여행자",
+    "role.guide": "가이드",
+
+    "edit.mbti": "MBTI",
+    "edit.smoking": "흡연",
+    "edit.drinking": "음주",
+    "edit.bio": "자기소개",
+
+    "actions.save": "저장",
+
+    "hostCard.title": "가이드 카드 프로필",
+    "hostCard.public": "카드 프로필 공개",
+    "hostCard.hint":
+      "카드프로필을 공개해야 게시글을 작성할 수 있으며, 다른 사용자에게 최소 정보(이름, 나이, 성별, MBTI, 자기소개)가 표시됩니다.",
+
+    "account.title": "계정 설정",
+    "account.deactivate": "회원 탈퇴",
+    "account.deactivateHint": "탈퇴 후에는 더 이상 로그인할 수 없습니다.",
+
+    "side.details": "상세 정보",
+    "side.detailsDesc": "계정 정보 및 설정을 확인하고 수정할 수 있습니다.",
+  },
+
+  ja: {
+    "basic.title": "基本情報",
+    "basic.nickname": "ニックネーム",
+    "basic.nicknameHint": "ニックネームは登録後に変更できません。",
+    "basic.birth": "生年月日",
+    "basic.birthHint": "生年月日は登録後に変更できません。",
+    "basic.gender": "性別",
+    "basic.genderHint": "性別は登録後に変更できません。",
+    "basic.country": "国",
+    "basic.countryHint": "国は登録後に変更できません。",
+    "basic.region": "地域",
+    "basic.regionHint": "地域は登録後に変更できません。",
+    "basic.role": "会員タイプ",
+    "basic.roleHint": "ガイドに切り替えると、ツアーの登録・管理機能が有効になります。",
+
+    "role.traveler": "旅行者",
+    "role.guide": "ガイド",
+
+    "edit.mbti": "MBTI",
+    "edit.smoking": "喫煙",
+    "edit.drinking": "飲酒",
+    "edit.bio": "自己紹介",
+
+    "actions.save": "保存",
+
+    "hostCard.title": "ガイドカードプロフィール",
+    "hostCard.public": "カードプロフィールを公開",
+    "hostCard.hint":
+      "カードプロフィールを公開すると投稿が可能になり、他のユーザーに最小情報（名前、年齢、性別、MBTI、自己紹介）が表示されます。",
+
+    "account.title": "アカウント設定",
+    "account.deactivate": "退会",
+    "account.deactivateHint": "退会後はログインできません。",
+
+    "side.details": "詳細情報",
+    "side.detailsDesc": "アカウント情報と設定を確認・編集できます。",
+  },
+
+  en: {
+    "basic.title": "Basic Info",
+    "basic.nickname": "Nickname",
+    "basic.nicknameHint": "Your nickname cannot be changed after sign-up.",
+    "basic.birth": "Birth Date",
+    "basic.birthHint": "Your birth date cannot be changed after sign-up.",
+    "basic.gender": "Gender",
+    "basic.genderHint": "Your gender cannot be changed after sign-up.",
+    "basic.country": "Country",
+    "basic.countryHint": "Your country cannot be changed after sign-up.",
+    "basic.region": "Region",
+    "basic.regionHint": "Your region cannot be changed after sign-up.",
+    "basic.role": "Member Type",
+    "basic.roleHint": "Switching to Guide enables tour creation and management.",
+
+    "role.traveler": "Traveler",
+    "role.guide": "Guide",
+
+    "edit.mbti": "MBTI",
+    "edit.smoking": "Smoking",
+    "edit.drinking": "Drinking",
+    "edit.bio": "Bio",
+
+    "actions.save": "Save",
+
+    "hostCard.title": "Guide Card Profile",
+    "hostCard.public": "Public Profile",
+    "hostCard.hint":
+      "You must set your card profile to public to create posts. Minimal info (name, age, gender, MBTI, bio) will be shown to others.",
+
+    "account.title": "Account Settings",
+    "account.deactivate": "Deactivate Account",
+    "account.deactivateHint": "After deactivation, you will no longer be able to log in.",
+
+    "side.details": "Details",
+    "side.detailsDesc": "View and edit your account details and settings.",
+  },
+};
+
+function applyMyPageLanguage(lang) {
+  const dict = I18N[lang] || I18N.ko;
+
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.dataset.i18n;
+    const text = dict[key];
+    if (text) el.textContent = text;
+  });
+
+  // select 옵션(흡연/음주)
+  const smoke = document.getElementById("smoking");
+  const drink = document.getElementById("drinking");
+  if (smoke) {
+    smoke.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "선택";
+    smoke.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "예";
+    smoke.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "아니오";
+  }
+  if (drink) {
+    drink.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "선택";
+    drink.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "예";
+    drink.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "아니오";
+  }
+
+  // 저장 힌트도 언어 바뀌면 지우기
+  setHint("");
+}
+
+function bindMyPageLanguageSelect() {
+  const select = document.getElementById("langSelect");
+  if (!select) return;
+
+  const saved = localStorage.getItem(MY_LANG_KEY) || "ko";
+  select.value = saved;
+  applyMyPageLanguage(saved);
+
+  select.addEventListener("change", () => {
+    const lang = select.value;
+    localStorage.setItem(MY_LANG_KEY, lang);
+    applyMyPageLanguage(lang);
+
+    // 프로필 meta(국가/성별 표시)도 언어에 맞게 다시 뿌리고 싶으면 loadProfile() 재호출
+    loadProfile();
+  });
+}
+

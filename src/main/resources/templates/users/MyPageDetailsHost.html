@@ -5,38 +5,47 @@
     <title>My Page Details</title>
     <link rel="stylesheet" href="/css/users/mypage-host.css" />
 </head>
+
 <body>
 <div class="details-wrap">
     <header class="details-top">
         <div class="brand">ga-me</div>
-        <a class="btn btn-ghost" href="/mypage">Back</a>
+
+        <div class="top-actions">
+            <div class="auth-lang">
+                <select id="langSelect" class="translate-select">
+                    <option value="ko">한국어</option>
+                    <option value="ja">日本語</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <a class="btn btn-ghost" href="/mypage" data-i18n="back">Back</a>
+        </div>
     </header>
 
     <section class="panel">
         <div class="grid grid--2">
             <a class="card" href="/host/trips/new">
-                <div class="card-title">투어 등록</div>
-                <div class="card-meta">새로운 투어를 등록해요</div>
-                <p class="hint" style="margin:10px 0 0;">투어를 작성하고 공개할 수 있어요.</p>
+                <div class="card-title" data-i18n="tourCreate">투어 등록</div>
+                <div class="card-meta" data-i18n="tourCreateMeta">새로운 투어를 등록해요</div>
+                <p class="hint" style="margin:10px 0 0;" data-i18n="tourCreateHint">투어를 작성하고 공개할 수 있어요.</p>
             </a>
 
             <a class="card" href="/host/trips">
-                <div class="card-title">투어 관리</div>
-                <div class="card-meta">수정 / 삭제</div>
-                <p class="hint" style="margin:10px 0 0;">내가 올린 투어를 관리할 수 있어요.</p>
+                <div class="card-title" data-i18n="tourManage">투어 관리</div>
+                <div class="card-meta" data-i18n="tourManageMeta">수정 / 삭제</div>
+                <p class="hint" style="margin:10px 0 0;" data-i18n="tourManageHint">내가 올린 투어를 관리할 수 있어요.</p>
             </a>
-
         </div>
 
         <div class="panel" style="margin-top: 18px;">
-            <h3>내가 등록한 투어</h3>
-            <p class="hint">내가 만든 투어의 일정과 신청자를 관리할 수 있어요.</p>
+            <h3 data-i18n="myTours">내가 등록한 투어</h3>
+            <p class="hint" data-i18n="myToursHint">내가 만든 투어의 일정과 신청자를 관리할 수 있어요.</p>
 
-            <!-- 여행 있을 때 -->
             <div th:if="${!#lists.isEmpty(hostedTours)}">
-                <div class="tour-card" th:each="t : ${hostedTours}">
+                <div class="tour-card" th:each="t : ${hostedTours}" th:attr="data-trip-id=${t.tripId}">
                     <div class="tour-card-inner">
-
                         <h3 th:text="${t.title}">Trip Title</h3>
 
                         <p class="tour-meta">
@@ -47,8 +56,9 @@
                             <span th:text="${#temporals.format(t.endAt, 'yyyy-MM-dd HH:mm')}"></span>
                         </p>
 
-                        <div class="actions">
+                        <div class="tour-actions">
                             <a class="btn btn-primary"
+                               data-i18n="applicants"
                                th:href="@{/host/trips/{tripId}/applications(tripId=${t.tripId})}">
                                 신청자 확인
                             </a>
@@ -58,25 +68,31 @@
                                 채팅 입장
                             </a>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <!-- 여행 없을 때 -->
-            <div class="empty" th:if="${#lists.isEmpty(hostedTours)}">
+            <div class="empty" th:if="${#lists.isEmpty(hostedTours)}" data-i18n="emptyTours">
                 아직 등록한 투어가 없어요.
             </div>
         </div>
 
         <div class="panel">
-            <h3>후기</h3>
-            <p class="hint">투어 종료 후 작성된 리뷰가 표시돼요.</p>
-            <div class="empty">아직 리뷰가 없어요.</div>
+            <h3 data-i18n="reviews">후기</h3>
+            <p class="hint" data-i18n="reviewsHint">투어 종료 후 작성된 리뷰가 표시돼요.</p>
+                <div id="reviewList"></div>
+
+                <div id="reviewEmpty" class="empty" data-i18n="emptyReviews" style="display:none;">
+                    아직 리뷰가 없어요.
+                </div>
+
+
         </div>
-        <!-- ✅ HOST content 끝 -->
     </section>
 </div>
+<script src="/js/mypage-host-i18n.js"></script>
+<script src="/js/mypage-details.js"></script>
+<script src="/js/mypage-host-reviews.js"></script>
 
 </body>
 </html>
