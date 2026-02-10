@@ -6,9 +6,11 @@ import datasa.domain.dto.ChatRoomListDto;
 import datasa.domain.dto.ChatRoomResponseDto;
 import datasa.domain.entity.ChatMember;
 import datasa.domain.entity.ChatRoom;
+import datasa.domain.entity.Trip;
 import datasa.domain.entity.User;
 import datasa.repository.ChatMemberRepository;
 import datasa.repository.ChatRoomRepository;
+import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
 import datasa.service.ChatRoomService;
 import datasa.service.ChatService;
@@ -41,6 +43,7 @@ public class ChatController {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
+    private final TripRepository tripRepository;
     /**
      * 클라이언트 SEND:
      *   /app/chat.send/{roomId}
@@ -92,6 +95,9 @@ public class ChatController {
             return "redirect:/login";
         }
 
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
+
         // 1️⃣ 로그인 유저
         String email = userDetails.getUsername();
         User user = userRepository.findByEmail(email)
@@ -99,16 +105,28 @@ public class ChatController {
 
         Long userId = user.getUserId();
 
-        // 2️⃣ 채팅방 찾기
-        ChatRoom room = chatRoomRepository.findByTrip_TripId(tripId)
-                .orElseThrow(() -> new IllegalStateException("채팅방 없음"));
+        ChatRoom room = chatRoomRepository
+                .findByTrip_TripId(tripId)
+                .orElseGet(() -> {
+                    ChatRoom newRoom = new ChatRoom();
+                    newRoom.setTrip(trip);
+                    newRoom.setCreatedAt(LocalDateTime.now());
+                    return chatRoomRepository.save(newRoom);
+                });
+
 
         Long roomId = room.getRoomId();
 
-        // 3️⃣ ChatMember 검증 (이미 있는 레포 사용)
         ChatMember member = chatMemberRepository
-                .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
-                .orElseThrow(() -> new IllegalStateException("채팅방 멤버 아님"));
+                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), user.getUserId())
+                .orElseGet(() -> {
+                    ChatMember m = new ChatMember();
+                    m.setChatRoom(room);
+                    m.setUser(user);
+                    m.setJoinedAt(LocalDateTime.now());
+                    return chatMemberRepository.save(m);
+                });
+
 
         if (!member.isActive()) {
             throw new AccessDeniedException("채팅방에서 나간 사용자");

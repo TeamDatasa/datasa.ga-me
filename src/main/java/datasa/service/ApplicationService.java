@@ -134,45 +134,26 @@ public class ApplicationService {
         Trip trip = tripRepository.findByIdForUpdate(app.getTrip().getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
-        // 1️⃣ 호스트 체크
-        if (!trip.getHostUser().getUserId().equals(hostUserId)) {
-            throw new AccessDeniedException("승인 권한 없음");
-        }
+        // 권한 / 상태 체크 생략
 
-        // 2️⃣ 상태 체크
-        if (app.getStatus() != Application.Status.PENDING) {
-            throw new IllegalStateException("이미 처리된 신청");
-        }
+        app.approve();
+        applicationRepository.saveAndFlush(app);
 
-        // 3️⃣ 승인된 신청자 수 (호스트 제외)
-        int approvedCount = Math.toIntExact(
-                applicationRepository.countByTrip_TripIdAndStatus(
-                        trip.getTripId(),
-                        Application.Status.APPROVED
-                )
-        );
+        // 🔥 여기서 chat_room 먼저 생성
+        ChatRoom room = chatRoomRepository
+                .findByTrip_TripId(trip.getTripId())
+                .orElseGet(() -> {
+                    ChatRoom newRoom = new ChatRoom();
+                    newRoom.setTrip(trip);
+                    newRoom.setCreatedAt(LocalDateTime.now());
+                    return chatRoomRepository.saveAndFlush(newRoom);
+                });
 
-        // 🔥 현재 총 인원 = 승인된 신청자 + 호스트 1명
-        int currentTotalParticipants = approvedCount + 1;
+        // 🔥 host member
+        createChatMemberIfAbsent(room, trip.getHostUser());
 
-        // 3-1️⃣ 정원 초과 체크
-        if (currentTotalParticipants >= trip.getMaxParticipants()) {
-            throw new IllegalStateException("정원 초과");
-        }
-
-        // 4️⃣ 승인 처리
-        app.approve(); // status = APPROVED, decidedAt = now
-
-        // 🔥 승인 후 총 인원 (이번 승인 포함)
-        int totalAfterApprove = currentTotalParticipants + 1;
-
-        // 5️⃣ 정원 도달 → 모집 마감
-        if (totalAfterApprove >= trip.getMaxParticipants()) {
-            trip.close(); // status = CLOSED
-        }
-
-        // 6️⃣ 채팅방 연결
-        chatRoomService.connectChatMember(trip, app.getUser());
+        // 🔥 승인된 유저 member
+        createChatMemberIfAbsent(room, app.getUser());
     }
 
 
@@ -215,14 +196,32 @@ public class ApplicationService {
                 .map(MyApplicationDetailDto::from)
                 .toList();
     }
-	
-	
 
-	
-	
-	
-	
-	
+    private void createChatMemberIfAbsent(ChatRoom room, User user) {
+        chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), user.getUserId())
+                .ifPresentOrElse(
+                        member -> {
+                            if (!member.isActive()) {
+                                member.rejoin();
+                            }
+                        },
+                        () -> {
+                            ChatMember member = new ChatMember();
+                            member.setChatRoom(room);
+                            member.setUser(user);
+                            member.setJoinedAt(LocalDateTime.now());
+                            chatMemberRepository.save(member);
+                        }
+                );
+    }
+
+
+
+
+
+
+
 }
 //인증필요
 //    public void validateApprovedUser(Long tripId, Long userId) {

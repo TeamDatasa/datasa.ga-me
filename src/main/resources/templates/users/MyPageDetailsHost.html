@@ -52,6 +52,11 @@
                                th:href="@{/host/trips/{tripId}/applications(tripId=${t.tripId})}">
                                 신청자 확인
                             </a>
+
+                            <a class="btn btn-outline"
+                               th:href="@{/chat/room/{tripId}(tripId=${t.tripId})}">
+                                채팅 입장
+                            </a>
                         </div>
 
                     </div>

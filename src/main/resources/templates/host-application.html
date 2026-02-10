@@ -4,29 +4,170 @@
     <meta charset="UTF-8" />
     <title>신청자 관리</title>
     <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f6f6f6; }
-        button { padding: 6px 10px; cursor: pointer; }
-        .muted { color: #777; }
-        .badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #ddd; }
+/* ===== 전체 레이아웃 ===== */
+body {
+  margin: 0;
+  background: #FCFCFB;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+               "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+}
+
+.yw-container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 24px 100px;
+}
+
+.yw-section {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+}
+
+.yw-section__head {
+  margin-bottom: 24px;
+}
+
+.yw-section__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.yw-section__desc {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #566873;
+}
+
+/* ===== 신청자 카드 리스트 ===== */
+.host-app-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== 카드 ===== */
+.host-app-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.host-app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.07);
+}
+
+/* ===== 왼쪽 정보 ===== */
+.host-app-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.host-app-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ===== 상태 배지 ===== */
+.host-status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 상태별 */
+.host-status.PENDING {
+  background: rgba(242, 233, 109, 0.45); /* #F2E96D */
+  color: #6a5d00;
+}
+
+.host-status.APPROVED {
+  background: rgba(48, 132, 242, 0.12); /* #3084F2 */
+  color: #1675F2;
+}
+
+.host-status.REJECTED,
+.host-status.CANCELED {
+  background: rgba(86, 104, 115, 0.15); /* #566873 */
+  color: #566873;
+}
+
+/* ===== 버튼 영역 ===== */
+.host-app-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 버튼 공통 */
+.yw-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: #fff;
+  transition: all .15s ease;
+}
+
+/* 승인 버튼 */
+.yw-btn--primary {
+  border-color: #3084F2;
+  color: #3084F2;
+}
+
+.yw-btn--primary:hover {
+  background: rgba(48,132,242,0.08);
+}
+
+/* 거절 버튼 */
+.yw-btn--ghost {
+  border-color: #566873;
+  color: #566873;
+}
+
+.yw-btn--ghost:hover {
+  background: rgba(86,104,115,0.08);
+}
+
+/* 처리 완료 텍스트 */
+.host-muted {
+  font-size: 13px;
+  color: #566873;
+  font-weight: 600;
+}
+
     </style>
 </head>
 <body>
 
-<h2>신청자 관리</h2>
-<p class="muted">Trip ID: <span th:text="${tripId}"></span></p>
+<div class="yw-container">
+    <div class="yw-section">
+        <div class="yw-section__head">
+            <h2 class="yw-section__title">신청자 관리</h2>
+            <p class="yw-section__desc">
+                Trip ID: <span th:text="${tripId}"></span>
+            </p>
+        </div>
 
-<table>
-    <thead>
-    <tr>
-        <th>닉네임</th>
-        <th>상태</th>
-        <th>관리</th>
-    </tr>
-    </thead>
-    <tbody id="application-body"></tbody>
-</table>
+        <div id="application-body" class="host-app-list"></div>
+    </div>
+</div>
+
 
 <script th:inline="javascript">
     const tripId = [[${tripId}]];
@@ -39,26 +180,30 @@
       return status || "-";
     }
 
-    function renderRow(app) {
-      let actionHtml = "";
+function renderRow(app) {
+  let actions = "";
 
-      if (app.status === "PENDING") {
-        actionHtml = `
-          <button type="button" onclick="approve(${app.applicationId})">승인</button>
-          <button type="button" onclick="reject(${app.applicationId})">거절</button>
-        `;
-      } else {
-        actionHtml = `<span class="muted">처리 완료</span>`;
-      }
+  if (app.status === "PENDING") {
+    actions = `
+      <button class="yw-btn yw-btn--primary" onclick="approve(${app.applicationId})">승인</button>
+      <button class="yw-btn yw-btn--ghost" onclick="reject(${app.applicationId})">거절</button>
+    `;
+  } else {
+    actions = `<span class="host-muted">처리 완료</span>`;
+  }
 
-      return `
-        <tr>
-          <td>${app.userName ?? "-"}</td>
-          <td><span class="badge">${statusLabel(app.status)}</span></td>
-          <td>${actionHtml}</td>
-        </tr>
-      `;
-    }
+  return `
+    <div class="host-app-card">
+      <div class="host-app-info">
+        <div class="host-app-name">${app.userName ?? "-"}</div>
+        <span class="host-status ${app.status}">${statusLabel(app.status)}</span>
+      </div>
+      <div class="host-app-actions">
+        ${actions}
+      </div>
+    </div>
+  `;
+}
 
     function load() {
       // ✅ hostUserId 없이: 서버가 로그인한 host 기준으로 검증/조회
