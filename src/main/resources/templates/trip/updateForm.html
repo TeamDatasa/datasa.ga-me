@@ -3,510 +3,563 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>여행 글 수정</title>
 
-    <!-- Kakao Maps SDK (writeForm과 동일) -->
-    <script type="text/javascript"
-            th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${jsKey} + '&libraries=services'">
-    </script>
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/trip-update.css(v=${#dates.createNow().time})}">
+
+    <title>여정 수정</title>
 </head>
 
 <body>
-<h1>여행 글 수정</h1>
+<header class="yw-header">
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
 
-<form th:action="@{/trip/update}" method="post" th:object="${request}">
+        <nav class="yw-nav">
+            <a class="yw-nav__link" href="/">홈</a>
+            <a class="yw-nav__link" href="/trip/listAll">여행</a>
+            <a class="yw-nav__link" href="/community">고객센터</a>
+        </nav>
 
-    <!-- 필수 -->
-    <input type="hidden" th:field="*{tripId}"/>
+        <div class="yw-auth">
+            <div id="guestMenu">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
+            </div>
 
-    <div>
-        <label for="title">제목</label><br/>
-        <input id="title" type="text" th:field="*{title}" maxlength="120" required/>
-    </div>
-    <br/>
-
-    <div>
-        <label for="description">설명</label><br/>
-        <textarea id="description" th:field="*{description}" rows="6" cols="60" required></textarea>
-    </div>
-    <br/>
-
-    <div>
-        <label for="region">지역(시)</label><br/>
-        <select id="region" th:field="*{region}" required>
-            <option value="" disabled>선택하세요</option>
-
-            <option value="가평">가평</option>
-            <option value="강릉">강릉</option>
-            <option value="거제">거제</option>
-            <option value="경주">경주</option>
-            <option value="고성">고성</option>
-            <option value="공주">공주</option>
-            <option value="광양">광양</option>
-            <option value="광주">광주</option>
-            <option value="구미">구미</option>
-            <option value="군산">군산</option>
-            <option value="김천">김천</option>
-            <option value="김포">김포</option>
-            <option value="김해">김해</option>
-            <option value="나주">나주</option>
-            <option value="남양주">남양주</option>
-            <option value="남원">남원</option>
-            <option value="논산">논산</option>
-            <option value="당진">당진</option>
-            <option value="대구">대구</option>
-            <option value="대전">대전</option>
-            <option value="동두천">동두천</option>
-            <option value="동해">동해</option>
-            <option value="목포">목포</option>
-            <option value="무안">무안</option>
-            <option value="밀양">밀양</option>
-            <option value="보령">보령</option>
-            <option value="보성">보성</option>
-            <option value="부산">부산</option>
-            <option value="부여">부여</option>
-            <option value="부천">부천</option>
-            <option value="사천">사천</option>
-            <option value="상주">상주</option>
-            <option value="서귀포">서귀포</option>
-            <option value="서울">서울</option>
-            <option value="서산">서산</option>
-            <option value="성남">성남</option>
-            <option value="세종">세종</option>
-            <option value="속초">속초</option>
-            <option value="수원">수원</option>
-            <option value="순천">순천</option>
-            <option value="시흥">시흥</option>
-            <option value="안동">안동</option>
-            <option value="안산">안산</option>
-            <option value="안성">안성</option>
-            <option value="안양">안양</option>
-            <option value="양산">양산</option>
-            <option value="양양">양양</option>
-            <option value="여수">여수</option>
-            <option value="연천">연천</option>
-            <option value="영월">영월</option>
-            <option value="영주">영주</option>
-            <option value="영천">영천</option>
-            <option value="오산">오산</option>
-            <option value="완도">완도</option>
-            <option value="용인">용인</option>
-            <option value="울산">울산</option>
-            <option value="원주">원주</option>
-            <option value="익산">익산</option>
-            <option value="인천">인천</option>
-            <option value="전주">전주</option>
-            <option value="정선">정선</option>
-            <option value="제주">제주</option>
-            <option value="제천">제천</option>
-            <option value="창원">창원</option>
-            <option value="천안">천안</option>
-            <option value="청주">청주</option>
-            <option value="춘천">춘천</option>
-            <option value="충주">충주</option>
-            <option value="통영">통영</option>
-            <option value="파주">파주</option>
-            <option value="포항">포항</option>
-            <option value="하남">하남</option>
-            <option value="화성">화성</option>
-        </select>
-    </div>
-    <br/>
-
-    <div>
-        <label for="estimatedCost">예상 비용(KRW)</label><br/>
-        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
-    </div>
-    <br/>
-
-    <div>
-        <label for="maxParticipants">최대 인원</label><br/>
-        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
-    </div>
-    <br/>
-
-    <div>
-        <label for="durationMinutes">소요 시간(분)</label><br/>
-        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required/>
-    </div>
-    <br/>
-
-    <div>
-        <label for="theme">테마</label><br/>
-        <select id="theme" th:field="*{theme}" required>
-            <option value="" disabled>선택하세요</option>
-            <option value="FOOD">맛집</option>
-            <option value="NATURE">자연</option>
-            <option value="CITY">도시</option>
-            <option value="CULTURE">문화</option>
-            <option value="NIGHT">야경</option>
-        </select>
-    </div>
-    <br/>
-
-    <div>
-        <label for="startAt">시작 일자/시간</label><br/>
-        <input id="startAt" type="datetime-local"
-               th:field="*{startAt}"
-               th:value="${request.startAt != null ? #temporals.format(request.startAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
-               required/>
-    </div>
-    <br/>
-
-    <div>
-        <label for="endAt">끝나는 일자/시간</label><br/>
-        <input id="endAt" type="datetime-local"
-               th:field="*{endAt}"
-               th:value="${request.endAt != null ? #temporals.format(request.endAt, 'yyyy-MM-dd''T''HH:mm') : ''}"
-               required/>
-    </div>
-    <br/>
-
-    <!-- ================== MAP (writeForm과 동일) ================== -->
-    <div style="margin-top:16px;">
-        <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 검색</label>
-
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <input id="keyword" type="text"
-                   placeholder="예: 부산역"
-                   style="padding:8px; width:280px;"
-                   onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchPlaces(); }"/>
-            <button type="button" onclick="searchPlaces()" style="padding:8px 12px; cursor:pointer;">검색</button>
-        </div>
-
-        <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
-            <div id="map" style="width: 640px; height: 360px; border:1px solid #ddd; border-radius:10px;"></div>
-
-            <div style="width: 320px; max-height:360px; overflow:auto; border:1px solid #eee; border-radius:10px; padding:10px;">
-                <div style="font-weight:bold; margin-bottom:8px;">검색 결과</div>
-                <ul id="placesList"
-                    style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;"></ul>
-                <div id="pagination" style="margin-top:10px;"></div>
+            <div id="userMenu" style="display:none;">
+                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>
+                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+                <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
             </div>
         </div>
+    </div>
+</header>
 
-        <!-- 선택된 장소 1개 전송용(유지) -->
-        <input type="hidden" name="placeName" id="placeName">
-        <input type="hidden" name="placeId" id="placeId">
-        <input type="hidden" name="lat" id="lat">
-        <input type="hidden" name="lng" id="lng">
-        <input type="hidden" name="address" id="address">
-
-        <div style="margin-top:8px; color:#666; font-size:13px;">
-            선택된 장소: <span id="pickedText">아직 선택되지 않았습니다.</span>
+<main class="up-page">
+    <div class="up-container">
+        <div class="up-breadcrumb">
+            <a class="up-link" href="/trip/listAll">여행</a>
+            <span class="up-sep">/</span>
+            <a class="up-link" th:href="@{|/trip/detail/${request.tripId}|}">여정 상세</a>
+            <span class="up-sep">/</span>
+            <span class="up-muted">여정 수정</span>
         </div>
 
-        <!-- 일정 목록 UI -->
-        <div style="margin-top:14px; border:1px solid #eee; border-radius:10px; padding:12px;">
-            <div style="font-weight:bold; margin-bottom:8px;">일정(선택한 장소 목록)</div>
+        <div class="up-grid">
+            <section class="up-card up-main">
+                <header class="up-head">
+                    <div class="up-title-wrap">
+                        <h1 class="up-title">여정 수정</h1>
+                        <p class="up-sub up-muted">
+                            정책에 따라 여정 시작 7일 전부터 수정이 제한될 수 있습니다.
+                        </p>
+                    </div>
+                </header>
 
-            <div id="scheduleList" style="display:flex; flex-direction:column; gap:8px;">
-                <div style="color:#888; font-size:13px;" id="scheduleEmptyText">
-                    아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.
+                <div class="up-divider"></div>
+
+                <form id="tripUpdateForm"
+                      th:action="@{/trip/update}"
+                      th:object="${request}"
+                      method="post"
+                      class="up-form">
+
+                    <input type="hidden" th:field="*{tripId}"/>
+
+                    <section class="up-section">
+                        <h2 class="up-section-title">기본 정보</h2>
+
+                        <div class="up-field">
+                            <label class="up-label" for="title">제목</label>
+                            <input class="up-input" id="title" type="text" th:field="*{title}" placeholder="여정 제목을 입력하세요" required/>
+                        </div>
+
+                        <div class="up-field">
+                            <label class="up-label" for="description">소개</label>
+                            <textarea class="up-textarea" id="description" rows="5" th:field="*{description}" placeholder="여정 소개를 입력하세요" required></textarea>
+                        </div>
+
+                        <div class="up-row">
+                            <div class="up-field">
+                                <label class="up-label" for="region">지역</label>
+                                <input class="up-input" id="region" type="text" th:field="*{region}" placeholder="예) 서울, 오사카"/>
+                            </div>
+
+                            <div class="up-field">
+                                <label class="up-label" for="theme">테마</label>
+                                <input class="up-input" id="theme" type="text" th:field="*{theme}" placeholder="예) 맛집, 힐링"/>
+                            </div>
+                        </div>
+
+                        <div class="up-row">
+                            <div class="up-field">
+                                <label class="up-label" for="estimatedCost">예상 비용</label>
+                                <input class="up-input" id="estimatedCost" type="number" min="0" step="1" th:field="*{estimatedCost}" placeholder="0"/>
+                            </div>
+
+                            <div class="up-field">
+                                <label class="up-label" for="maxParticipants">모집 정원</label>
+                                <input class="up-input" id="maxParticipants" type="number" min="1" step="1" th:field="*{maxParticipants}" placeholder="1" required/>
+                            </div>
+                        </div>
+
+                        <div class="up-row">
+                            <div class="up-field">
+                                <label class="up-label" for="durationMinutes">소요 시간(분)</label>
+                                <input class="up-input" id="durationMinutes" type="number" min="0" step="1" th:field="*{durationMinutes}" placeholder="예) 120"/>
+                            </div>
+
+                            <div class="up-field"></div>
+                        </div>
+
+                        <div class="up-row">
+                            <div class="up-field">
+                                <label class="up-label" for="startAt">시작일</label>
+                                <input class="up-input" id="startAt" type="datetime-local" th:field="*{startAt}" required/>
+                            </div>
+
+                            <div class="up-field">
+                                <label class="up-label" for="endAt">종료일</label>
+                                <input class="up-input" id="endAt" type="datetime-local" th:field="*{endAt}" required/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="up-divider"></div>
+
+                    <section class="up-section">
+                        <h2 class="up-section-title">일정 장소</h2>
+
+                        <p class="up-help up-muted">
+                            장소 검색 후 추가하세요. 저장 시 schedulePlaces로 전송됩니다.
+                        </p>
+
+                        <!-- 지도 미리보기 -->
+                        <div class="up-map-wrap">
+                            <div id="upMap" class="up-map"></div>
+                        </div>
+
+                        <div class="up-place-search">
+                            <input id="placeKeyword" class="up-input" type="text" placeholder="장소 검색 키워드를 입력하세요"/>
+                            <button type="button" id="placeSearchBtn" class="up-btn up-btn--ghost">검색</button>
+                        </div>
+
+                        <div class="up-place-grid">
+                            <div class="up-place-results">
+                                <div class="up-mini-title">검색 결과</div>
+                                <ul id="placeResultList" class="up-list"></ul>
+                                <div id="placeResultEmpty" class="up-empty up-muted">검색 결과가 없습니다.</div>
+                            </div>
+
+                            <div class="up-place-selected">
+                                <div class="up-mini-title">선택된 장소</div>
+
+                                <ul id="selectedPlaceList" class="up-list"></ul>
+
+                                <div id="selectedPlaceEmpty" class="up-empty up-muted">
+                                    선택된 장소가 없습니다.
+                                </div>
+
+                                <div id="hiddenSchedulePlaces">
+                                    <div th:if="${request.schedulePlaces != null}">
+                                        <div th:each="p, stat : ${request.schedulePlaces}">
+                                            <input type="hidden" th:name="|schedulePlaces[${stat.index}].placeId|" th:value="${p.placeId}"/>
+                                            <input type="hidden" th:name="|schedulePlaces[${stat.index}].placeName|" th:value="${p.placeName}"/>
+                                            <input type="hidden" th:name="|schedulePlaces[${stat.index}].address|" th:value="${p.address}"/>
+                                            <input type="hidden" th:name="|schedulePlaces[${stat.index}].lat|" th:value="${p.lat}"/>
+                                            <input type="hidden" th:name="|schedulePlaces[${stat.index}].lng|" th:value="${p.lng}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="up-divider"></div>
+
+                    <div class="up-actions">
+                        <a class="up-btn up-btn--ghost" th:href="@{|/trip/detail/${request.tripId}|}">취소</a>
+                        <button type="submit" class="up-btn up-btn--primary">저장</button>
+                    </div>
+                </form>
+            </section>
+
+            <aside class="up-card up-side">
+                <div class="up-side-box">
+                    <div class="up-mini-title">수정 안내</div>
+                    <ul class="up-bullets up-muted">
+                        <li>시작일 기준 7일 전부터 수정이 제한될 수 있습니다.</li>
+                        <li>저장 후 상세 화면으로 이동합니다.</li>
+                        <li>장소는 선택된 목록이 schedulePlaces로 전송됩니다.</li>
+                    </ul>
                 </div>
-            </div>
 
-            <!-- ✅ 서버에서 넘어온 schedulePlaces 복원용(읽기 전용) -->
-            <div id="scheduleHiddenFieldsServer" style="display:none;">
-                <th:block th:if="${request.schedulePlaces != null}">
-                    <th:block th:each="p, stat : ${request.schedulePlaces}">
-                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].placeId'" th:value="${p.placeId}">
-                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].placeName'" th:value="${p.placeName}">
-                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].address'" th:value="${p.address}">
-                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].lat'" th:value="${p.lat}">
-                        <input type="hidden" th:name="'schedulePlaces[' + ${stat.index} + '].lng'" th:value="${p.lng}">
-                    </th:block>
-                </th:block>
-            </div>
-
-            <!-- ✅ JS가 제출용 hidden input들을 여기에 동적으로 생성 -->
-            <div id="scheduleHiddenFields"></div>
+                <div class="up-side-box">
+                    <div class="up-mini-title">빠른 이동</div>
+                    <div class="up-quick">
+                        <a class="up-btn up-btn--ghost up-btn--block" th:href="@{|/trip/detail/${request.tripId}|}">상세로</a>
+                        <a class="up-btn up-btn--ghost up-btn--block" href="/trip/listAll">목록으로</a>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
-    <!-- ================== /MAP ================== -->
+</main>
 
-    <br/>
-    <button type="submit">수정</button>
-    <a th:href="@{/trip/detail/{id}(id=${request.tripId})}">취소</a>
-</form>
+<script th:src="@{/js/authFetch.js}"></script>
+<script th:src="@{/js/main-auth.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/notifications.js(v=${#dates.createNow().time})}"></script>
+
+<script th:if="${jsKey != null}"
+        th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${jsKey},libraries='services')}"></script>
 
 <script>
-    let map, ps, infowindow;
-    let markers = [];
+    (function () {
+        const resultListEl = document.getElementById("placeResultList");
+        const resultEmptyEl = document.getElementById("placeResultEmpty");
+        const selectedListEl = document.getElementById("selectedPlaceList");
+        const selectedEmptyEl = document.getElementById("selectedPlaceEmpty");
+        const hiddenWrapEl = document.getElementById("hiddenSchedulePlaces");
 
-    // 일정 목록 상태
-    // { placeId, placeName, address, lat, lng }
-    let schedulePlaces = [];
+        const keywordEl = document.getElementById("placeKeyword");
+        const searchBtn = document.getElementById("placeSearchBtn");
 
-    function initKakaoMap() {
-      map = new kakao.maps.Map(document.getElementById('map'), {
-        center: new kakao.maps.LatLng(37.566826, 126.9786567),
-        level: 3
-      });
+        let selected = [];
+        let lastResults = [];
 
-      ps = new kakao.maps.services.Places(map);
-      infowindow = new kakao.maps.InfoWindow({zIndex: 1});
-    }
+        // ====== 지도(추가) ======
+        let map = null;
+        let resultMarkers = [];
+        let selectedMarkers = [];
 
-    // SDK 로드 완료 후에만 초기화
-    kakao.maps.load(function () {
-      initKakaoMap();
-    });
+        function initMap() {
+            if (!window.kakao || !kakao.maps) return;
 
-    function searchPlaces() {
-      const keyword = document.getElementById('keyword').value.trim();
-      if (!keyword) return;
-      ps.keywordSearch(keyword, placesSearchCB);
-    }
+            const mapEl = document.getElementById("upMap");
+            if (!mapEl) return;
 
-    function placesSearchCB(data, status, pagination) {
-      if (status !== kakao.maps.services.Status.OK) {
-        clearResults();
-        return;
-      }
-      displayPlaces(data);
-      displayPagination(pagination);
-    }
-
-    function displayPlaces(places) {
-      const listEl = document.getElementById('placesList');
-      const bounds = new kakao.maps.LatLngBounds();
-
-      clearMarkers();
-      listEl.innerHTML = '';
-
-      places.forEach((place) => {
-        const position = new kakao.maps.LatLng(place.y, place.x);
-        bounds.extend(position);
-
-        const marker = addMarker(position);
-        const itemEl = makeListItem(place);
-
-        itemEl.addEventListener('click', () => selectPlace(place, position));
-        kakao.maps.event.addListener(marker, 'click', () => selectPlace(place, position));
-
-        listEl.appendChild(itemEl);
-      });
-
-      map.setBounds(bounds);
-    }
-
-    function makeListItem(place) {
-      const li = document.createElement('li');
-      li.style.border = '1px solid #eee';
-      li.style.borderRadius = '10px';
-      li.style.padding = '10px';
-      li.style.cursor = 'pointer';
-
-      const addr = place.road_address_name || place.address_name || '';
-      li.innerHTML = `
-        <div style="font-weight:bold;">${escapeHtml(place.place_name)}</div>
-        <div style="font-size:12px; color:#666; margin-top:4px;">${escapeHtml(addr)}</div>
-      `;
-      return li;
-    }
-
-    function addMarker(position) {
-      const marker = new kakao.maps.Marker({position, map});
-      markers.push(marker);
-      return marker;
-    }
-
-    function selectPlace(place, position) {
-      const lat = position.getLat();
-      const lng = position.getLng();
-      const addr = place.road_address_name || place.address_name || '';
-
-      // 단일 선택 전송값(유지)
-      document.getElementById('placeName').value = place.place_name || '';
-      document.getElementById('placeId').value = place.id || '';
-      document.getElementById('lat').value = String(lat);
-      document.getElementById('lng').value = String(lng);
-      document.getElementById('address').value = addr;
-
-      document.getElementById('pickedText').textContent =
-        `${place.place_name} / ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
-
-      // 일정 목록에 추가
-      addSchedulePlace({
-        placeId: String(place.id || ''),
-        placeName: String(place.place_name || ''),
-        address: String(addr || ''),
-        lat: Number(lat),
-        lng: Number(lng)
-      });
-    }
-
-    // 일정 추가 (중복 방지)
-    function addSchedulePlace(item) {
-      if (!item.placeName) return;
-
-      const key = item.placeId || `${item.placeName}|${item.lat}|${item.lng}`;
-      const exists = schedulePlaces.some(p => (p.placeId || `${p.placeName}|${p.lat}|${p.lng}`) === key);
-      if (exists) return;
-
-      schedulePlaces.push(item);
-      renderSchedulePlaces();
-    }
-
-    // 일정 삭제
-    function removeSchedulePlace(index) {
-      if (index < 0 || index >= schedulePlaces.length) return;
-      schedulePlaces.splice(index, 1);
-      renderSchedulePlaces();
-    }
-
-    // ====== 서버 hidden 복원 ======
-    document.addEventListener('DOMContentLoaded', function () {
-      loadSchedulePlacesFromHidden();
-      renderSchedulePlaces();
-    });
-
-    function loadSchedulePlacesFromHidden() {
-      const hiddenRoot = document.getElementById('scheduleHiddenFieldsServer'); // 서버용 div
-      if (!hiddenRoot) return;
-
-      const placeNameInputs = hiddenRoot.querySelectorAll('input[name^="schedulePlaces["][name$=".placeName"]');
-      if (!placeNameInputs || placeNameInputs.length === 0) return;
-
-      schedulePlaces = [];
-
-      for (let i = 0; i < placeNameInputs.length; i++) {
-        const base = `schedulePlaces[${i}]`;
-
-        const placeId = hiddenRoot.querySelector(`input[name="${base}.placeId"]`)?.value ?? '';
-        const placeName = hiddenRoot.querySelector(`input[name="${base}.placeName"]`)?.value ?? '';
-        const address = hiddenRoot.querySelector(`input[name="${base}.address"]`)?.value ?? '';
-        const latStr = hiddenRoot.querySelector(`input[name="${base}.lat"]`)?.value ?? '';
-        const lngStr = hiddenRoot.querySelector(`input[name="${base}.lng"]`)?.value ?? '';
-
-        if (!placeName) continue;
-
-        const lat = latStr !== '' ? Number(latStr) : null;
-        const lng = lngStr !== '' ? Number(lngStr) : null;
-
-        schedulePlaces.push({
-          placeId,
-          placeName,
-          address,
-          lat: Number.isFinite(lat) ? lat : null,
-          lng: Number.isFinite(lng) ? lng : null
-        });
-      }
-    }
-
-    function renderSchedulePlaces() {
-      const listEl = document.getElementById('scheduleList');
-      const hiddenEl = document.getElementById('scheduleHiddenFields'); // JS 제출용 div
-
-      listEl.innerHTML = '';
-      hiddenEl.innerHTML = '';
-
-      if (!schedulePlaces || schedulePlaces.length === 0) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.id = 'scheduleEmptyText';
-        emptyDiv.style.color = '#888';
-        emptyDiv.style.fontSize = '13px';
-        emptyDiv.textContent = '아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.';
-        listEl.appendChild(emptyDiv);
-        return;
-      }
-
-      schedulePlaces.forEach((p, idx) => {
-        const row = document.createElement('div');
-        row.style.display = 'flex';
-        row.style.gap = '10px';
-        row.style.alignItems = 'center';
-        row.style.justifyContent = 'space-between';
-        row.style.border = '1px solid #f0f0f0';
-        row.style.borderRadius = '10px';
-        row.style.padding = '10px';
-
-        const left = document.createElement('div');
-        left.style.display = 'flex';
-        left.style.flexDirection = 'column';
-        left.style.gap = '4px';
-
-        const title = document.createElement('div');
-        title.style.fontWeight = 'bold';
-        title.textContent = `${p.placeName} | ${p.address || ''}`;
-        left.appendChild(title);
-
-        if (p.lat != null && p.lng != null && Number.isFinite(p.lat) && Number.isFinite(p.lng)) {
-          const sub = document.createElement('div');
-          sub.style.fontSize = '12px';
-          sub.style.color = '#666';
-          sub.textContent = `(lat=${p.lat.toFixed(6)}, lng=${p.lng.toFixed(6)})`;
-          left.appendChild(sub);
+            const center = new kakao.maps.LatLng(37.5665, 126.9780); // 기본: 서울
+            map = new kakao.maps.Map(mapEl, {
+                center,
+                level: 6
+            });
         }
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = '삭제';
-        btn.style.padding = '6px 10px';
-        btn.style.cursor = 'pointer';
-        btn.onclick = () => removeSchedulePlace(idx);
+        function ensureMapReady() {
+            if (!window.kakao || !kakao.maps) {
+                setTimeout(ensureMapReady, 120);
+                return;
+            }
+            if (typeof kakao.maps.load === "function") {
+                kakao.maps.load(function () {
+                    initMap();
+                    syncSelectedMarkers();
+                });
+                return;
+            }
+            initMap();
+            syncSelectedMarkers();
+        }
 
-        row.appendChild(left);
-        row.appendChild(btn);
-        listEl.appendChild(row);
+        function clearMarkers(arr) {
+            arr.forEach(m => m.setMap(null));
+            arr.length = 0;
+        }
 
-        // 제출용 hidden inputs 생성
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeId`, p.placeId));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeName`, p.placeName));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].address`, p.address));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lat`, p.lat == null ? '' : String(p.lat)));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lng`, p.lng == null ? '' : String(p.lng)));
-      });
-    }
+        function addMarker(position, onClick) {
+            if (!map) return null;
+            const marker = new kakao.maps.Marker({position, map});
+            if (typeof onClick === "function") {
+                kakao.maps.event.addListener(marker, "click", onClick);
+            }
+            return marker;
+        }
 
-    function makeHidden(name, value) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value ?? '';
-      return input;
-    }
+        function moveTo(position) {
+            if (!map) return;
+            map.setCenter(position);
+        }
 
-    function displayPagination(pagination) {
-      const paginationEl = document.getElementById('pagination');
-      paginationEl.innerHTML = '';
+        function syncResultMarkers() {
+            if (!map || !Array.isArray(lastResults)) return;
+            clearMarkers(resultMarkers);
 
-      for (let i = 1; i <= pagination.last; i++) {
-        const a = document.createElement('a');
-        a.href = '#';
-        a.textContent = i;
-        a.style.marginRight = '8px';
-        a.onclick = (function (i) {
-          return function () {
-            pagination.gotoPage(i);
-            return false;
-          }
-        })(i);
+            const bounds = new kakao.maps.LatLngBounds();
 
-        paginationEl.appendChild(a);
-      }
-    }
+            lastResults.forEach((p) => {
+                if (!p || !p.y || !p.x) return;
+                const pos = new kakao.maps.LatLng(Number(p.y), Number(p.x));
+                bounds.extend(pos);
 
-    function clearMarkers() {
-      markers.forEach(m => m.setMap(null));
-      markers = [];
-    }
+                const marker = addMarker(pos, () => {
+                    addSelected({
+                        placeId: p.id || "",
+                        placeName: p.place_name || "",
+                        address: p.road_address_name || p.address_name || "",
+                        lat: p.y || "",
+                        lng: p.x || ""
+                    });
+                    moveTo(pos);
+                });
 
-    function clearResults() {
-      clearMarkers();
-      document.getElementById('placesList').innerHTML = '';
-      document.getElementById('pagination').innerHTML = '';
-    }
+                if (marker) resultMarkers.push(marker);
+            });
 
-    function escapeHtml(s) {
-      return String(s)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
+            if (!bounds.isEmpty()) {
+                map.setBounds(bounds);
+            }
+        }
+
+        function syncSelectedMarkers() {
+            if (!map || !Array.isArray(selected)) return;
+            clearMarkers(selectedMarkers);
+
+            if (selected.length === 0) return;
+
+            const bounds = new kakao.maps.LatLngBounds();
+
+            selected.forEach((p) => {
+                const lat = Number(p.lat);
+                const lng = Number(p.lng);
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+                const pos = new kakao.maps.LatLng(lat, lng);
+                bounds.extend(pos);
+                const marker = addMarker(pos);
+                if (marker) selectedMarkers.push(marker);
+            });
+
+            if (!bounds.isEmpty()) {
+                map.setBounds(bounds);
+            }
+        }
+
+        function readInitialHiddenPlaces() {
+            const inputs = hiddenWrapEl.querySelectorAll("input[type='hidden']");
+            if (!inputs.length) return;
+
+            const temp = {};
+            inputs.forEach((inp) => {
+                const name = inp.getAttribute("name");
+                const value = inp.value;
+                const m = name.match(/^schedulePlaces\[(\d+)\]\.(.+)$/);
+                if (!m) return;
+                const idx = Number(m[1]);
+                const key = m[2];
+                temp[idx] = temp[idx] || {};
+                temp[idx][key] = value;
+            });
+
+            const arr = Object.keys(temp)
+                .map(k => Number(k))
+                .sort((a, b) => a - b)
+                .map(idx => ({
+                    placeId: temp[idx].placeId || "",
+                    placeName: temp[idx].placeName || "",
+                    address: temp[idx].address || "",
+                    lat: temp[idx].lat || "",
+                    lng: temp[idx].lng || ""
+                }))
+                .filter(p => p.placeName && p.placeName.trim().length > 0);
+
+            selected = arr;
+            renderSelected();
+            rebuildHiddenInputs();
+        }
+
+        function setEmpty(el, visible) {
+            if (!el) return;
+            el.style.display = visible ? "block" : "none";
+        }
+
+        function escapeHtml(s) {
+            return String(s ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function renderResults(items) {
+            if (!resultListEl) return;
+            if (!Array.isArray(items) || items.length === 0) {
+                resultListEl.innerHTML = "";
+                setEmpty(resultEmptyEl, true);
+                lastResults = [];
+                syncResultMarkers();
+                return;
+            }
+            setEmpty(resultEmptyEl, false);
+
+            lastResults = items;
+            syncResultMarkers();
+
+            resultListEl.innerHTML = items.map((p, idx) => {
+                const name = escapeHtml(p.place_name || "");
+                const addr = escapeHtml(p.road_address_name || p.address_name || "");
+                return `
+          <li class="up-item">
+            <div class="up-item-main">
+              <div class="up-item-title">${name}</div>
+              <div class="up-item-sub">${addr}</div>
+            </div>
+            <button type="button" class="up-mini-btn" data-add-idx="${idx}">추가</button>
+          </li>
+        `;
+            }).join("");
+
+            resultListEl.querySelectorAll("[data-add-idx]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const idx = Number(btn.getAttribute("data-add-idx"));
+                    const p = items[idx];
+                    addSelected({
+                        placeId: p.id || "",
+                        placeName: p.place_name || "",
+                        address: p.road_address_name || p.address_name || "",
+                        lat: p.y || "",
+                        lng: p.x || ""
+                    });
+                });
+            });
+        }
+
+        function renderSelected() {
+            if (!selectedListEl) return;
+
+            if (!Array.isArray(selected) || selected.length === 0) {
+                selectedListEl.innerHTML = "";
+                setEmpty(selectedEmptyEl, true);
+                return;
+            }
+            setEmpty(selectedEmptyEl, false);
+
+            selectedListEl.innerHTML = selected.map((p, idx) => {
+                const name = escapeHtml(p.placeName || "");
+                const addr = escapeHtml(p.address || "");
+                return `
+          <li class="up-item">
+            <div class="up-item-main">
+              <div class="up-item-title">
+                <span class="up-order">${idx + 1}</span>
+                ${name}
+              </div>
+              <div class="up-item-sub">${addr}</div>
+            </div>
+            <div class="up-item-actions">
+              <button type="button" class="up-mini-btn" data-up-idx="${idx}">위</button>
+              <button type="button" class="up-mini-btn" data-down-idx="${idx}">아래</button>
+              <button type="button" class="up-mini-btn up-mini-btn--danger" data-del-idx="${idx}">삭제</button>
+            </div>
+          </li>
+        `;
+            }).join("");
+
+            selectedListEl.querySelectorAll("[data-del-idx]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const idx = Number(btn.getAttribute("data-del-idx"));
+                    selected.splice(idx, 1);
+                    renderSelected();
+                    rebuildHiddenInputs();
+                    syncSelectedMarkers();
+                });
+            });
+
+            selectedListEl.querySelectorAll("[data-up-idx]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const idx = Number(btn.getAttribute("data-up-idx"));
+                    if (idx <= 0) return;
+                    const t = selected[idx - 1];
+                    selected[idx - 1] = selected[idx];
+                    selected[idx] = t;
+                    renderSelected();
+                    rebuildHiddenInputs();
+                    syncSelectedMarkers();
+                });
+            });
+
+            selectedListEl.querySelectorAll("[data-down-idx]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const idx = Number(btn.getAttribute("data-down-idx"));
+                    if (idx >= selected.length - 1) return;
+                    const t = selected[idx + 1];
+                    selected[idx + 1] = selected[idx];
+                    selected[idx] = t;
+                    renderSelected();
+                    rebuildHiddenInputs();
+                    syncSelectedMarkers();
+                });
+            });
+        }
+
+        function addSelected(p) {
+            const key = (p.placeId || "") + "::" + (p.placeName || "") + "::" + (p.address || "");
+            const exists = selected.some(x => ((x.placeId || "") + "::" + (x.placeName || "") + "::" + (x.address || "")) === key);
+            if (exists) return;
+            selected.push(p);
+            renderSelected();
+            rebuildHiddenInputs();
+            syncSelectedMarkers();
+        }
+
+        function rebuildHiddenInputs() {
+            hiddenWrapEl.innerHTML = "";
+            selected.forEach((p, i) => {
+                hiddenWrapEl.insertAdjacentHTML("beforeend", `
+          <input type="hidden" name="schedulePlaces[${i}].placeId" value="${escapeHtml(p.placeId)}">
+          <input type="hidden" name="schedulePlaces[${i}].placeName" value="${escapeHtml(p.placeName)}">
+          <input type="hidden" name="schedulePlaces[${i}].address" value="${escapeHtml(p.address)}">
+          <input type="hidden" name="schedulePlaces[${i}].lat" value="${escapeHtml(p.lat)}">
+          <input type="hidden" name="schedulePlaces[${i}].lng" value="${escapeHtml(p.lng)}">
+        `);
+            });
+        }
+
+        async function searchPlaces(keyword) {
+            if (!window.kakao || !kakao.maps || !kakao.maps.services) {
+                renderResults([]);
+                return;
+            }
+
+            const ps = new kakao.maps.services.Places();
+            ps.keywordSearch(keyword, function (data, status) {
+                if (status !== kakao.maps.services.Status.OK) {
+                    renderResults([]);
+                    return;
+                }
+                renderResults(data);
+            });
+        }
+
+        searchBtn?.addEventListener("click", () => {
+            const keyword = (keywordEl?.value || "").trim();
+            if (!keyword) {
+                renderResults([]);
+                return;
+            }
+            searchPlaces(keyword);
+        });
+
+        keywordEl?.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            searchBtn?.click();
+        });
+
+        function init() {
+            readInitialHiddenPlaces();
+            renderResults([]);
+            ensureMapReady();
+        }
+
+        init();
+    })();
 </script>
+
 </body>
 </html>
