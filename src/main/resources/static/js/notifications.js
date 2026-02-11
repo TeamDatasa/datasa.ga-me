@@ -1,3 +1,4 @@
+// 파일: src/main/resources/static/js/notifications.js
 (function () {
   const wrap = document.querySelector('[data-notif-wrap]');
   if (!wrap) return;
@@ -8,9 +9,15 @@
   const list = popover ? popover.querySelector('[data-notif-list]') : null;
   const empty = popover ? popover.querySelector('[data-notif-empty]') : null;
   const markReadBtn = popover ? popover.querySelector('[data-notif-markread]') : null;
-  const testBtn = wrap.querySelector('[data-notif-test]');
 
-  let pollingTimer = null; //
+  // `추가: 토스트 영역
+  const toastArea = wrap.querySelector('[data-notif-toast-area]');
+
+  let pollingTimer = null;
+
+  // `추가: 이전 unread 값/마지막 토스트로 띄운 알림ID 기억
+  let lastUnreadCount = null;
+  let lastToastNotificationId = null;
 
   function setBadge(count) {
     const n = Number(count || 0);
@@ -32,13 +39,9 @@
   }
 
   function buildTargetUrl(n) {
-    // : 댓글 알림은 게시글(trip) 상세로 이동
-    // refId를 tripId로 쓰는 기준
     if (!n || !n.refId) return null;
-
-    if (n.type === 'COMMENT' || n.type === 'LIKE') {
-      return `/trip/${n.refId}`;
-    }
+    if (n.type === 'COMMENT' || n.type === 'LIKE') return `/trip/detail/${n.refId}`;
+    if (n.type === 'APPLY' || n.type === 'APPROVED' || n.type === 'REJECTED') return `/trip/detail/${n.refId}`;
     return null;
   }
 
@@ -50,23 +53,80 @@
     });
 
     if (res.status === 401 || res.status === 403) {
-      // : 로그인 상태가 아니면 UI를 숨김
       wrap.style.display = 'none';
       throw new Error('AUTH_BLOCKED');
     }
 
-    if (!res.ok) {
-      throw new Error('HTTP_' + res.status);
-    }
-
-    // 204 대응
+    if (!res.ok) throw new Error('HTTP_' + res.status);
     if (res.status === 204) return null;
     return res.json();
   }
 
+  // 추가: 토스트 표시
+  function showToast(notification) {
+    if (!toastArea || !notification) return;
+
+    // 같은 알림을 중복 토스트 방지
+    if (notification.notificationId && notification.notificationId === lastToastNotificationId) return;
+    lastToastNotificationId = notification.notificationId || lastToastNotificationId;
+
+    const url = buildTargetUrl(notification);
+
+    const toast = document.createElement('div');
+    toast.className = 'notif-toast';
+
+    const title = document.createElement('div');
+    title.className = 'notif-toast__title';
+    title.textContent = notification.title || '알림';
+
+    const body = document.createElement('div');
+    body.className = 'notif-toast__body';
+    body.textContent = notification.body || '';
+
+    const meta = document.createElement('div');
+    meta.className = 'notif-toast__meta';
+    meta.textContent = formatTime(notification.createdAt);
+
+    toast.appendChild(title);
+    toast.appendChild(body);
+    toast.appendChild(meta);
+
+    toast.addEventListener('click', () => {
+      if (url) window.location.href = url;
+    });
+
+    toastArea.appendChild(toast);
+
+    // 4초 후 자동 제거
+    setTimeout(() => {
+      toast.remove();
+    }, 4000);
+  }
+
+  // `변경: unread 갱신 시 증가 감지 → 최신 알림 1개 토스트
   async function refreshUnread() {
     const data = await apiJson('/api/notifications/unread-count');
-    setBadge(data ? data.unreadCount : 0);
+    const current = data ? Number(data.unreadCount || 0) : 0;
+
+    // 최초 1회는 비교하지 않고 기준만 세팅
+    if (lastUnreadCount === null) {
+      lastUnreadCount = current;
+      setBadge(current);
+      return;
+    }
+
+    // 증가했으면 최신 알림 1개 가져와 토스트
+    if (current > lastUnreadCount) {
+      try {
+        const items = await apiJson('/api/notifications?limit=1');
+        if (items && items.length > 0) {
+          showToast(items[0]);
+        }
+      } catch (_) {}
+    }
+
+    lastUnreadCount = current;
+    setBadge(current);
   }
 
   function render(items) {
@@ -83,13 +143,17 @@
     for (const n of items) {
       const li = document.createElement('li');
       li.className = 'notif-item';
-      if (!n.isRead) li.classList.add('is-unread'); //
+      if (!n.isRead) li.classList.add('is-unread');
 
-      const url = buildTargetUrl(n); //
+      li.dataset.notifId = n.notificationId;
+
+      const url = buildTargetUrl(n);
 
       const container = document.createElement(url ? 'a' : 'div');
       if (url) {
         container.href = url;
+        container.className = 'notif-item__link';
+      } else {
         container.className = 'notif-item__link';
       }
 
@@ -109,6 +173,28 @@
       container.appendChild(body);
       container.appendChild(meta);
 
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'notif-item__delete';
+      delBtn.setAttribute('aria-label', '알림 삭제');
+      delBtn.textContent = '×';
+
+      delBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const id = n.notificationId;
+        if (!id) return;
+
+        try {
+          await apiJson(`/api/notifications/${encodeURIComponent(id)}`, { method: 'DELETE' });
+          li.remove();
+          if (list.children.length === 0) empty.style.display = 'block';
+          await refreshUnread();
+        } catch (_) {}
+      });
+
+      li.appendChild(delBtn);
       li.appendChild(container);
       list.appendChild(li);
     }
@@ -139,11 +225,10 @@
     }
 
     openPopover();
-    await refreshList(10); // : 열 때 목록 갱신
+    await refreshList(10);
   }
 
   function startPolling() {
-    // : 일정 주기로 unread 갱신 (실시간 푸시 전 임시 방식)
     stopPolling();
     pollingTimer = setInterval(() => {
       refreshUnread().catch(() => {});
@@ -161,9 +246,7 @@
     e.stopPropagation();
     try {
       await togglePopover();
-    } catch (_) {
-      // : 네트워크/인증 실패 시 조용히 종료
-    }
+    } catch (_) {}
   });
 
   document.addEventListener('click', (e) => {
@@ -179,28 +262,9 @@
       await apiJson('/api/notifications/read-all', { method: 'POST' });
       await refreshUnread();
       await refreshList(10);
-    } catch (_) {
-      //
-    }
+    } catch (_) {}
   });
 
-  // : 테스트 버튼은 엔드포인트가 없을 수 있으므로 404는 무시
-  testBtn && testBtn.addEventListener('click', async () => {
-    try {
-      await apiJson('/api/notifications/test-comment', { method: 'POST' });
-      await refreshUnread();
-      if (popover && popover.classList.contains('open')) {
-        await refreshList(10);
-      } else {
-        openPopover();
-        await refreshList(10);
-      }
-    } catch (e) {
-      // : 현재 프로젝트 NotificationController에 test-comment가 없으면 404가 정상입니다.
-    }
-  });
-
-  // 초기 로딩
   refreshUnread().catch(() => {});
-  startPolling(); //
+  startPolling();
 })();

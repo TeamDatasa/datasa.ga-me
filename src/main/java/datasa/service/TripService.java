@@ -23,14 +23,13 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class TripService {
+	private static final Long TEST_USER_ID = 1L;
 	private final TripRepository tripRepository;
 	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
 	private final TripLanguageRepository tripLanguageRepository;
 	private final TripLocationRepository tripLocationRepository;
 	private final LocationRepository locationRepository;
-	
-	private static final Long TEST_USER_ID = 1L;
 	private final TripLikeRepository tripLikeRepository;
 
 
@@ -80,16 +79,13 @@ public class TripService {
 //		return saved.getTripId();
 //	}
 	
-	// bjh
 	@Transactional(readOnly = true)
-	public List<TripListResponse> getListAll() {
+	public List<TripListResponse> getListAll(Long loginUserId) {
 		
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		
 		List<Trip> entityList = tripRepository.findAll(sort);
 		if (entityList.isEmpty()) return List.of();
 		
-		// 1) DTO 기본 구성
 		List<TripListResponse> baseList = entityList.stream()
 				.map(TripListResponse::from)
 				.toList();
@@ -98,20 +94,18 @@ public class TripService {
 				.map(TripListResponse::getTripId)
 				.toList();
 		
-		// 2) 좋아요 카운트 일괄 조회
-		java.util.Map<Long, Long> countMap = new java.util.HashMap<>();
+		Map<Long, Long> countMap = new HashMap<>();
 		for (Object[] row : tripLikeRepository.countByTripIds(tripIds)) {
 			Long tripId = (Long) row[0];
 			Long cnt = (Long) row[1];
 			countMap.put(tripId, cnt);
 		}
 		
-		// 3) 내가 좋아요한 tripId 일괄 조회
-		java.util.Set<Long> likedSet = new java.util.HashSet<>(
-				tripLikeRepository.findLikedTripIds(TEST_USER_ID, tripIds)
-		);
+		final Set<Long> likedSet =
+				(loginUserId == null)
+						? Set.of()
+						: new HashSet<>(tripLikeRepository.findLikedTripIds(loginUserId, tripIds));
 		
-		// 4) enrich 후 반환(불변 DTO 유지)
 		return baseList.stream()
 				.map(dto -> TripListResponse.builder()
 						.tripId(dto.getTripId())
@@ -131,7 +125,9 @@ public class TripService {
 						.likedByMe(likedSet.contains(dto.getTripId()))
 						.build())
 				.toList();
+
 	}
+	
 	
 	@Transactional
 	public void updateTrip(TripUpdateRequest req, Long loginUserId) {
@@ -173,7 +169,6 @@ public class TripService {
 			}
 		}
 	}
-
 	
 	
 	@Transactional
@@ -200,8 +195,6 @@ public class TripService {
 		
 		tripRepository.delete(trip);
 	}
-
-
 	
 	
 	/**
@@ -229,39 +222,39 @@ public class TripService {
 	 * - 언어(복수) / 지역 / 테마
 	 * - latest / popular 지원
 	 */
-    public Page<TripListResponseDto> searchTrips(
-            List<String> languages,
-            String region,
-            String theme,
-            String order,
-            Pageable pageable
-    ) {
-
-        boolean hasLang = (languages != null && !languages.isEmpty());
-
-        if ("popular".equals(order)) {
-            if (hasLang) {
-                return tripRepository.searchByFiltersPopular(
-                        region, theme, languages, pageable
-                );
-            } else {
-                return tripRepository.searchByFiltersPopularNoLang(
-                        region, theme, pageable
-                );
-            }
-        } else { // latest
-            if (hasLang) {
-                return tripRepository.searchByFilters(
-                        region, theme, languages, pageable
-                );
-            } else {
-                return tripRepository.searchByFiltersNoLang(
-                        region, theme, pageable
-                );
-            }
-        }
-    }
-
+	public Page<TripListResponseDto> searchTrips(
+			List<String> languages,
+			String region,
+			String theme,
+			String order,
+			Pageable pageable
+	) {
+		
+		boolean hasLang = (languages != null && !languages.isEmpty());
+		
+		if ("popular".equals(order)) {
+			if (hasLang) {
+				return tripRepository.searchByFiltersPopular(
+						region, theme, languages, pageable
+				);
+			} else {
+				return tripRepository.searchByFiltersPopularNoLang(
+						region, theme, pageable
+				);
+			}
+		} else { // latest
+			if (hasLang) {
+				return tripRepository.searchByFilters(
+						region, theme, languages, pageable
+				);
+			} else {
+				return tripRepository.searchByFiltersNoLang(
+						region, theme, pageable
+				);
+			}
+		}
+	}
+	
 	/**
 	 * 여행 상세페이지에서 언어랑 승인인원
 	 * 및 신청
@@ -355,8 +348,7 @@ public class TripService {
 				.hostName(entity.getHostUser().getName())
 				.build();
 	}
-
-
+	
 	
 	@Transactional
 	public Long write(Long userId, TripWriteRequest request) {
@@ -489,14 +481,14 @@ public class TripService {
 				.map(User::getUserId)
 				.orElse(null);
 	}
-
-    @Transactional(readOnly = true)
-    public List<Trip> getTripsByHost(Long hostUserId) {
-        return tripRepository.findByHostUser_UserIdOrderByCreatedAtDesc(hostUserId);
-
-
-}
-
+	
+	@Transactional(readOnly = true)
+	public List<Trip> getTripsByHost(Long hostUserId) {
+		return tripRepository.findByHostUser_UserIdOrderByCreatedAtDesc(hostUserId);
+		
+		
+	}
+	
 }
 
 

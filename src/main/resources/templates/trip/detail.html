@@ -8,12 +8,12 @@
     <link rel="stylesheet" th:href="@{/css/detail.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
     <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
 
     <title>여행 글 상세</title>
 </head>
 
 <body>
-
 <header class="yw-header">
     <div class="yw-container yw-header__inner">
         <a class="yw-logo" href="/">
@@ -23,7 +23,7 @@
 
         <nav class="yw-nav">
             <a class="yw-nav__link" href="/">홈</a>
-            <a class="yw-nav__link" href="/listAll">여행</a>
+            <a class="yw-nav__link" href="/trip/listAll">여행</a>
             <a class="yw-nav__link" href="/community">고객센터</a>
         </nav>
 
@@ -36,7 +36,7 @@
             <div id="userMenu" style="display:none;">
                 <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
                 <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-                <button class="yw-btn yw-btn--primary" id="logoutBtn">로그아웃</button>
+                <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
             </div>
         </div>
     </div>
@@ -47,6 +47,21 @@
 
         <header class="post-header">
             <h1 th:text="${trip.title}">제목</h1>
+
+            <!-- ✅ 상세 좋아요 버튼(목록과 동일 규격) -->
+            <div class="post-actions">
+                <button class="like-btn"
+                        type="button"
+                        data-like-btn
+                        th:attr="data-trip-id=${trip.tripId},
+                         data-liked=${trip.likedByMe},
+                         data-count=${trip.likeCount}">
+          <span class="like-btn__icon" data-like-icon
+                th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
+                    <span class="like-btn__count" data-like-count
+                          th:text="${trip.likeCount}">0</span>
+                </button>
+            </div>
         </header>
 
         <section class="post-body">
@@ -67,10 +82,10 @@
             </div>
 
             <form id="commentForm" class="comment-form">
-                <textarea id="commentContent"
-                          class="textarea"
-                          rows="3"
-                          placeholder="댓글을 입력하세요"></textarea>
+        <textarea id="commentContent"
+                  class="textarea"
+                  rows="3"
+                  placeholder="댓글을 입력하세요"></textarea>
 
                 <div class="form-actions">
                     <button type="submit" class="btn primary">등록</button>
@@ -80,35 +95,10 @@
             <ul id="commentList" class="comment-list"></ul>
         </section>
 
-        <!-- ✅ 작성자라면 노출 -->
-        <section th:if="${isOwner}" style="margin-top:20px;">
-            <div class="form-actions" style="display:flex; gap:10px; justify-content:flex-end;">
-
-                <!-- 수정: 기간 지나면 비활성 -->
-                <a class="btn"
-                   th:classappend="${canEditDelete} ? '' : ' disabled'"
-                   th:href="${canEditDelete} ? @{/trip/update/{id}(id=${trip.tripId})} : @{/trip/detail/{id}(id=${trip.tripId})}"
-                   th:attr="aria-disabled=${!canEditDelete}">
-                    수정
-                </a>
-
-                <!-- 삭제: CSRF 비활성화 상태라 _csrf 가 null -> hidden input 제거 -->
-                <form th:action="@{/trip/delete/{tripId}(tripId=${trip.tripId})}"
-                      method="post"
-                      th:onsubmit="${canEditDelete} ? 'return confirm(''정말 삭제하시겠습니까?'');' : 'return false;'">
-                    <button type="submit" class="btn danger" th:disabled="${!canEditDelete}">삭제</button>
-                </form>
-            </div>
-
-            <p class="muted small" style="text-align:right; margin-top:8px;" th:if="${!canEditDelete}">
-                여정 시작 7일 전이 지나 수정/삭제가 불가능합니다.
-            </p>
-        </section>
-
     </div>
 </main>
 
-<!-- Thymeleaf 변수 주입 (중요) -->
+<!-- Thymeleaf 변수 주입 -->
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
@@ -117,9 +107,9 @@
 
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/trip-apply.js(v=${#dates.createNow().time})}"></script>
-
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
+<script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

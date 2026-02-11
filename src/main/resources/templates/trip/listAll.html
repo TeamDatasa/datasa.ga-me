@@ -3,290 +3,103 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" th:href="@{/css/listAll.css}">
-    <link rel="stylesheet" th:href="@{/css/notifications.css(v=${#dates.createNow().time})}"/>
-    <script defer th:src="@{/js/notifications.js(v=${#dates.createNow().time})}"></script>
 
-    <title>Trip List</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/trip-list.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+
+    <title>여행 목록</title>
 </head>
-<!-- Host Card Modal -->
-<div id="hostCardModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="hostCardTitle">
-        <button class="modal-close" type="button" onclick="closeHostCard()">×</button>
+<body>
 
-        <div class="modal-header">
-            <div class="avatar-lg" id="hostCardAvatar">?</div>
-            <div class="header-text">
-                <h3 id="hostCardTitle">Host</h3>
-                <p class="meta" id="hostCardMeta">-</p>
-            </div>
-        </div>
+<header class="yw-header">
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
 
-        <div class="modal-body">
-            <div class="row">
-                <div class="label">MBTI</div>
-                <div class="value" id="hostCardMbti">-</div>
-            </div>
-            <div class="row">
-                <div class="label">Bio</div>
-                <div class="value bio" id="hostCardBio">-</div>
+        <nav class="yw-nav">
+            <a class="yw-nav__link" href="/">홈</a>
+            <a class="yw-nav__link" href="/trip/listAll">여행</a>
+            <a class="yw-nav__link" href="/community">고객센터</a>
+        </nav>
+
+        <div class="yw-auth">
+            <div id="guestMenu">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
             </div>
 
-            <p class="notice" id="hostCardNotice" style="display:none;"></p>
-        </div>
-
-        <div class="modal-actions">
-            <button type="button" class="btn-ghost" onclick="closeHostCard()">닫기</button>
+            <div id="userMenu" style="display:none;">
+                <a class="yw-nav__link chat-link" href="/chat/list">💬</a>
+                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+                <button class="yw-btn yw-btn--primary" type="button" id="logoutBtn">로그아웃</button>
+            </div>
         </div>
     </div>
-</div>
+</header>
 
-<body>
-<div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+<main class="page">
+    <div class="container">
 
-<div class="top-bar">
-    <h1>전체 작성글 리스트</h1>
+        <div class="trip-list-head">
+            <h1>여행 목록</h1>
 
-    <!-- UI는 노출, 클릭 시 role 체크 -->
-    <a id="writeTripLink" th:href="@{/trip/write}">게시글 작성</a>
-</div>
+            <div class="trip-list-actions">
+                <a class="yw-btn yw-btn--primary" href="/trip/write">여정 작성</a>
+            </div>
+        </div>
 
-<div th:if="${boardList == null or #lists.isEmpty(boardList)}" class="muted">
-    아직 작성된 게시글이 없습니다.
-</div>
+        <section class="trip-cards">
+            <article class="trip-card" th:each="trip : ${boardList}"
+                     th:onclick="|location.href='/trip/detail/' + ${trip.tripId}|">
+                <div class="trip-card__body">
+                    <div class="trip-card__title" th:text="${trip.title}">제목</div>
+                    <div class="trip-card__meta">
+                        <span th:text="${trip.region}">지역</span>
+                        <span class="dot">•</span>
+                        <span th:text="${trip.theme}">테마</span>
+                    </div>
 
-<table th:if="${boardList != null and !#lists.isEmpty(boardList)}">
-    <thead>
-    <tr>
-        <th class="nowrap">ID</th>
-        <th>제목</th>
-        <th class="nowrap">호스트</th>
-        <th class="nowrap">상태</th>
-        <th class="nowrap">시작</th>
-        <th class="nowrap">종료</th>
-        <th class="nowrap">인원</th>
-        <th class="nowrap">소요(분)</th>
-        <th class="nowrap">비용(KRW)</th>
-        <th class="nowrap">작성일</th>
-        <th class="nowrap">좋아요</th>
-    </tr>
-    </thead>
+                    <div class="trip-card__desc" th:text="${trip.description}">설명</div>
+                </div>
 
-    <tbody>
-    <tr th:each="trip : ${boardList}">
-        <!-- 1) ID -->
-        <td class="nowrap" th:text="${trip.tripId}">1</td>
+                <div class="trip-card__footer" onclick="event.stopPropagation();">
+                    <!-- ✅ 좋아요 버튼 (공용 규격) -->
+                    <button class="like-btn"
+                            type="button"
+                            data-like-btn
+                            th:attr="data-trip-id=${trip.tripId},
+                           data-liked=${trip.likedByMe},
+                           data-count=${trip.likeCount}">
+            <span class="like-btn__icon" data-like-icon
+                  th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
+                        <span class="like-btn__count" data-like-count
+                              th:text="${trip.likeCount}">0</span>
+                    </button>
 
-        <!-- 2) 제목 -->
-        <td>
-            <a th:href="@{/trip/detail/{id}(id=${trip.tripId})}">
-                <strong th:text="${trip.title}">제목</strong>
-            </a>
-        </td>
+                    <span class="trip-card__host">
+            <span th:text="${trip.hostName}">호스트</span>
+          </span>
+                </div>
+            </article>
 
-        <!-- 3) 호스트 -->
-        <td class="nowrap">
-            <button type="button"
-                    class="host-link"
-                    th:attr="data-host-id=${trip.hostUserId}, data-host-name=${trip.hostName}"
-                    onclick="openHostCard(this)">
-                <span th:text="${trip.hostName}">호스트명</span>
-            </button>
-        </td>
+            <div class="empty" th:if="${boardList == null || #lists.isEmpty(boardList)}">
+                등록된 여정이 없습니다.
+            </div>
+        </section>
 
+    </div>
+</main>
 
-        <!-- 4) 상태 -->
-        <td class="nowrap">
-            <span class="badge" th:text="${trip.status}">OPEN</span>
-        </td>
+<script th:src="@{/js/main-auth.js}"></script>
+<script th:src="@{/js/notifications.js}"></script>
 
-        <!-- 5) 시작 -->
-        <td class="nowrap"
-            th:text="${trip.startAt != null ? #temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm') : '-'}">-
-        </td>
-
-        <!-- 6) 종료 -->
-        <td class="nowrap" th:text="${trip.endAt != null ? #temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm') : '-'}">-
-        </td>
-
-        <!-- 7) 인원 -->
-        <td class="nowrap" th:text="${trip.maxParticipants}">10</td>
-
-        <!-- 8) 소요 -->
-        <td class="nowrap" th:text="${trip.durationMinutes}">120</td>
-
-        <!-- 9) 비용 -->
-        <td class="nowrap"
-            th:text="${trip.estimatedCost != null ? #numbers.formatInteger(trip.estimatedCost, 0, 'COMMA') : '-'}">
-            -
-        </td>
-
-        <!-- 10) 작성일 -->
-        <td class="nowrap"
-            th:text="${trip.createdAt != null ? #temporals.format(trip.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-
-        </td>
-
-        <!-- 11) 좋아요 -->
-        <td class="nowrap">
-            <button type="button"
-                    class="like-btn"
-                    th:attr="data-trip-id=${trip.tripId}, data-liked=${trip.likedByMe}"
-                    onclick="toggleTripLike(this)">
-                <span class="heart" th:text="${trip.likedByMe} ? '❤' : '♡'">♡</span>
-                <span class="like-count" th:text="${trip.likeCount}">0</span>
-            </button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<script th:inline="javascript">
-    // 게시글 작성 클릭 시 role 검사 (가이드=HOST만 허용)
-    document.addEventListener("DOMContentLoaded", () => {
-    const writeLink = document.getElementById("writeTripLink");
-    if (!writeLink) return;
-
-    const role = /*[[${role}]]*/ null; // "HOST" / "USER" / null
-
-    writeLink.addEventListener("click", (e) => {
-      if (!role) {
-        e.preventDefault();
-        alert("로그인 후 이용 가능합니다.");
-        window.location.href = "/auth/login";
-        return;
-      }
-
-            if (role !== "HOST") {
-        e.preventDefault();
-        alert("호스트만 게시글을 작성할 수 있습니다. 마이페이지에서 역할 신청을 해주세요.");
-        window.location.href = "/mypage";
-      }
-    });
-  });
-
-    async function toggleTripLike(btn) {
-        const tripId = btn.getAttribute("data-trip-id");
-        btn.disabled = true;
-
-        try {
-            const res = await fetch(`/api/trip/${tripId}/like`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-            });
-
-            if (!res.ok) {
-                alert("좋아요 처리에 실패했습니다.");
-                return;
-            }
-
-            window.location.reload();
-        } finally {
-            btn.disabled = false;
-        }
-    }
-</script>
-<script>
-    const hostCardModal = document.getElementById("hostCardModal");
-
-    function openHostCard(btn) {
-      const hostId = btn.getAttribute("data-host-id");
-      const hostName = btn.getAttribute("data-host-name") || "Host";
-
-      showHostModal();
-      setHostCardLoading(hostName);
-
-      fetch(`/api/hosts/${hostId}/card`, { method: "GET" })
-        .then(async (res) => {
-          if (res.status === 403) {
-            setHostCardPrivate(hostName);
-            return;
-          }
-          if (!res.ok) {
-            setHostCardError(hostName);
-            return;
-          }
-          const data = await res.json();
-          renderHostCard(data);
-        })
-        .catch(() => setHostCardError(hostName));
-    }
-
-    function showHostModal() {
-      hostCardModal.classList.add("open");
-      hostCardModal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeHostCard() {
-      hostCardModal.classList.remove("open");
-      hostCardModal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-    }
-
-    // 바깥 클릭 닫기
-    hostCardModal.addEventListener("click", (e) => {
-      if (e.target === hostCardModal) closeHostCard();
-    });
-
-    // ESC 닫기
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && hostCardModal.classList.contains("open")) closeHostCard();
-    });
-
-    function setHostCardLoading(hostName) {
-      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
-      document.getElementById("hostCardTitle").textContent = hostName;
-      document.getElementById("hostCardMeta").textContent = "불러오는 중...";
-      document.getElementById("hostCardMbti").textContent = "-";
-      document.getElementById("hostCardBio").textContent = "-";
-      const notice = document.getElementById("hostCardNotice");
-      notice.style.display = "none";
-      notice.textContent = "";
-    }
-
-    function setHostCardPrivate(hostName) {
-      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
-      document.getElementById("hostCardTitle").textContent = hostName;
-      document.getElementById("hostCardMeta").textContent = "-";
-      document.getElementById("hostCardMbti").textContent = "-";
-      document.getElementById("hostCardBio").textContent = "-";
-
-      const notice = document.getElementById("hostCardNotice");
-      notice.style.display = "block";
-      notice.textContent = "이 호스트는 카드프로필을 비공개로 설정했습니다.";
-    }
-
-    function setHostCardError(hostName) {
-      document.getElementById("hostCardAvatar").textContent = hostName ? hostName[0] : "?";
-      document.getElementById("hostCardTitle").textContent = hostName;
-      document.getElementById("hostCardMeta").textContent = "-";
-      document.getElementById("hostCardMbti").textContent = "-";
-      document.getElementById("hostCardBio").textContent = "-";
-
-      const notice = document.getElementById("hostCardNotice");
-      notice.style.display = "block";
-      notice.textContent = "호스트 정보를 불러오지 못했습니다.";
-    }
-
-    function renderHostCard(data) {
-      const name = data.name ?? "Host";
-      const age = data.age != null ? `${data.age}세` : "-";
-      const gender = data.gender ?? "-";
-
-      document.getElementById("hostCardAvatar").textContent = name ? name[0] : "?";
-      document.getElementById("hostCardTitle").textContent = name;
-      document.getElementById("hostCardMeta").textContent = `${age} · ${gender}`;
-      document.getElementById("hostCardMbti").textContent = data.mbti ?? "-";
-      document.getElementById("hostCardBio").textContent = data.bio ?? "-";
-
-      const notice = document.getElementById("hostCardNotice");
-      notice.style.display = "none";
-      notice.textContent = "";
-    }
-</script>
-
-
+<!-- ✅ 좋아요 공용 JS -->
+<script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

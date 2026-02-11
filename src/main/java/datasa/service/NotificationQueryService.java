@@ -21,6 +21,8 @@ public class NotificationQueryService {
 	
 	private final NotificationRepository notificationRepository;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
+	
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -110,4 +112,23 @@ public class NotificationQueryService {
 		
 		em.flush();
 	}
+	
+	
+	// 알림 삭제(단건)
+	@Transactional
+	public void deleteOne(Authentication authentication, Long notificationId) {
+		User me = currentUserOrDefault(authentication);
+		
+		Notification n = notificationRepository.findById(notificationId)
+				.orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
+		
+		// 내 알림인지 검증
+		if (!n.getUser().getUserId().equals(me.getUserId())) {
+			throw new org.springframework.security.access.AccessDeniedException("삭제 권한 없음");
+		}
+		
+		notificationRepository.delete(n);
+	}
+	
+	
 }

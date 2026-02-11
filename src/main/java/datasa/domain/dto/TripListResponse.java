@@ -25,6 +25,8 @@ public class TripListResponse {
 	// Trip 기본 정보
 	private String title;
 	private String description;
+	private String region;
+	private String theme;
 	private Integer estimatedCost;
 	private Integer maxParticipants;
 	private Integer durationMinutes;
@@ -38,7 +40,6 @@ public class TripListResponse {
 	private LocalDateTime updatedAt;
 	
 	
-	// ✅ 좋아요 정보 추가
 	private long likeCount;
 	private boolean likedByMe;
 	
@@ -50,6 +51,8 @@ public class TripListResponse {
 				.hostName(trip.getHostUser().getName())
 				.title(trip.getTitle())
 				.description(trip.getDescription())
+				.region(trip.getRegion())
+				.theme(trip.getTheme())
 				.estimatedCost(trip.getEstimatedCost())
 				.maxParticipants(trip.getMaxParticipants())
 				.durationMinutes(trip.getDurationMinutes())

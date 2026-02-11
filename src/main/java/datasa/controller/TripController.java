@@ -38,19 +38,21 @@ public class TripController {
 	@GetMapping("/listAll")
 	public String listAll(Model model, @AuthenticationPrincipal CustomUserDetail user) {
 		
-		// 글 목록
-		List<TripListResponse> boardList = tripService.getListAll();
+		Long userId = (user != null) ? user.getUserId() : null;
+		
+		List<TripListResponse> boardList = tripService.getListAll(userId);
 		model.addAttribute("boardList", boardList);
 		
 		String role = null;
 		if (user != null) {
 			User u = userRepository.findById(user.getUserId())
 					.orElseThrow(() -> new IllegalArgumentException("유저 정보 없음"));
-			role = u.getRole().name(); // "HOST" / "USER"
+			role = u.getRole().name();
 		}
 		model.addAttribute("role", role);
 		return "trip/listAll";
 	}
+
 	
 	// 게시글 작성 요청
 	@GetMapping("/write")
