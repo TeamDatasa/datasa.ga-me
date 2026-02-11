@@ -1,4 +1,3 @@
-// authFetch.js (전역 버전)
 window.authFetch = async function authFetch(url, options = {}) {
   const headers = { ...(options.headers || {}) };
 
@@ -13,7 +12,9 @@ window.authFetch = async function authFetch(url, options = {}) {
     credentials: "include",
   });
 
-  if (res.status === 401) {
+  const redirectOn401 = options.redirectOn401 !== false;
+
+  if (res.status === 401 && redirectOn401) {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch (_) {}

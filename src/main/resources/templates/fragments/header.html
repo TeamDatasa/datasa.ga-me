@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="siteHeader">
+    <header class="yw-header">
+        <div id="loginToast" class="yw-toast" aria-live="polite" aria-atomic="true">
+            로그인 완료!
+        </div>
+
+        <div class="yw-container yw-header__inner">
+            <a class="yw-logo" href="/">
+                <span class="yw-logo__mark">●</span>
+                <span class="yw-logo__text">ga-me</span>
+            </a>
+
+            <nav class="yw-nav">
+                <a class="yw-nav__link" href="/">홈</a>
+                <a class="yw-nav__link" href="/trip/listAll">여행</a>
+                <a class="yw-nav__link" href="/community">고객센터</a>
+            </nav>
+
+            <div class="yw-auth">
+                <div id="guestMenu">
+                    <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                    <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
+                </div>
+
+                <div id="userMenu" style="display:none;">
+                    <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+                    <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+                    <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+</body>
+</html>

@@ -110,37 +110,33 @@ public class ChatRoomService {
      * - host + 승인된 user를 ChatMember로 연결
      */
     @Transactional
-    public void connectChatMember(Trip trip, User approvedUser) {
+    public ChatRoom connectChatMember(Trip trip, User approvedUser) {
 
-        // 1️⃣ ChatRoom 조회 or 생성
+        // 1️⃣ 채팅방 조회 or 생성
         ChatRoom room = chatRoomRepository
                 .findByTrip_TripId(trip.getTripId())
                 .orElseGet(() -> {
                     ChatRoom newRoom = new ChatRoom();
                     newRoom.setTrip(trip);
                     newRoom.setCreatedAt(LocalDateTime.now());
-                    return chatRoomRepository.save(newRoom);
-                });
+                    chatRoomRepository.save(newRoom);
 
-        // 2️⃣ 호스트 ChatMember 생성 (없으면)
-        User host = trip.getHostUser();
-        chatMemberRepository
-                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), host.getUserId())
-                .orElseGet(() -> {
+                    // ✅ 채팅방 최초 생성 시 호스트 자동 등록
                     ChatMember hostMember = new ChatMember();
-                    hostMember.setChatRoom(room);
-                    hostMember.setUser(host);
+                    hostMember.setChatRoom(newRoom);
+                    hostMember.setUser(trip.getHostUser());
                     hostMember.setJoinedAt(LocalDateTime.now());
-                    return chatMemberRepository.save(hostMember);
+                    chatMemberRepository.save(hostMember);
+
+                    return newRoom;
                 });
 
-        // 3️⃣ 승인된 사용자 ChatMember 생성 or 복구
+        // 2️⃣ 승인된 신청자 ChatMember 처리
         chatMemberRepository
                 .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), approvedUser.getUserId())
                 .ifPresentOrElse(
                         member -> {
-                            // 이미 있었는데 나간 상태라면 재입장 처리
-                            if (!member.isActive()) {
+                            if (member.getLeftAt() != null) {
                                 member.rejoin();
                             }
                         },
@@ -152,7 +148,34 @@ public class ChatRoomService {
                             chatMemberRepository.save(member);
                         }
                 );
+
+        return room;
     }
+
+
+    /**
+     * ChatMember 있으면 rejoin, 없으면 생성
+     */
+    private void upsertChatMember(ChatRoom room, User user) {
+        chatMemberRepository
+                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), user.getUserId())
+                .ifPresentOrElse(
+                        member -> {
+                            if (!member.isActive()) {
+                                member.rejoin();
+                                chatMemberRepository.saveAndFlush(member);
+                            }
+                        },
+                        () -> {
+                            ChatMember member = new ChatMember();
+                            member.setChatRoom(room);
+                            member.setUser(user);
+                            member.setJoinedAt(LocalDateTime.now());
+                            chatMemberRepository.saveAndFlush(member);
+                        }
+                );
+    }
+
 
 }
 

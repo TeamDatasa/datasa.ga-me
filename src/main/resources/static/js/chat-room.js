@@ -66,7 +66,7 @@ function sendMessage() {
 function appendMessage(message) {
   const chat = document.getElementById("chatMessages");
 
-  const isMe = message.senderId === USER_ID;
+  const isMe = message.senderId === userId;
   const isContinued = lastSenderId === message.senderId;
 
   const wrapper = document.createElement("div");
