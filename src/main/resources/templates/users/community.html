@@ -186,8 +186,16 @@
         </nav>
 
         <div class="yw-auth">
-            <a class="yw-btn yw-btn--ghost" href="/login">로그인</a>
-            <a class="yw-btn yw-btn--primary" href="/signup">회원가입</a>
+            <div id="guestMenu">
+                <a class="yw-btn yw-btn--ghost" href="/login">로그인</a>
+                <a class="yw-btn yw-btn--primary" href="/signup">회원가입</a>
+            </div>
+
+            <div id="userMenu" style="display:none;">
+                <a class="yw-nav__link chat-link" href="/chat/rooms">💬</a>
+                <a class="yw-btn yw-btn--ghost" href="/mypage">마이페이지</a>
+                <button class="yw-btn yw-btn--primary" type="button" id="logoutBtn">로그아웃</button>
+            </div>
         </div>
     </div>
 </header>
@@ -371,12 +379,57 @@
 </footer>
 
 <script>
-    // FAQ 토글 (예시)
     document.querySelectorAll(".cs-qa .cs-q").forEach(btn => {
-      btn.addEventListener("click", () => {
-        btn.closest(".cs-qa").classList.toggle("is-open");
-      });
+    (async function () {
+  const guestMenu = document.getElementById("guestMenu");
+  const userMenu = document.getElementById("userMenu");
+
+  if (!guestMenu || !userMenu) return;
+
+  // 기본은 비로그인 상태로 두고, 로그인 확인되면 뒤집기
+  try {
+    // ✅ 여기 URL은 프로젝트에 맞게 바꿔야 함
+    // 예: /api/auth/me, /api/users/me, /api/mypage/me 등
+    const res = await fetch("/api/auth/me", {
+      method: "GET",
+      credentials: "include", // 세션쿠키/JSESSIONID 같이 보내기
+      headers: { "Accept": "application/json" }
     });
+
+    if (res.ok) {
+      guestMenu.style.display = "none";
+      userMenu.style.display = "flex";
+      userMenu.style.gap = "10px";
+      userMenu.style.alignItems = "center";
+    } else {
+      guestMenu.style.display = "flex";
+      guestMenu.style.gap = "10px";
+      guestMenu.style.alignItems = "center";
+      userMenu.style.display = "none";
+    }
+  } catch (e) {
+    // 네트워크/서버 오류면 그냥 비로그인 유지
+    guestMenu.style.display = "flex";
+    userMenu.style.display = "none";
+  }
+
+  // 로그아웃 버튼 처리 (엔드포인트는 너희 프로젝트에 맞춰 바꿔야 함)
+  document.addEventListener("click", async (ev) => {
+    const btn = ev.target.closest("#logoutBtn");
+    if (!btn) return;
+
+    try {
+      await fetch("/logout", { method: "POST", credentials: "include" });
+    } catch (e) {}
+
+    // 토큰 쓰면 같이 정리
+    try { localStorage.removeItem("access_token"); } catch (e) {}
+    try { localStorage.removeItem("refresh_token"); } catch (e) {}
+
+    location.reload();
+  });
+})();
+
 </script>
 
 </body>
