@@ -1,4 +1,3 @@
-
 :root{
   --bg: #FCFCFB;
   --ink: #0f172a;
@@ -43,7 +42,8 @@ body{
   letter-spacing: -0.02em;
 }
 
-form[th\\:object]{
+/* ❗ th:object는 렌더링 후 사라지므로 클래스 기반으로 안정화 */
+.tw-form{
   width: 100%;
   max-width: 1100px;
   margin: 0 auto 60px;
@@ -54,7 +54,7 @@ form[th\\:object]{
   box-shadow: var(--shadow);
 }
 
-form[th\\:object] > div{
+.tw-form > .tw-field{
   max-width: 760px;
   margin: 14px auto 0;
 }
@@ -98,66 +98,115 @@ textarea:focus{
 
 select{ cursor:pointer; }
 
-
-#keyword{
-  width: min(320px, 100%) !important;
-  padding: 12px 12px !important;
-  border-radius: 999px !important;
+/* ===== MAP UI (update 느낌으로 정리) ===== */
+.tw-map-section{
+  max-width: 760px;
+  margin: 18px auto 0;
+  border:1px solid rgba(86,104,115,0.18);
+  border-radius:16px;
+  padding:14px;
+  background:#fff;
 }
 
-#keyword + button[type="button"]{
-  padding: 11px 14px !important;
-  border-radius: 999px !important;
-  border: 1px solid var(--blueBorder) !important;
-  background: var(--blueBg) !important;
-  color: var(--blueText) !important;
+.tw-section-title{
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.tw-place-search{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.tw-place-search #keyword{
+  width: min(320px, 100%);
+  padding: 12px 12px;
+  border-radius: 999px;
+}
+
+.tw-place-search button[type="button"]{
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--blueBorder);
+  background: var(--blueBg);
+  color: var(--blueText);
   font-weight: 900;
   cursor: pointer;
   transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
 }
-#keyword + button[type="button"]:hover{
+
+.tw-place-search button[type="button"]:hover{
   transform: translateY(-1px);
-  background: rgba(48,132,242,0.16) !important;
+  background: rgba(48,132,242,0.16);
   box-shadow: var(--shadowSoft);
 }
 
+.tw-map-grid{
+  display:flex;
+  gap:12px;
+  margin-top:12px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+}
+
 #map{
-  width: 100% !important;
-  height: 360px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(15,23,42,0.12) !important;
+  width: 640px;
+  max-width: 100%;
+  height: 360px;
+  border-radius: 16px;
+  border: 1px solid rgba(15,23,42,0.12);
   background: #fff;
   overflow: hidden;
-  margin-left:auto;
-  margin-right:auto;
+}
+
+.tw-result-box{
+  width: 320px;
+  max-width: 100%;
+  max-height:360px;
+  overflow:auto;
+  border:1px solid rgba(15,23,42,0.10);
+  border-radius:16px;
+  padding:12px;
+  background: rgba(252,252,251,0.7);
+}
+
+.tw-mini-title{
+  font-weight:900;
+  margin-bottom:8px;
 }
 
 #placesList{
   list-style:none;
-  padding: 0 !important;
-  margin: 0 !important;
-  display: grid !important;
+  padding: 0;
+  margin: 0;
+  display: grid;
   gap: 10px;
 }
+
 #placesList li{
-  border: 1px solid rgba(15,23,42,0.10) !important;
-  border-radius: 14px !important;
-  padding: 10px !important;
-  background: #fff !important;
+  border: 1px solid rgba(15,23,42,0.10);
+  border-radius: 14px;
+  padding: 10px;
+  background: #fff;
   transition: transform .10s ease, box-shadow .10s ease, border-color .10s ease;
 }
+
 #placesList li:hover{
   transform: translateY(-1px);
   box-shadow: var(--shadowSoft);
-  border-color: rgba(48,132,242,0.35) !important;
+  border-color: rgba(48,132,242,0.35);
 }
 
 #pagination{
-  margin-top: 10px !important;
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 #pagination a{
   display: inline-flex;
   align-items: center;
@@ -170,9 +219,17 @@ select{ cursor:pointer; }
   background: rgba(255,255,255,0.9);
   font-weight: 900;
   color: #334155;
+  text-decoration: none;
 }
+
 #pagination a:hover{
   border-color: rgba(48,132,242,0.35);
+}
+
+.tw-picked{
+  margin-top:8px;
+  color:#666;
+  font-size:13px;
 }
 
 #pickedText{
@@ -180,26 +237,47 @@ select{ cursor:pointer; }
   color: #334155;
 }
 
-#scheduleList{ gap: 10px !important; }
+.tw-schedule-box{
+  margin-top:14px;
+  border:1px solid rgba(15,23,42,0.10);
+  border-radius:16px;
+  padding:12px;
+  background:#fff;
+}
+
+#scheduleList{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+
 #scheduleList > div{
-  background: #fff !important;
-  border: 1px solid rgba(15,23,42,0.08) !important;
-  border-radius: 14px !important;
+  background: #fff;
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 14px;
   box-shadow: 0 8px 20px rgba(2,6,23,0.06);
 }
 
 #scheduleList button{
-  border: 1px solid rgba(15,23,42,0.12) !important;
-  background: rgba(2,6,23,0.04) !important;
-  border-radius: 12px !important;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(2,6,23,0.04);
+  border-radius: 12px;
   font-weight: 900;
   cursor:pointer;
 }
+
 #scheduleList button:hover{
-  background: rgba(2,6,23,0.07) !important;
+  background: rgba(2,6,23,0.07);
 }
 
-
+.tw-actions{
+  max-width: 760px;
+  margin: 18px auto 0;
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
 
 button[type="submit"],
 .btn-cancel{
@@ -207,20 +285,21 @@ button[type="submit"],
   align-items: center;
   justify-content: center;
 
-  background: var(--yellow) !important;
-  color: #1e293b !important;
+  background: var(--yellow);
+  color: #1e293b;
 
-  border: 0 !important;
+  border: 0;
   border-radius: 12px;
 
-  padding: 10px 16px !important;
-  font-size: 14px !important;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 900;
 
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(0,0,0,0.12);
   transition: transform .12s ease, box-shadow .12s ease;
   vertical-align: middle;
+  text-decoration:none;
 }
 
 button[type="submit"]:hover,
@@ -229,5 +308,8 @@ button[type="submit"]:hover,
   box-shadow: 0 12px 24px rgba(0,0,0,0.16);
 }
 
-.btn-cancel{ margin-left: 10px; }
-
+@media (max-width: 860px){
+  .tw-title{ text-align:left; }
+  .tw-actions{ justify-content: stretch; }
+  button[type="submit"], .btn-cancel{ width: 100%; }
+}
