@@ -64,7 +64,16 @@ async function loadHostReviews(){
     const card = document.createElement("div");
     card.className = "review-card";
 
-    // ReviewResponse 필드명이 프로젝트마다 다를 수 있어서 안전하게 fallback
+    const reviewId = r.reviewId; // ✅ ReviewResponse에 있어야 함
+      if (reviewId) {
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+          location.href = `/reviews/${reviewId}`;   // ✅ 너가 만들 상세 페이지 라우트
+          // 만약 마이페이지 내 모달/모드로 가고 싶으면:
+          // location.href = `/mypage/reviews?mode=edit&reviewId=${reviewId}`;
+        });
+      }
+
     const tripTitle = r.tripTitle || r.title || "Trip";
     const content = r.content || "";
     const rating = (r.rating ?? "-");
@@ -73,17 +82,20 @@ async function loadHostReviews(){
     card.innerHTML = `
       <div class="review-top">
         <div class="review-title">
-          <span class="muted">${tHost("reviewTrip")}:</span> ${escapeHtml(tripTitle)}
+          <span class="muted">${tHost("reviewTripLabel")}:</span>
+          ${escapeHtml(tripTitle)}
         </div>
         <div class="review-badge">
-          ${tHost("reviewRating")} ★ <b>${escapeHtml(String(rating))}</b>
+          ${tHost("reviewRatingLabel")} ★
+          <b>${escapeHtml(String(rating))}</b>
         </div>
       </div>
       <div class="review-meta">
-        ${tHost("reviewDate")}: ${escapeHtml(date)}
+        ${tHost("reviewDateLabel")}: ${escapeHtml(date)}
       </div>
       <div class="review-content">${escapeHtml(content)}</div>
     `;
+
 
     reviewListEl.appendChild(card);
   });

@@ -20,28 +20,31 @@ import java.util.List;
 public class MainController {
     private final RecommendationService recommendationService;
     private final UserRepository userRepository;
-    @GetMapping("/")
-    public String main(@AuthenticationPrincipal UserDetails userDetails, HttpSession session, Model model) {
-        List<TripRecommendationDto> recommendCourses;
-        Long loginMemberId =
-                (Long) session.getAttribute("loginMemberId");
-
-        boolean isLogin = (loginMemberId != null);
-
-        // 🔥 로그인 여부 분기
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow();
-            recommendCourses = recommendationService.recommend(user.getUserId());
-        } else {
-            recommendCourses = recommendationService.getDefaultTrips();
-        }
-        model.addAttribute("recommendCourses", recommendCourses);
-        model.addAttribute("isLogin", isLogin);
-
-        // return "trip-test";
+	@GetMapping("/")
+	public String main(@AuthenticationPrincipal UserDetails userDetails,
+					   HttpSession session,
+					   Model model) {
+		
+		boolean isLogin = (userDetails != null); // ✅ 기준 통일
+		model.addAttribute("isLogin", isLogin);
+		
+		List<TripRecommendationDto> recommendCourses;
+		
+		if (isLogin) {
+			User user = userRepository.findByEmail(userDetails.getUsername())
+					.orElseThrow();
+			
+			model.addAttribute("nickname", user.getName());
+			
+			recommendCourses = recommendationService.recommend(user.getUserId());
+		} else {
+			recommendCourses = recommendationService.getDefaultTrips();
+		}
+		
+		model.addAttribute("recommendCourses", recommendCourses);
 		return "main";
-    }
-
+	}
+	
+	
 }
 
