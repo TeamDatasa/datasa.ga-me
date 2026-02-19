@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>신청자 관리</title>
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
     <style>
 /* ===== 전체 레이아웃 ===== */
 body {
@@ -254,6 +256,9 @@ function renderRow(app) {
 
     load();
 </script>
+
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

@@ -10,6 +10,8 @@
     <!-- Kakao Maps SDK (Thymeleaf 안전 로드 + autoload=false) -->
     <script th:if="${jsKey != null}"
             th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${jsKey},libraries='services',autoload='false')}"></script>
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
 </head>
 
 <body>
@@ -509,5 +511,8 @@
             .replaceAll("'", '&#039;');
     }
 </script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
+
 </body>
 </html>

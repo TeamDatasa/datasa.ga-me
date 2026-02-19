@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer class="yw-footer" th:fragment="siteFooter">
+    <div class="yw-container yw-footer__inner">
+
+        <!-- Left: Brand + Contact -->
+        <div class="yw-footer__left">
+            <a class="yw-footer__brand" href="/">
+                <span class="yw-footer__mark">●</span>
+                <span class="yw-footer__name">ga-me</span>
+            </a>
+
+            <div class="yw-footer__meta">
+                <div class="yw-footer__line">
+                    <span class="yw-footer__label">Contact</span>
+                    <a class="yw-footer__link" href="mailto:game.official@gmail.com">game.official@gmail.com</a>
+                </div>
+                <div class="yw-footer__copy">Copyright ga-me. All rights reserved</div>
+            </div>
+        </div>
+
+        <!-- Center: Links -->
+        <nav class="yw-footer__nav" aria-label="footer">
+            <a class="yw-footer__navlink" href="/terms">이용약관</a>
+            <a class="yw-footer__navlink" href="/privacy">개인정보처리방침</a>
+            <a class="yw-footer__navlink" href="/about">서비스소개</a>
+            <a class="yw-footer__navlink" href="/ads">팀 소개</a>
+        </nav>
+
+        <!-- Right: Top Button -->
+        <div class="yw-footer__right">
+            <button type="button" class="yw-top" data-top-btn aria-label="맨 위로">
+                <span class="yw-top__icon" aria-hidden="true">⌃</span>
+                <span class="yw-top__text">TOP</span>
+            </button>
+        </div>
+
+    </div>
+</footer>
+
+</body>
+</html>

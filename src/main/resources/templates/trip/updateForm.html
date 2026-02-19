@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-update.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
     <title>여정 수정</title>
 </head>
@@ -560,6 +561,8 @@
         init();
     })();
 </script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

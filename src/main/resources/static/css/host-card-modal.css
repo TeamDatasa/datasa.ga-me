@@ -1,0 +1,125 @@
+/* Host card modal */
+.hc-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+.hc-overlay.is-open{ display: flex; }
+
+.hc-modal{
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,0.12);
+  box-shadow: 0 20px 60px rgba(2,6,23,0.22);
+  overflow: hidden;
+}
+
+.hc-head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(15,23,42,0.08);
+}
+.hc-title{
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.hc-close{
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(2,6,23,0.03);
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.hc-body{ padding: 16px; }
+
+.hc-name{
+  font-size: 20px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.hc-meta{
+  margin-top: 10px;
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* chip base */
+.hc-chip{
+  display:inline-flex;
+  align-items:center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,0.14);
+  background: rgba(2,6,23,0.03);
+  color: #334155;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* gender color */
+.hc-chip--female{
+  border-color: rgba(239,68,68,0.35);
+  background: rgba(239,68,68,0.12);
+  color: #7f1d1d;
+}
+.hc-chip--male{
+  border-color: rgba(37,99,235,0.35);
+  background: rgba(37,99,235,0.12);
+  color: #0b3a8a;
+}
+
+/* smoking/drinking highlight when YES */
+.hc-chip--warn{
+  border-color: rgba(242,233,109,0.75);
+  background: rgba(242,233,109,0.50);
+  color: #1e293b;
+}
+
+/* NO state */
+.hc-chip--off{
+  border-color: rgba(15,23,42,0.12);
+  background: rgba(2,6,23,0.02);
+  color: #64748b;
+}
+
+.hc-bio{
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,0.10);
+  background: rgba(2,6,23,0.02);
+  color: #0f172a;
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+
+.hc-muted{
+  color:#64748b;
+  font-weight:800;
+  font-size: 13px;
+}
+
+.hc-host-link{
+  text-decoration: none;
+  font-weight: 900;
+  color: inherit;
+  border-bottom: 1px dashed rgba(15,23,42,0.18);
+  padding-bottom: 1px;
+}
+.hc-host-link:hover{
+  border-bottom-color: rgba(37,99,235,0.55);
+  color: #0b3a8a;
+}
