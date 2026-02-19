@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
     <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
     <title>여행 목록</title>
 </head>
@@ -93,6 +94,9 @@
 <script th:src="@{/js/notifications.js}"></script>
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
+
 
 </body>
 </html>
