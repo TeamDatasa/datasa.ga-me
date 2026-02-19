@@ -51,4 +51,7 @@ out/
 *.log
 
 # application.yml (비밀번호 보호)
-application.yml
+application.yml2
+
+# 프로필 이미지
+/uploads/

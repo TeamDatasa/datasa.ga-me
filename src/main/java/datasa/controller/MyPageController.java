@@ -1,9 +1,8 @@
 package datasa.controller;
 
-import datasa.domain.dto.HostCardPublicResponse;
-import datasa.domain.dto.HostCardUpdateRequest;
 import datasa.domain.dto.MyPageProfileResponse;
 import datasa.domain.dto.MyPageProfileUpdateRequest;
+import datasa.domain.dto.ProfileImagePresetRequest;
 import datasa.service.MyPageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +47,17 @@ public class MyPageController {
 		String email = auth.getName();
 		myPageService.deactivateAccount(email);
 		return ResponseEntity.noContent().build();
+	}
+	
+	// 이미지
+	@PutMapping("/profile-image/preset")
+	public ResponseEntity<MyPageProfileResponse> setPresetProfileImage(
+			@RequestBody ProfileImagePresetRequest req,
+			Authentication auth
+	) {
+		return ResponseEntity.ok(
+				myPageService.setPresetProfileImage(auth.getName(), req.profileImageUrl())
+		);
 	}
 	
 }

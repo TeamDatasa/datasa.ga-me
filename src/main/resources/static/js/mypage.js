@@ -115,7 +115,21 @@ async function loadProfile() {
   const meta = `${data.region ?? "-"} · ${data.age ?? "-"}세 · ${countryCodeToKorean(data.countryCode)}`;
   if (displayMetaEl) displayMetaEl.textContent = meta;
 
-  if (avatarEl) avatarEl.textContent = data.name ? data.name[0] : "?";
+  if (avatarEl) {
+    const url = (data.profileImageUrl ?? "").trim();
+
+    if (url) {
+      avatarEl.textContent = "";
+      avatarEl.style.backgroundImage = `url('${url}')`;
+      avatarEl.style.backgroundSize = "cover";
+      avatarEl.style.backgroundPosition = "center";
+      avatarEl.style.backgroundRepeat = "no-repeat";
+    } else {
+      avatarEl.style.backgroundImage = "";
+      avatarEl.textContent = data.name ? data.name[0] : "?";
+    }
+  }
+
 
   // ===== Form values (기본정보는 표시용) =====
   const nameEl = document.getElementById("name");
