@@ -7,10 +7,14 @@
   const emptyEl = document.querySelector("[data-notif-empty]");
   const markReadBtn = document.querySelector("[data-notif-markread]");
 
-  if (!wrapEl || !bellBtn || !popoverEl || !badgeEl) return;
+  if (!wrapEl || !bellBtn || !popoverEl || !badgeEl || !listEl) return;
+
+  let unreadCount = 0;
 
   function setBadge(count) {
-    const n = Number(count || 0);
+    const n = Math.max(0, Number(count || 0));
+    unreadCount = n;
+
     if (n <= 0) {
       badgeEl.style.display = "none";
       badgeEl.textContent = "";
@@ -18,6 +22,10 @@
     }
     badgeEl.style.display = "inline-flex";
     badgeEl.textContent = String(n);
+  }
+
+  function decBadgeIfPossible() {
+    if (unreadCount > 0) setBadge(unreadCount - 1);
   }
 
   function escapeHtml(s) {
@@ -47,14 +55,11 @@
   }
 
   function renderList(items) {
-    if (!listEl) return;
-
     if (!Array.isArray(items) || items.length === 0) {
       listEl.innerHTML = "";
       if (emptyEl) emptyEl.style.display = "block";
       return;
     }
-
     if (emptyEl) emptyEl.style.display = "none";
 
     listEl.innerHTML = items
@@ -62,15 +67,16 @@
           const href = notifLink(n);
           const title = escapeHtml(n.title ?? "");
           const body = escapeHtml(n.body ?? "");
-          const time = formatTime(n.createdAt);
+          const time = escapeHtml(formatTime(n.createdAt));
+          const unreadClass = n.isRead ? "" : " is-unread";
 
-          const readClass = n.isRead ? " is-read" : "";
           return `
-          <li class="notif-item${readClass}">
-            <a class="notif-link" href="${href}">
-              <div class="notif-title">${title}</div>
-              <div class="notif-body">${body}</div>
-              <div class="notif-time">${escapeHtml(time)}</div>
+          <li class="notif-item${unreadClass}" data-notif-id="${n.notificationId}" data-is-read="${n.isRead}">
+            <button type="button" class="notif-item__delete" data-notif-delete aria-label="알림 삭제">×</button>
+            <a class="notif-item__link" data-notif-link href="${href}">
+              <div class="notif-item__title">${title}</div>
+              <div class="notif-item__body">${body}</div>
+              <div class="notif-item__meta">${time}</div>
             </a>
           </li>
         `;
@@ -101,7 +107,7 @@
   }
 
   async function loadRecent() {
-    if (typeof authFetch !== "function" || !listEl) return;
+    if (typeof authFetch !== "function") return;
 
     const res = await authFetch("/api/notifications?limit=10", {
       method: "GET",
@@ -134,6 +140,26 @@
     await loadRecent();
   }
 
+  async function markOneRead(notificationId) {
+    if (typeof authFetch !== "function") return false;
+
+    const res = await authFetch(`/api/notifications/${notificationId}/read`, {
+      method: "POST",
+      redirectOn401: false,
+    });
+    return res.ok;
+  }
+
+  async function deleteOne(notificationId) {
+    if (typeof authFetch !== "function") return false;
+
+    const res = await authFetch(`/api/notifications/${notificationId}`, {
+      method: "DELETE",
+      redirectOn401: false,
+    });
+    return res.ok;
+  }
+
   function isOpen() {
     return popoverEl.classList.contains("open");
   }
@@ -146,6 +172,45 @@
     popoverEl.classList.remove("open");
   }
 
+  // 링크 클릭: 단건 읽음 처리 + 뱃지 감소
+  // X 클릭: 단건 삭제 + (미읽음이었다면) 뱃지 감소
+  listEl.addEventListener("click", async (e) => {
+    const delBtn = e.target.closest("[data-notif-delete]");
+    if (delBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const itemEl = delBtn.closest(".notif-item");
+      const notificationId = itemEl?.getAttribute("data-notif-id");
+      if (!notificationId) return;
+
+      const wasRead = itemEl.getAttribute("data-is-read") === "true";
+      const ok = await deleteOne(notificationId);
+      if (!ok) return;
+
+      itemEl.remove();
+      if (!wasRead) decBadgeIfPossible();
+      if (listEl.children.length === 0 && emptyEl) emptyEl.style.display = "block";
+      return;
+    }
+
+    const link = e.target.closest("[data-notif-link]");
+    if (!link) return;
+
+    const itemEl = link.closest(".notif-item");
+    const notificationId = itemEl?.getAttribute("data-notif-id");
+    if (!notificationId) return;
+
+    const alreadyRead = itemEl.getAttribute("data-is-read") === "true";
+    if (alreadyRead) return;
+
+    const ok = await markOneRead(notificationId);
+    if (ok) {
+      itemEl.classList.remove("is-unread");
+      itemEl.setAttribute("data-is-read", "true");
+      decBadgeIfPossible();
+    }
+  });
 
   bellBtn.addEventListener("click", async (e) => {
     e.preventDefault();
