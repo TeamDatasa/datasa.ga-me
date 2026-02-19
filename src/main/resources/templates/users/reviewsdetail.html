@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>리뷰</title>
+    <link rel="stylesheet" href="/css/host/reviewsdetail.css"/>
+</head>
+<body>
+
+<div class="review-wrapper">
+
+    <a th:href="@{/mypage/details/host}" class="back-btn">← 뒤로</a>
+
+    <div class="review-card">
+
+        <div class="review-header">
+            <h2 class="review-title" th:text="${review.trip.title}">
+                투어 제목
+            </h2>
+
+            <div class="review-rating">
+                평점 ★ <b th:text="${review.rating}">5</b>
+            </div>
+        </div>
+
+        <div class="review-divider"></div>
+
+        <div class="review-content" th:text="${review.content}">
+            리뷰 내용
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

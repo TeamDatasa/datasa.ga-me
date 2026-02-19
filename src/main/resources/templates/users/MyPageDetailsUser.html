@@ -91,12 +91,6 @@
                             후기 수정
                         </a>
 
-                        <a class="btn btn-primary"
-                           th:href="@{/chat/room/{tripId}(tripId=${t.tripId()})}"
-                           data-i18n="chat">
-                            채팅
-                        </a>
-
                         <a class="btn btn-danger"
                            th:if="${t.reviewId() != null}"
                            th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}"
@@ -115,28 +109,37 @@
         <div class="panel">
             <div class="panel-head">
                 <div>
-                    <h3 data-i18n="myApplications">내 신청 내역</h3>
-                    <p class="hint" data-i18n="myApplicationsHint">최근 신청한 투어 내역입니다.</p>
+                    <h3 data-i18n="myLikes">내가 좋아요한 투어</h3>
+                    <p class="hint" data-i18n="myLikesHint">최근 좋아요한 투어 목록입니다.</p>
                 </div>
-                <a class="btn btn-ghost" th:href="@{/mypage/applications}" data-i18n="viewAll">전체 보기</a>
+                <a class="btn btn-ghost"
+                   th:if="${myLikesHasMore}"
+                   th:href="@{/mypage/likes}"
+                   data-i18n="viewAll">전체 보기</a>
             </div>
 
-            <ul class="list" th:if="${myApplications != null and !#lists.isEmpty(myApplications)}">
-                <li class="list-item" th:each="a : ${myApplications}">
-                    <div class="title" th:text="${a.tripTitle()}">투어</div>
-                    <div class="meta">
-                        <span th:text="${a.status()}">상태</span>
-                        <span th:if="${a.message() != null and a.message().length() > 0}">
-              · <span th:text="${a.message()}">메세지</span>
-            </span>
-                    </div>
+            <ul class="list" th:if="${myLikes != null and !#lists.isEmpty(myLikes)}">
+                <li th:each="t : ${myLikes}">
+                    <a class="list-item card-link"
+                       th:href="@{/trip/detail/{tripId}(tripId=${t.tripId()})}">
+
+                        <div class="title" th:text="${t.title()}">투어</div>
+                        <div class="meta">
+                            <span th:text="${t.region()}">지역</span>
+                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">시작</span>
+                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">종료</span>
+                        </div>
+
+                    </a>
                 </li>
             </ul>
 
-            <div class="empty" th:if="${myApplications == null or #lists.isEmpty(myApplications)}" data-i18n="emptyApplications">
-                신청한 투어가 없습니다.
+
+            <div class="empty" th:if="${myLikes == null or #lists.isEmpty(myLikes)}" data-i18n="emptyLikes">
+                좋아요한 투어가 없습니다.
             </div>
         </div>
+
     </section>
 </div>
 

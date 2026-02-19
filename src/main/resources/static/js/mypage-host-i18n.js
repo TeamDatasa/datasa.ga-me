@@ -143,3 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+window.HOST_T = HOST_T;
+

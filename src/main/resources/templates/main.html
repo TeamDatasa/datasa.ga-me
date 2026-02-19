@@ -103,7 +103,12 @@
     <aside class="yw-section">
         <div class="yw-container">
             <div class="yw-section__head yw-section__head--row">
-                <h2 class="yw-section__title">이번주 추천 코스</h2>
+                <h2 class="yw-section__title" th:if="${!isLogin}">이번주 추천 코스</h2>
+
+                <h2 class="yw-section__title" th:if="${isLogin}">
+                    <span th:text="${nickname}">닉네임</span>님을 위한 추천 코스
+                </h2>
+
                 <a class="yw-section__link" href="/courses">더보기</a>
             </div>
             <div class="yw-cards">
