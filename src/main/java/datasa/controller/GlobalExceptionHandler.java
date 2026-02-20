@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,5 +27,16 @@ public class GlobalExceptionHandler {
 		body.put("errors", errors);
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+	}
+	
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Map<String, Object>> handle(ResponseStatusException e) {
+		// reason(메시지)를 JSON으로 내려줌
+		return ResponseEntity
+				.status(e.getStatusCode())
+				.body(Map.of(
+						"status", e.getStatusCode().value(),
+						"message", e.getReason()
+				));
 	}
 }

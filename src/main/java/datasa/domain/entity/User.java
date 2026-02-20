@@ -105,7 +105,7 @@ public class User {
     }
 
     public enum Status {
-        ACTIVE, INACTIVE, SUSPENDED
+        ACTIVE, INACTIVE, SUSPENDED, DELETED
     }
 	
 	public static User create(String email, String passwordHash, String name, Role role) {
@@ -184,7 +184,35 @@ public class User {
 		this.email = newEmail;
 	}
 	
-	
+	public void withdrawAnonymize() {
+		// 1) 상태
+		this.status = Status.DELETED;
+		
+		// 2) 이메일 인증 해제
+		this.emailVerified = false;
+		
+		// 3) 이메일 유니크 충돌 방지 (짧고 안전)
+		this.email = "deleted_" + this.userId + "@deleted.local";
+		
+		// 4) 개인정보 비식별
+		this.name = "탈퇴한 사용자";
+		this.birthDate = null;
+		this.gender = null;
+		this.countryCode = null;
+		this.region = null;
+		this.mbti = null;
+		this.smoking = null;
+		this.drinking = null;
+		this.bio = null;
+		this.profileImageUrl = null;
+		
+		// (선택) 권한/설정 초기화
+		this.role = Role.USER;
+		this.hostCardPublic = false;
+		
+		// (선택) 로컬 인증도 무효화
+		this.localVerified = false;
+	}
 	
 	
 	

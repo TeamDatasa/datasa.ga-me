@@ -84,7 +84,18 @@ public class AuthController {
 			@AuthenticationPrincipal UserDetails userDetails
 	) {
 		authService.withdraw(userDetails.getUsername());
-		return ResponseEntity.noContent().build();
+		
+		// 🔥 access_token 쿠키 삭제
+		ResponseCookie access = ResponseCookie.from("access_token", "")
+				.httpOnly(true)
+				.path("/")
+				.sameSite("Lax")
+				.maxAge(0)
+				.build();
+		
+		return ResponseEntity.noContent()
+				.header(HttpHeaders.SET_COOKIE, access.toString())
+				.build();
 	}
 	
 	

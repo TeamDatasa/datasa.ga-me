@@ -58,8 +58,12 @@ public class AuthService {
 		
 		// status가 null이면 ACTIVE로 간주하기
 		User.Status status = (user.getStatus() == null) ? User.Status.ACTIVE : user.getStatus();
+		
+		if (status == User.Status.DELETED) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "탈퇴한 계정입니다.");
+		}
 		if (status != User.Status.ACTIVE) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Inactive user.");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비활성화된 계정입니다.");
 		}
 		
 		// role이 null이면 USER로 보정하기
@@ -82,27 +86,22 @@ public class AuthService {
 						HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."
 				));
 		
-		if (user.getStatus() != null && user.getStatus() != User.Status.ACTIVE) {
-			throw new ResponseStatusException(
-					HttpStatus.BAD_REQUEST, "이미 탈퇴된 계정입니다."
-			);
+		User.Status status = (user.getStatus() == null) ? User.Status.ACTIVE : user.getStatus();
+		if (status != User.Status.ACTIVE) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 탈퇴된 계정입니다.");
 		}
 		
-		// 1️⃣ 상태 변경
-		user.deactivate();
+		// ✅ 비식별 + DELETED 처리
+		user.withdrawAnonymize();
 		
-		// 2️⃣ 이메일 인증 무효화
-		user.setEmailVerified(false);
-		
-		// 3️⃣ ⭐️ 재가입 허용 핵심 로직 (이메일 변경)
-		String deletedEmail = user.getEmail() + "__deleted__" + user.getUserId();
-		user.setEmail(deletedEmail);
-		
-		// 4️⃣ (선택) 비밀번호 무효화
+		// ✅ 비밀번호 무효화(선택이지만 추천)
 		user.changePassword(
 				passwordEncoder.encode("DELETED-" + user.getUserId() + "-" + System.currentTimeMillis())
 		);
+		
+		// ✅ 확실히 반영(권장)
+		userRepository.save(user);
+		userRepository.flush();
 	}
-	
 	
 }

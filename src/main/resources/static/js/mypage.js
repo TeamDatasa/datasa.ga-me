@@ -281,7 +281,7 @@ function bindAccountActions() {
     const ok = confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 로그인이 불가능합니다.");
     if (!ok) return;
 
-    const res = await authFetch("/api/mypage", { method: "DELETE" });
+    const res = await authFetch("/api/auth/withdraw", { method: "DELETE" });
     if (!res) return;
 
     if (!res.ok) {

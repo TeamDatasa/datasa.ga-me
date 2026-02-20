@@ -201,7 +201,7 @@
 
 
 <script src="/js/authFetch.js"></script>
-<script src="/js/mypage.js"></script>
+<script th:src="@{/js/mypage.js(v=${#dates.createNow().time})}"></script>
 <script src="/js/profile-picker.js"></script>
 </body>
 </html>
