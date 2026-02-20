@@ -115,7 +115,21 @@ async function loadProfile() {
   const meta = `${data.region ?? "-"} · ${data.age ?? "-"}세 · ${countryCodeToKorean(data.countryCode)}`;
   if (displayMetaEl) displayMetaEl.textContent = meta;
 
-  if (avatarEl) avatarEl.textContent = data.name ? data.name[0] : "?";
+  if (avatarEl) {
+    const url = (data.profileImageUrl ?? "").trim();
+
+    if (url) {
+      avatarEl.textContent = "";
+      avatarEl.style.backgroundImage = `url('${url}')`;
+      avatarEl.style.backgroundSize = "cover";
+      avatarEl.style.backgroundPosition = "center";
+      avatarEl.style.backgroundRepeat = "no-repeat";
+    } else {
+      avatarEl.style.backgroundImage = "";
+      avatarEl.textContent = data.name ? data.name[0] : "?";
+    }
+  }
+
 
   // ===== Form values (기본정보는 표시용) =====
   const nameEl = document.getElementById("name");
@@ -267,7 +281,7 @@ function bindAccountActions() {
     const ok = confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 로그인이 불가능합니다.");
     if (!ok) return;
 
-    const res = await authFetch("/api/mypage", { method: "DELETE" });
+    const res = await authFetch("/api/auth/withdraw", { method: "DELETE" });
     if (!res) return;
 
     if (!res.ok) {
