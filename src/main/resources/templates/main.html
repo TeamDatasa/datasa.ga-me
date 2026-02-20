@@ -107,6 +107,7 @@
                 <a class="yw-section__link" href="/courses">더보기</a>
             </div>
             <div class="yw-cards">
+                <article class="yw-card" th:each="course : ${recommendCourses}"th:onclick="|location.href='/trip/detail/' + ${course.tripId}|">
                     <div class="yw-card__thumb"></div>
                     <div class="yw-card__body">
                         <div class="yw-card__title" th:text="${course.title}">코스 제목</div>
