@@ -207,10 +207,31 @@ function formatTime(dateString) {
 }
 
 async function loadHistory(page = 0) {
-  const res = await fetch(`/api/chat/rooms/${roomId}/messages?page=${page}&size=20`);
+  const res = await fetch(`/chat/rooms/${roomId}/messages?page=${page}&size=20`);
   const data = await res.json();
   data.content.reverse().forEach(appendMessage);
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("messageInput");
+  if (!input) return;
+
+  input.addEventListener("keydown", (e) => {
+    // IME(한글/일본어) 조합 중 Enter는 전송하면 안 됨
+    if (e.isComposing || e.keyCode === 229) return;
+
+    if (e.key === "Enter") {
+      if (e.shiftKey) {
+        // Shift+Enter: 줄바꿈 허용 (textarea 기본 동작)
+        return;
+      }
+      // Enter: 전송
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+});
 
 
 

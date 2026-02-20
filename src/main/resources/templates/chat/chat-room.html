@@ -12,6 +12,10 @@ body {
   color :#566873;
 }
 
+body.embed {
+  margin: 0;
+  background: #FCFCFB; /* 기존 톤 유지 */
+}
 /* =========================
    채팅 컨테이너
 ========================= */
@@ -228,7 +232,7 @@ body {
 .chat-message.other.continued .profile {
   visibility: hidden;
 
-  
+
 }
 
 .chat-message.other.continued .sender {
@@ -303,7 +307,7 @@ body {
 
 
 
-\
+
 </style>
 
 </head>
@@ -331,7 +335,17 @@ body {
     window.ROOM_ID = [[${roomId}]];
     window.USER_ID = [[${userId}]];
 
+
+      const __params = new URLSearchParams(location.search);
+    const __isEmbed = __params.get("embed") === "1";
+    if (__isEmbed) document.body.classList.add("embed");
+
 function goToChatRooms() {
+
+          if (__isEmbed && window.parent) {
+         window.parent.postMessage({ type: "CHAT_MODAL_BACK" }, "*");
+         return;
+       }
    window.location.href = "/chat/rooms";
 }
 </script>

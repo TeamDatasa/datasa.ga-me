@@ -99,6 +99,58 @@
   justify-content: center;
 }
 
+    .chat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;                /* 기본 숨김 */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.chat-modal {
+  width: min(920px, 92vw);
+  height: min(760px, 92vh);
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 18px 60px rgba(0,0,0,.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-modal-header {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.chat-modal-title {
+  font-weight: 800;
+}
+
+.chat-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.chat-modal-body {
+  flex: 1;
+  position: relative;
+}
+
+#chatRoomFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 </style>
 <!DOCTYPE html>
 <html lang="ko">
@@ -112,7 +164,17 @@
 <div class="chat-list-container" id="chatRoomList">
 
 </div>
-
+<div id="chatModalOverlay" class="chat-modal-overlay">
+    <div class="chat-modal" role="dialog" aria-modal="true">
+        <div class="chat-modal-header">
+            <div class="chat-modal-title" id="chatModalTitle">채팅</div>
+            <button class="chat-modal-close" id="chatModalCloseBtn" aria-label="닫기">×</button>
+        </div>
+        <div class="chat-modal-body">
+            <iframe id="chatRoomFrame" src="about:blank"></iframe>
+        </div>
+    </div>
+</div>
 <script>
     // Thymeleaf에서 userId만 전달
     const userId = [[${userId}]];
@@ -124,6 +186,13 @@
     window.addEventListener("focus", () => {
         loadChatRooms();
     });
+
+            window.addEventListener("message", (event) => {
+          if (!event || !event.data) return;
+          if (event.data.type === "CHAT_MODAL_BACK") {
+            closeChatModal();
+          }
+        });
 
     });
 
@@ -162,7 +231,7 @@
             card.className = "chat-room-card";
 
     card.addEventListener("click", () => {
-        window.location.href = `/chat/room/${room.tripId}`;
+         openChatModal(room.tripId, room.title);
     });
 
             const timeText = room.lastMessageAt
@@ -211,6 +280,55 @@
 
         return `${period} ${hours}:${minutes}`;
     }
+
+
+      // ✅ Enter 전송 / Shift+Enter 줄바꿈 (네가 추가한 부분 유지)
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("messageInput");
+    if (!input) return;
+
+    input.addEventListener("keydown", (e) => {
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === "Enter") {
+        if (e.shiftKey) return;
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  });
+     const overlay = document.getElementById("chatModalOverlay");
+    const frame = document.getElementById("chatRoomFrame");
+    const closeBtn = document.getElementById("chatModalCloseBtn");
+    const titleEl = document.getElementById("chatModalTitle");
+
+    function openChatModal(tripId, title) {
+      titleEl.textContent = title || "채팅";
+      overlay.style.display = "flex";
+      // embed=1 추가 (채팅 화면을 모달에 맞게 표시하기 위해)
+      frame.src = `/chat/room/${tripId}?userId=${userId}&embed=1`;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeChatModal() {
+      overlay.style.display = "none";
+      frame.src = "about:blank";
+      document.body.style.overflow = "";
+    }
+
+    closeBtn.addEventListener("click", closeChatModal);
+
+    // 모달 밖 클릭 시 닫기
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeChatModal();
+    });
+
+    // ESC 닫기
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.style.display === "flex") {
+        closeChatModal();
+      }
+    });
+
 
 </script>
 
