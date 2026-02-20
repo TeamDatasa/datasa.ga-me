@@ -3,34 +3,33 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="/css/host/trip-write.css" />
+    <link rel="stylesheet" href="/css/host/trip-write.css"/>
 
     <title>여행 글 작성</title>
 
-    <!-- Kakao Maps SDK -->
-    <script type="text/javascript"
-            th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey=' + ${jsKey} + '&libraries=services'">
-    </script>
+    <!-- Kakao Maps SDK (Thymeleaf 안전 로드 + autoload=false) -->
+    <script th:if="${jsKey != null}"
+            th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${jsKey},libraries='services',autoload='false')}"></script>
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
 </head>
 
 <body>
 <h1 class="tw-title">여행 글 작성</h1>
 
-<form th:action="@{/trip/write}" method="post" th:object="${request}">
+<form class="tw-form" th:action="@{/trip/write}" method="post" th:object="${request}">
 
-    <div>
+    <div class="tw-field">
         <label for="title">제목</label><br/>
         <input id="title" type="text" th:field="*{title}" maxlength="120" required/>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="description">설명</label><br/>
         <textarea id="description" th:field="*{description}" rows="6" cols="60" required></textarea>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="region">지역(시)</label><br/>
         <select id="region" th:field="*{region}" required>
             <option value="" disabled selected>선택하세요</option>
@@ -109,27 +108,23 @@
             <option value="화성">화성</option>
         </select>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="estimatedCost">예상 비용(KRW)</label><br/>
         <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="maxParticipants">최대 인원</label><br/>
         <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="durationMinutes">소요 시간(분)</label><br/>
         <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required/>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="theme">테마</label><br/>
         <select id="theme" th:field="*{theme}" required>
             <option value="" disabled selected>선택하세요</option>
@@ -140,44 +135,35 @@
             <option value="NIGHT">야경</option>
         </select>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="startAt">시작 일자/시간</label><br/>
-        <input id="startAt" type="datetime-local"
-               th:field="*{startAt}"
-               required/>
+        <input id="startAt" type="datetime-local" th:field="*{startAt}" required/>
     </div>
-    <br/>
 
-    <div>
+    <div class="tw-field">
         <label for="endAt">끝나는 일자/시간</label><br/>
-        <input id="endAt" type="datetime-local"
-               th:field="*{endAt}"
-               required/>
+        <input id="endAt" type="datetime-local" th:field="*{endAt}" required/>
     </div>
-    <br/>
 
-    <!-- ================== MAP ================== -->
-    <div style="margin-top:16px;">
-        <label style="font-weight:bold; display:block; margin-bottom:8px;">장소 검색</label>
+    <!-- ================== MAP (기능 동일, UI만 정리) ================== -->
+    <section class="tw-map-section">
+        <div class="tw-section-title">장소 검색</div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <div class="tw-place-search">
             <input id="keyword" type="text"
                    placeholder="예: 부산역"
-                   style="padding:8px; width:280px;"
                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchPlaces(); }"/>
-            <button type="button" onclick="searchPlaces()" style="padding:8px 12px; cursor:pointer;">검색</button>
+            <button type="button" onclick="searchPlaces()">검색</button>
         </div>
 
-        <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
-            <div id="map" style="width: 640px; height: 360px; border:1px solid #ddd; border-radius:10px;"></div>
+        <div class="tw-map-grid">
+            <div id="map"></div>
 
-            <div style="width: 320px; max-height:360px; overflow:auto; border:1px solid #eee; border-radius:10px; padding:10px;">
-                <div style="font-weight:bold; margin-bottom:8px;">검색 결과</div>
-                <ul id="placesList"
-                    style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;"></ul>
-                <div id="pagination" style="margin-top:10px;"></div>
+            <div class="tw-result-box">
+                <div class="tw-mini-title">검색 결과</div>
+                <ul id="placesList"></ul>
+                <div id="pagination"></div>
             </div>
         </div>
 
@@ -188,15 +174,15 @@
         <input type="hidden" name="lng" id="lng">
         <input type="hidden" name="address" id="address">
 
-        <div style="margin-top:8px; color:#666; font-size:13px;">
+        <div class="tw-picked">
             선택된 장소: <span id="pickedText">아직 선택되지 않았습니다.</span>
         </div>
 
         <!-- 일정 목록 UI -->
-        <div style="margin-top:14px; border:1px solid #eee; border-radius:10px; padding:12px;">
-            <div style="font-weight:bold; margin-bottom:8px;">일정(선택한 장소 목록)</div>
+        <div class="tw-schedule-box">
+            <div class="tw-mini-title">일정(선택한 장소 목록)</div>
 
-            <div id="scheduleList" style="display:flex; flex-direction:column; gap:8px;">
+            <div id="scheduleList">
                 <div style="color:#888; font-size:13px;" id="scheduleEmptyText">
                     아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.
                 </div>
@@ -218,16 +204,13 @@
             <!-- ✅ JS가 제출용 hidden input들을 여기에 동적으로 생성 -->
             <div id="scheduleHiddenFields"></div>
         </div>
-    </div>
+    </section>
     <!-- ================== /MAP ================== -->
 
-    <br/>
-    <button type="submit">등록</button>
-    <button type="button"
-            class="btn-cancel"
-            onclick="location.href='/api/trip/listAll'">
-        목록
-    </button>
+    <div class="tw-actions">
+        <button type="submit">등록</button>
+        <button type="button" class="btn-cancel" onclick="location.href='/trip/listAll'">목록</button>
+    </div>
 
 </form>
 
@@ -249,10 +232,12 @@
         infowindow = new kakao.maps.InfoWindow({zIndex: 1});
     }
 
-    // SDK 로드 완료 후에만 초기화
-    kakao.maps.load(function () {
-        initKakaoMap();
-    });
+    // SDK 로드 완료 후에만 초기화 (autoload=false 대응)
+    if (window.kakao && kakao.maps && typeof kakao.maps.load === 'function') {
+        kakao.maps.load(function () {
+            initKakaoMap();
+        });
+    }
 
     function searchPlaces() {
         const keyword = document.getElementById('keyword').value.trim();
@@ -294,16 +279,13 @@
 
     function makeListItem(place) {
         const li = document.createElement('li');
-        li.style.border = '1px solid #eee';
-        li.style.borderRadius = '10px';
-        li.style.padding = '10px';
-        li.style.cursor = 'pointer';
 
         const addr = place.road_address_name || place.address_name || '';
         li.innerHTML = `
           <div style="font-weight:bold;">${escapeHtml(place.place_name)}</div>
           <div style="font-size:12px; color:#666; margin-top:4px;">${escapeHtml(addr)}</div>
         `;
+        li.style.cursor = 'pointer';
         return li;
     }
 
@@ -358,9 +340,34 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // ✅ endAt 기본값: 작성 시점 + 14일 (비어있을 때만)
+        presetEndAtPlus14Days();
+
         loadSchedulePlacesFromHidden();
         renderSchedulePlaces();
     });
+
+    function presetEndAtPlus14Days() {
+        const endEl = document.getElementById('endAt');
+        if (!endEl) return;
+
+        // 값이 이미 있으면 건드리지 않음(사용자 선택/서버 기본값 보호)
+        if (endEl.value && endEl.value.trim().length > 0) return;
+
+        const d = new Date();
+        d.setDate(d.getDate() + 14);
+        endEl.value = toDatetimeLocalValue(d);
+    }
+
+    function toDatetimeLocalValue(date) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        const mm = pad(date.getMonth() + 1);
+        const dd = pad(date.getDate());
+        const hh = pad(date.getHours());
+        const mi = pad(date.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
 
     function loadSchedulePlacesFromHidden() {
         const hiddenRoot = document.getElementById('scheduleHiddenFieldsServer');
@@ -418,8 +425,6 @@
             row.style.gap = '10px';
             row.style.alignItems = 'center';
             row.style.justifyContent = 'space-between';
-            row.style.border = '1px solid #f0f0f0';
-            row.style.borderRadius = '10px';
             row.style.padding = '10px';
 
             const left = document.createElement('div');
@@ -430,7 +435,6 @@
             const title = document.createElement('div');
             title.style.fontWeight = 'bold';
             title.textContent = `${p.placeName} | ${p.address}`;
-
             left.appendChild(title);
 
             if (p.lat != null && p.lng != null && Number.isFinite(p.lat) && Number.isFinite(p.lng)) {
@@ -476,7 +480,6 @@
             const a = document.createElement('a');
             a.href = '#';
             a.textContent = i;
-            a.style.marginRight = '8px';
             a.onclick = (function (i) {
                 return function () {
                     pagination.gotoPage(i);
@@ -508,5 +511,8 @@
             .replaceAll("'", '&#039;');
     }
 </script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
+
 </body>
 </html>

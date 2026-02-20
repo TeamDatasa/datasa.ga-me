@@ -4,17 +4,47 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-detail.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
 
     <title>여정 상세</title>
 </head>
 
 <body>
-<div th:replace="~{fragments/header :: siteHeader}"></div>
+<header class="yw-header">
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
+
+        <nav class="yw-nav">
+            <a class="yw-nav__link" href="/">홈</a>
+            <a class="yw-nav__link" href="/trip/listAll">여행</a>
+            <a class="yw-nav__link" href="/community">고객센터</a>
+        </nav>
+
+        <div class="yw-auth">
+            <div id="guestMenu">
+                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
+                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
+            </div>
+
+            <div id="userMenu" style="display:none;">
+                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>
+                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
+                <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
 
 <main class="dt-page">
     <div class="dt-container">
@@ -36,7 +66,15 @@
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">모집 정원</span>
                             <span class="dt-strong" th:text="${trip.maxParticipants}">0</span>
+                            <span class="dt-dot">•</span>
+                            <span class="dt-muted">호스트</span>
 
+                            <!-- ✅ 호스트 클릭 -> 모달 -->
+                            <a href="#"
+                               class="dt-strong hc-host-link"
+                               data-host-card-open
+                               th:attr="data-host-id=${trip.hostUserId}"
+                               th:text="${trip.hostName} ?: '-'">-</a>
                         </div>
                     </div>
 
@@ -50,8 +88,30 @@
                             <span class="dt-like__icon" data-like-icon th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
                             <span class="dt-like__count" data-like-count th:text="${trip.likeCount}">0</span>
                         </button>
+
+                        <div class="dt-owner-top" th:if="${isOwner}">
+                            <a class="dt-btn dt-btn--ghost"
+                               th:href="@{|/trip/update/${trip.tripId}|}"
+                               th:classappend="${!canEditDelete} ? ' dt-disabled' : ''"
+                               th:attr="aria-disabled=${!canEditDelete}"
+                               th:onclick="${!canEditDelete} ? 'return false;' : null">
+                                수정
+                            </a>
+
+                            <form id="deleteTripFormTop" th:action="@{|/trip/delete/${trip.tripId}|}" method="post">
+                                <button type="submit"
+                                        class="dt-btn dt-btn--danger"
+                                        th:disabled="${!canEditDelete}">
+                                    삭제
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </header>
+
+                <p class="dt-hint dt-hint--top" th:if="${isOwner} and ${!canEditDelete}">
+                    여정 시작 7일 전부터 수정/삭제가 불가능합니다.
+                </p>
 
                 <div class="dt-divider"></div>
 
@@ -70,10 +130,10 @@
                     </div>
 
                     <form id="commentForm" class="dt-comment-form">
-            <textarea id="commentContent"
-                      class="dt-textarea"
-                      rows="3"
-                      placeholder="댓글을 입력하세요"></textarea>
+                        <textarea id="commentContent"
+                                  class="dt-textarea"
+                                  rows="3"
+                                  placeholder="댓글을 입력하세요"></textarea>
 
                         <div class="dt-comment-actions">
                             <button type="submit" class="dt-btn dt-btn--primary">등록</button>
@@ -105,40 +165,43 @@
                             <span class="dt-v"
                                   th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                         </div>
-
                         <div class="dt-kv">
                             <span class="dt-k">종료일</span>
                             <span class="dt-v"
                                   th:text="${trip.endAt != null} ? ${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                         </div>
-
                     </div>
                 </div>
 
-                <div class="dt-card dt-side-card" th:if="${isOwner}">
+                <div class="dt-card dt-side-card">
                     <div class="dt-side-top">
-                        <div class="dt-side-title">내 게시글 관리</div>
-                        <div class="dt-side-sub dt-muted">수정/삭제는 정책에 따라 제한될 수 있습니다.</div>
+                        <div class="dt-side-title">게시글 관리</div>
+                        <div class="dt-side-sub dt-muted">
+                            내 게시글일 때만 수정/삭제가 가능합니다.
+                        </div>
                     </div>
 
                     <div class="dt-owner-actions">
                         <a class="dt-btn dt-btn--ghost dt-btn--block"
                            th:href="@{|/trip/update/${trip.tripId}|}"
-                           th:classappend="${!canEditDelete} ? ' dt-disabled' : ''"
-                           th:attr="aria-disabled=${!canEditDelete}"
-                           th:onclick="${!canEditDelete} ? 'return false;' : null">
+                           th:classappend="${!isOwner or !canEditDelete} ? ' dt-disabled' : ''"
+                           th:attr="aria-disabled=${!isOwner or !canEditDelete}"
+                           th:onclick="${!isOwner or !canEditDelete} ? 'return false;' : null">
                             수정
                         </a>
 
                         <form id="deleteTripForm" th:action="@{|/trip/delete/${trip.tripId}|}" method="post">
                             <button type="submit"
                                     class="dt-btn dt-btn--danger dt-btn--block"
-                                    th:disabled="${!canEditDelete}">
+                                    th:disabled="${!isOwner or !canEditDelete}">
                                 삭제
                             </button>
                         </form>
 
-                        <p class="dt-hint" th:if="${!canEditDelete}">
+                        <p class="dt-hint" th:if="${!isOwner}">
+                            내 게시글이 아니라서 수정/삭제가 불가능합니다.
+                        </p>
+                        <p class="dt-hint" th:if="${isOwner} and ${!canEditDelete}">
                             여정 시작 7일 전부터 수정/삭제가 불가능합니다.
                         </p>
                     </div>
@@ -149,6 +212,21 @@
     </div>
 </main>
 
+<!-- ✅ Host Card Modal (페이지 1회) -->
+<div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
+    <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
+        <div class="hc-head">
+            <div id="hcTitle" class="hc-title">호스트 프로필</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+        </div>
+        <div class="hc-body">
+            <h3 id="hcName" class="hc-name">-</h3>
+            <div id="hcMeta" class="hc-meta"></div>
+            <div id="hcBio" class="hc-bio"></div>
+        </div>
+    </div>
+</div>
+
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
@@ -157,11 +235,14 @@
 
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/trip-apply.js(v=${#dates.createNow().time})}"></script>
-<script th:src="@{/js/main-auth.js}"></script>
-<script th:src="@{/js/notifications.js}"></script>
+<script th:src="@{/js/main-auth.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/notifications.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-comments.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-delete.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

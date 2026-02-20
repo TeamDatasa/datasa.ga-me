@@ -2,16 +2,15 @@
   --lemon: #F2E96D;
   --white: #FCFCFB;
   --gray: #566873;
-  --blue-light: #3084F2;
+  --sky: #3084F2;
   --blue: #1675F2;
 
-  --text: #111827;
+  --text: #1c1f24;
   --muted: rgba(86, 104, 115, 0.85);
 
   --card: #ffffff;
-  --line: rgba(17, 24, 39, 0.08);
-  --shadow: 0 14px 40px rgba(17, 24, 39, 0.08);
-  --shadow-soft: 0 10px 28px rgba(17, 24, 39, 0.07);
+  --line: rgba(86, 104, 115, 0.18);
+  --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.06);
   --radius: 18px;
 }
 
@@ -22,9 +21,8 @@
 }
 
 .dt-container {
-  max-width: 1080px;
+  width: min(1100px, 92vw);
   margin: 0 auto;
-  padding: 0 18px;
 }
 
 .dt-grid {
@@ -81,7 +79,7 @@
 
 .dt-strong {
   color: var(--text);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .dt-head {
@@ -120,17 +118,24 @@
   border: 1px solid rgba(48, 132, 242, 0.25);
   background: rgba(48, 132, 242, 0.08);
   color: var(--blue);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .dt-dot {
-  color: rgba(86, 104, 115, 0.5);
+  color: rgba(86, 104, 115, 0.55);
 }
 
 .dt-actions {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dt-owner-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .dt-like {
@@ -140,8 +145,8 @@
   height: 40px;
   padding: 0 12px;
   border-radius: 999px;
-  border: 1px solid rgba(86, 104, 115, 0.20);
-  background: rgba(252, 252, 251, 0.9);
+  border: 1px solid rgba(86, 104, 115, 0.22);
+  background: rgba(252, 252, 251, 0.95);
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
@@ -161,13 +166,13 @@
 }
 
 .dt-like__count {
-  font-weight: 800;
+  font-weight: 900;
   color: var(--text);
 }
 
 .dt-divider {
   height: 1px;
-  background: var(--line);
+  background: rgba(86, 104, 115, 0.18);
   margin: 18px 0;
 }
 
@@ -177,7 +182,7 @@
 
 .dt-section-title {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
   margin: 0 0 10px;
   color: var(--text);
   letter-spacing: -0.01em;
@@ -185,7 +190,7 @@
 
 .dt-desc {
   margin: 0;
-  color: rgba(17, 24, 39, 0.86);
+  color: rgba(28, 31, 36, 0.86);
   line-height: 1.7;
   font-size: 14.5px;
   white-space: pre-wrap;
@@ -231,21 +236,22 @@
 
 .dt-v {
   color: var(--text);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .dt-btn {
   height: 44px;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid transparent;
   padding: 0 14px;
-  font-weight: 800;
+  font-weight: 900;
   cursor: pointer;
   transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
+  background: #fff;
 }
 
 .dt-btn--block {
@@ -254,7 +260,7 @@
 
 .dt-btn--primary {
   background: var(--lemon);
-  color: #111827;
+  color: #1a1a1a;
   box-shadow: 0 12px 26px rgba(242, 233, 109, 0.35);
 }
 
@@ -275,15 +281,16 @@
 
 .dt-btn--danger {
   background: rgba(86, 104, 115, 0.08);
-  color: #b42318;
-  border-color: rgba(180, 35, 24, 0.25);
+  color: #1c1c1c;
+  border-color: rgba(86, 104, 115, 0.25);
 }
 
 .dt-btn--danger:hover {
   box-shadow: 0 14px 28px rgba(180, 35, 24, 0.10);
 }
 
-.dt-disabled {
+.dt-disabled,
+.dt-btn[disabled] {
   opacity: 0.55;
   pointer-events: none;
 }
@@ -291,8 +298,12 @@
 .dt-hint {
   margin: 10px 0 0;
   font-size: 12.5px;
-  color: rgba(86, 104, 115, 0.85);
+  color: rgba(86, 104, 115, 0.88);
   line-height: 1.5;
+}
+
+.dt-hint--top {
+  margin: 10px 0 0;
 }
 
 .dt-comment-head {
@@ -309,7 +320,7 @@
   padding: 12px;
   border-radius: 14px;
   border: 1px solid rgba(86, 104, 115, 0.18);
-  background: rgba(252, 252, 251, 0.7);
+  background: rgba(252, 252, 251, 0.70);
 }
 
 .dt-textarea {
@@ -321,6 +332,7 @@
   line-height: 1.5;
   resize: vertical;
   outline: none;
+  background: #fff;
 }
 
 .dt-textarea:focus {
@@ -368,7 +380,7 @@
 }
 
 .dt-comment-list .comment-content {
-  color: rgba(17, 24, 39, 0.86);
+  color: rgba(28, 31, 36, 0.86);
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -386,7 +398,7 @@
   border-radius: 10px;
   border: 1px solid rgba(86, 104, 115, 0.20);
   background: rgba(86, 104, 115, 0.06);
-  color: rgba(17, 24, 39, 0.86);
+  color: rgba(28, 31, 36, 0.86);
   cursor: pointer;
 }
 

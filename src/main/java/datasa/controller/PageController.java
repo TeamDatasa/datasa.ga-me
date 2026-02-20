@@ -19,6 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class PageController {
@@ -72,14 +75,24 @@ public class PageController {
 	) {
 		String email = userDetails.getUsername();
 		
-		var dto = myPageUserService.getUserDetails(email);
-		model.addAttribute("counts", dto.counts());
-		model.addAttribute("myTours", dto.myTours());
-		model.addAttribute("myApplications", dto.myApplications());
+		MyPageUserDetailsResponse dto = myPageUserService.getUserDetails(email);
 		
-		// ✅ users/MyPageDetailsUser.html
+		model.addAttribute("counts", dto.counts());
+		
+		// ✅ 참여한 투어: 최대 3개만
+		List<MyTourItem> allMyTours = dto.myTours() != null ? dto.myTours() : Collections.emptyList();
+		model.addAttribute("myTours", allMyTours.subList(0, Math.min(3, allMyTours.size())));
+		model.addAttribute("myToursHasMore", allMyTours.size() > 3);
+		
+		List<MyTourItem> allMyLikes = myPageUserService.getLikedTours(email);
+		if (allMyLikes == null) allMyLikes = Collections.emptyList();
+		
+		model.addAttribute("myLikes", allMyLikes.subList(0, Math.min(3, allMyLikes.size())));
+		model.addAttribute("myLikesHasMore", allMyLikes.size() > 3);
+		
 		return "users/MyPageDetailsUser";
 	}
+	
 	
 	@GetMapping("/mypage/details/host")
 	public String detailsHost(

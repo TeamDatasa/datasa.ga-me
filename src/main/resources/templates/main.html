@@ -8,7 +8,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
     <title>main page</title>
+
 </head>
 <body>
 <header class="yw-header">
@@ -103,7 +106,12 @@
     <aside class="yw-section">
         <div class="yw-container">
             <div class="yw-section__head yw-section__head--row">
-                <h2 class="yw-section__title">이번주 추천 코스</h2>
+                <h2 class="yw-section__title" th:if="${!isLogin}">이번주 추천 코스</h2>
+
+                <h2 class="yw-section__title" th:if="${isLogin}">
+                    <span th:text="${nickname}">닉네임</span>님을 위한 추천 코스
+                </h2>
+
                 <a class="yw-section__link" href="/courses">더보기</a>
             </div>
             <div class="yw-cards">
@@ -231,16 +239,17 @@
 
 </main>
 
-<footer class="yw-footer">
-    <div class="yw-container yw-footer__inner">
-        <span>© ga-me</span>
-    </div>
-</footer>
+<!--<footer class="yw-footer">-->
+<!--    <div class="yw-container yw-footer__inner">-->
+<!--        <span>© ga-me</span>-->
+<!--    </div>-->
+<!--</footer>-->
 
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
 <script th:src="@{/js/main-course.js}"></script>
-
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 </body>
 </html>

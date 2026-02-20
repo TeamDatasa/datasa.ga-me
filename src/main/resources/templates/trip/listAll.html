@@ -8,6 +8,8 @@
     <link rel="stylesheet" th:href="@{/css/trip-list.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
     <title>여행 목록</title>
 </head>
@@ -48,15 +50,19 @@
                             th:attr="data-trip-id=${trip.tripId},
                            data-liked=${trip.likedByMe},
                            data-count=${trip.likeCount}">
-            <span class="like-btn__icon" data-like-icon
-                  th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
+                        <span class="like-btn__icon" data-like-icon
+                              th:text="${trip.likedByMe} ? '♥' : '♡'">♡</span>
                         <span class="like-btn__count" data-like-count
                               th:text="${trip.likeCount}">0</span>
                     </button>
 
                     <span class="trip-card__host">
-            <span th:text="${trip.hostName}">호스트</span>
-          </span>
+                        <a href="#"
+                           class="hc-host-link"
+                           data-host-card-open
+                           th:attr="data-host-id=${trip.hostUserId}"
+                           th:text="${trip.hostName}">호스트</a>
+                    </span>
                 </div>
             </article>
 
@@ -68,10 +74,28 @@
     </div>
 </main>
 
+<!-- ✅ Host Card Modal (페이지 1회) -->
+<div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
+    <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
+        <div class="hc-head">
+            <div id="hcTitle" class="hc-title">호스트 프로필</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+        </div>
+        <div class="hc-body">
+            <h3 id="hcName" class="hc-name">-</h3>
+            <div id="hcMeta" class="hc-meta"></div>
+            <div id="hcBio" class="hc-bio"></div>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 
 
 </body>

@@ -51,4 +51,15 @@ public class NotificationController {
 		notificationQueryService.markAllRead(authentication);
 		return ResponseEntity.noContent().build();
 	}
+	
+	// 알림 읽음 처리(단건)
+	@PostMapping("/{notificationId}/read")
+	public ResponseEntity<Void> readOne(
+			Authentication authentication,
+			@PathVariable Long notificationId
+	) {
+		notificationQueryService.markOneRead(authentication, notificationId);
+		return ResponseEntity.noContent().build();
+	}
+	
 }
