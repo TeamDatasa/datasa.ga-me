@@ -26,7 +26,14 @@
                 </div>
 
                 <div id="userMenu" style="display:none;">
+                    <!-- 채팅 아이콘(통일된 아이콘 버튼) -->
+                    <a class="yw-icon-btn" href="/chat/rooms" aria-label="채팅">
+                        <span class="yw-icon" aria-hidden="true">💬</span>
+                    </a>
+
+                    <!-- 알림(Topbar fragment) -->
                     <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
+
                     <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
                     <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
                 </div>
