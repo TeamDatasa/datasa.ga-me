@@ -1,4 +1,3 @@
-
 /* ===== Color System ===== */
 :root {
   --lemon: #F2E96D;
@@ -20,7 +19,7 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Apple SD Gothic Neo",
-    "Noto Sans KR", Arial, sans-serif;
+  "Noto Sans KR", Arial, sans-serif;
   background: var(--white);
   color: var(--text);
 }
@@ -73,6 +72,48 @@ a {
 .yw-nav__link:hover {
   background: rgba(242, 233, 109, 0.35);
   color: var(--text);
+}
+
+/* ===== Header Auth Spacing (추가/수정) ===== */
+.yw-auth {
+  display: flex;
+  align-items: center;
+}
+
+#guestMenu,
+#userMenu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#userMenu {
+  gap: 14px;
+}
+
+#userMenu > * {
+  flex: 0 0 auto;
+}
+
+/* 아이콘 버튼 (header.html에서 이미 사용 중인 클래스) */
+.yw-icon-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+.yw-icon-btn:hover {
+  background: rgba(86, 104, 115, 0.06);
+}
+
+.yw-icon {
+  font-size: 18px;
+  line-height: 1;
 }
 
 /* ===== Buttons ===== */
@@ -270,9 +311,9 @@ a {
 .yw-card__thumb {
   height: 140px;
   background: linear-gradient(
-    135deg,
-    rgba(242, 233, 109, 0.9),
-    rgba(22, 117, 242, 0.35)
+          135deg,
+          rgba(242, 233, 109, 0.9),
+          rgba(22, 117, 242, 0.35)
   );
 }
 .yw-card__body {
@@ -322,6 +363,7 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
 .yw-toast{
   position: fixed;
   top: 16px;
@@ -418,18 +460,15 @@ a {
   font-size: 18px;
 }
 
-/* ✅ HERO 그리드 안에 들어간 "이번주 추천 코스" 섹션 정렬 보정 */
 .yw-hero__inner > .yw-section {
-  padding: 0;              /* 섹션 기본 패딩 제거(우측 튀는 느낌 방지) */
+  padding: 0;
 }
 
 .yw-hero__inner > .yw-section > .yw-container {
-  width: 100%;             /* ✅ 오른쪽 컬럼 폭 그대로 꽉 채우기 */
-  margin: 0;               /* ✅ 가운데 정렬(margin auto) 제거 */
+  width: 100%;
+  margin: 0;
 }
 
-/* (선택) 추천 코스 헤더 줄도 오른쪽 끝까지 자연스럽게 */
 .yw-hero__inner > .yw-section .yw-section__head--row {
   padding-right: 0;
 }
-
