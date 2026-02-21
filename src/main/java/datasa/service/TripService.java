@@ -286,6 +286,8 @@ public class TripService {
 
 	@Transactional
 	public Long write(Long userId, TripWriteRequest request) {
+		validateWriteRequestTimes(request);
+
 		User hostUser = userRepository.findById(userId)
 				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + userId));
 
@@ -296,15 +298,62 @@ public class TripService {
 		trip.setRegion(request.getRegion());
 		trip.setEstimatedCost(request.getEstimatedCost());
 		trip.setMaxParticipants(request.getMaxParticipants());
-		trip.setDurationMinutes(request.getDurationMinutes());
 		trip.setStartAt(request.getStartAt());
 		trip.setEndAt(request.getEndAt());
+		trip.setDurationMinutes(calcDurationMinutes(request.getStartAt(), request.getEndAt()));
 		trip.setStatus(Trip.Status.OPEN);
 		trip.setTheme(request.getTheme());
 		Trip saved = tripRepository.save(trip);
 
 		saveTripLocations(saved, request);
+		saveTripLanguages(saved, request);
+
 		return saved.getTripId();
+	}
+
+	private void validateWriteRequestTimes(TripWriteRequest request) {
+		if (request == null) throw new IllegalArgumentException("잘못된 요청입니다.");
+		if (request.getStartAt() == null) throw new IllegalArgumentException("시작 일자/시간은 필수입니다.");
+		if (request.getEndAt() == null) throw new IllegalArgumentException("끝나는 일자/시간은 필수입니다.");
+
+		LocalDateTime nowPlus24h = LocalDateTime.now().plusHours(24);
+		if (request.getStartAt().isBefore(nowPlus24h)) {
+			throw new IllegalArgumentException("게시글을 작성하는 시간으로부터 24시간 이후 일자만 선택 가능합니다");
+		}
+
+		if (request.getEndAt().isBefore(request.getStartAt())) {
+			throw new IllegalArgumentException("끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다");
+		}
+	}
+
+	private int calcDurationMinutes(LocalDateTime startAt, LocalDateTime endAt) {
+		long minutes = java.time.Duration.between(startAt, endAt).toMinutes();
+		if (minutes <= 0) {
+			throw new IllegalArgumentException("끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다");
+		}
+		if (minutes > Integer.MAX_VALUE) {
+			throw new IllegalArgumentException("소요 시간이 너무 깁니다.");
+		}
+		return (int) minutes;
+	}
+
+	private void saveTripLanguages(Trip trip, TripWriteRequest request) {
+		List<String> codes = request.getLanguageCodes();
+		if (codes == null || codes.isEmpty()) {
+			throw new IllegalArgumentException("진행 언어를 1개 이상 선택해 주세요.");
+		}
+
+		java.util.LinkedHashSet<String> unique = new java.util.LinkedHashSet<>();
+		for (String c : codes) {
+			if (c == null) continue;
+			String v = c.trim();
+			if (!v.isEmpty()) unique.add(v);
+		}
+
+		for (String code : unique) {
+			TripLanguage tl = new TripLanguage(trip, code);
+			tripLanguageRepository.save(tl);
+		}
 	}
 
 	private void saveTripLocations(Trip trip, TripWriteRequest request) {

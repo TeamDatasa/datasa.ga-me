@@ -3,7 +3,7 @@ package datasa.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
         }
 )
 @Getter
+@Setter
 @NoArgsConstructor
 public class TripLanguage {
 
@@ -37,5 +38,10 @@ public class TripLanguage {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public TripLanguage(Trip trip, String languageCode) {
+        this.trip = trip;
+        this.languageCode = languageCode;
     }
 }

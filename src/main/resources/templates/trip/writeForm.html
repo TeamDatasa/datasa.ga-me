@@ -11,7 +11,6 @@
     <script th:if="${jsKey != null}"
             th:src="@{https://dapi.kakao.com/v2/maps/sdk.js(appkey=${jsKey},libraries='services',autoload='false')}"></script>
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
-
 </head>
 
 <body>
@@ -30,98 +29,22 @@
     </div>
 
     <div class="tw-field">
-        <label for="region">지역(시)</label><br/>
-        <select id="region" th:field="*{region}" required>
-            <option value="" disabled selected>선택하세요</option>
-            <option value="가평">가평</option>
-            <option value="강릉">강릉</option>
-            <option value="거제">거제</option>
-            <option value="경주">경주</option>
-            <option value="고성">고성</option>
-            <option value="공주">공주</option>
-            <option value="광양">광양</option>
-            <option value="광주">광주</option>
-            <option value="구미">구미</option>
-            <option value="군산">군산</option>
-            <option value="김천">김천</option>
-            <option value="김포">김포</option>
-            <option value="김해">김해</option>
-            <option value="나주">나주</option>
-            <option value="남양주">남양주</option>
-            <option value="남원">남원</option>
-            <option value="논산">논산</option>
-            <option value="당진">당진</option>
-            <option value="대구">대구</option>
-            <option value="대전">대전</option>
-            <option value="동두천">동두천</option>
-            <option value="동해">동해</option>
-            <option value="목포">목포</option>
-            <option value="무안">무안</option>
-            <option value="밀양">밀양</option>
-            <option value="보령">보령</option>
-            <option value="보성">보성</option>
-            <option value="부산">부산</option>
-            <option value="부여">부여</option>
-            <option value="부천">부천</option>
-            <option value="사천">사천</option>
-            <option value="상주">상주</option>
-            <option value="서귀포">서귀포</option>
-            <option value="서울">서울</option>
-            <option value="서산">서산</option>
-            <option value="성남">성남</option>
-            <option value="세종">세종</option>
-            <option value="속초">속초</option>
-            <option value="수원">수원</option>
-            <option value="순천">순천</option>
-            <option value="시흥">시흥</option>
-            <option value="안동">안동</option>
-            <option value="안산">안산</option>
-            <option value="안성">안성</option>
-            <option value="안양">안양</option>
-            <option value="양산">양산</option>
-            <option value="양양">양양</option>
-            <option value="여수">여수</option>
-            <option value="연천">연천</option>
-            <option value="영월">영월</option>
-            <option value="영주">영주</option>
-            <option value="영천">영천</option>
-            <option value="오산">오산</option>
-            <option value="완도">완도</option>
-            <option value="용인">용인</option>
-            <option value="울산">울산</option>
-            <option value="원주">원주</option>
-            <option value="익산">익산</option>
-            <option value="인천">인천</option>
-            <option value="전주">전주</option>
-            <option value="정선">정선</option>
-            <option value="제주">제주</option>
-            <option value="제천">제천</option>
-            <option value="창원">창원</option>
-            <option value="천안">천안</option>
-            <option value="청주">청주</option>
-            <option value="춘천">춘천</option>
-            <option value="충주">충주</option>
-            <option value="통영">통영</option>
-            <option value="파주">파주</option>
-            <option value="포항">포항</option>
-            <option value="하남">하남</option>
-            <option value="화성">화성</option>
-        </select>
-    </div>
-
-    <div class="tw-field">
-        <label for="estimatedCost">예상 비용(KRW)</label><br/>
-        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
-    </div>
-
-    <div class="tw-field">
-        <label for="maxParticipants">최대 인원</label><br/>
-        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
-    </div>
-
-    <div class="tw-field">
-        <label for="durationMinutes">소요 시간(분)</label><br/>
-        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required/>
+        <label>진행 언어(중복 선택 가능)</label><br/>
+        <div class="tw-check-group">
+            <label class="tw-check">
+                <input type="checkbox" th:field="*{languageCodes}" value="KOREAN"/>
+                <span>한국어</span>
+            </label>
+            <label class="tw-check">
+                <input type="checkbox" th:field="*{languageCodes}" value="ENGLISH"/>
+                <span>영어</span>
+            </label>
+            <label class="tw-check">
+                <input type="checkbox" th:field="*{languageCodes}" value="JAPANESE"/>
+                <span>일본어</span>
+            </label>
+        </div>
+        <div class="tw-help">진행 언어는 1개 이상 선택해야 합니다.</div>
     </div>
 
     <div class="tw-field">
@@ -137,16 +60,53 @@
     </div>
 
     <div class="tw-field">
+        <label>지역</label><br/>
+        <div class="tw-row">
+            <div class="tw-col">
+                <label for="province" class="tw-sub-label">도</label>
+                <select id="province" required>
+                    <option value="" disabled selected>선택하세요</option>
+                </select>
+            </div>
+            <div class="tw-col">
+                <label for="region" class="tw-sub-label">시</label>
+                <select id="region" th:field="*{region}" required th:attr="data-initial=*{region}">
+                    <option value="" disabled selected>도를 먼저 선택하세요</option>
+                </select>
+            </div>
+        </div>
+        <div class="tw-help">도를 선택하면 해당 도에 포함되는 시 목록이 노출됩니다.</div>
+    </div>
+
+    <div class="tw-field">
         <label for="startAt">시작 일자/시간</label><br/>
         <input id="startAt" type="datetime-local" th:field="*{startAt}" required/>
+        <div class="tw-help">게시글 작성 시점으로부터 24시간 이후만 선택 가능합니다.</div>
     </div>
 
     <div class="tw-field">
         <label for="endAt">끝나는 일자/시간</label><br/>
         <input id="endAt" type="datetime-local" th:field="*{endAt}" required/>
+        <div class="tw-help">끝나는 일자는 시작 일자/시간 이전으로 선택할 수 없습니다.</div>
     </div>
 
-    <!-- ================== MAP (기능 동일, UI만 정리) ================== -->
+    <div class="tw-field">
+        <label for="durationMinutes">소요 시간(분)</label><br/>
+        <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required readonly/>
+        <div class="tw-help">시작/끝 일자/시간을 기준으로 자동 계산됩니다.</div>
+    </div>
+
+    <div class="tw-field">
+        <label for="estimatedCost">예상 비용(KRW)</label><br/>
+        <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"/>
+    </div>
+
+    <div class="tw-field">
+        <label for="maxParticipants">최대 인원</label><br/>
+        <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
+    </div>
+
+    <!-- ================== MAP ================== -->
     <section class="tw-map-section">
         <div class="tw-section-title">장소 검색</div>
 
@@ -167,7 +127,6 @@
             </div>
         </div>
 
-        <!-- 선택된 장소 1개 전송용 -->
         <input type="hidden" name="placeName" id="placeName">
         <input type="hidden" name="placeId" id="placeId">
         <input type="hidden" name="lat" id="lat">
@@ -178,7 +137,6 @@
             선택된 장소: <span id="pickedText">아직 선택되지 않았습니다.</span>
         </div>
 
-        <!-- 일정 목록 UI -->
         <div class="tw-schedule-box">
             <div class="tw-mini-title">일정(선택한 장소 목록)</div>
 
@@ -188,7 +146,6 @@
                 </div>
             </div>
 
-            <!-- ✅ 서버에서 넘어온 schedulePlaces 복원용(읽기 전용) -->
             <div id="scheduleHiddenFieldsServer" style="display:none;">
                 <th:block th:if="${request.schedulePlaces != null}">
                     <th:block th:each="p, stat : ${request.schedulePlaces}">
@@ -201,7 +158,6 @@
                 </th:block>
             </div>
 
-            <!-- ✅ JS가 제출용 hidden input들을 여기에 동적으로 생성 -->
             <div id="scheduleHiddenFields"></div>
         </div>
     </section>
@@ -212,15 +168,36 @@
         <button type="button" class="btn-cancel" onclick="location.href='/trip/listAll'">목록</button>
     </div>
 
+    <div id="serverError" th:if="${errorMessage != null}" th:attr="data-message=${errorMessage}" style="display:none;"></div>
+
 </form>
 
 <script>
     let map, ps, infowindow;
     let markers = [];
 
-    // 일정 목록 상태
-    // { placeId, placeName, address, lat, lng }
     let schedulePlaces = [];
+
+    const REGION_MAP = {
+        "서울특별시": ["서울"],
+        "인천광역시": ["인천"],
+        "부산광역시": ["부산"],
+        "대구광역시": ["대구"],
+        "대전광역시": ["대전"],
+        "광주광역시": ["광주"],
+        "울산광역시": ["울산"],
+        "세종특별자치시": ["세종"],
+        "제주특별자치도": ["제주", "서귀포"],
+
+        "경기도": ["가평", "김포", "남양주", "동두천", "부천", "시흥", "안산", "안성", "안양", "오산", "파주", "성남", "수원", "용인", "하남", "화성", "연천"],
+        "강원특별자치도": ["강릉", "고성", "동해", "속초", "양양", "영월", "원주", "정선", "춘천"],
+        "충청북도": ["제천", "청주", "충주"],
+        "충청남도": ["공주", "논산", "당진", "보령", "부여", "서산", "천안"],
+        "전라북도": ["군산", "익산", "전주"],
+        "전라남도": ["광양", "나주", "목포", "무안", "보성", "순천", "여수", "완도"],
+        "경상북도": ["경주", "구미", "김천", "안동", "영주", "영천", "포항", "상주"],
+        "경상남도": ["거제", "김해", "밀양", "사천", "창원", "통영", "양산"]
+    };
 
     function initKakaoMap() {
         map = new kakao.maps.Map(document.getElementById('map'), {
@@ -232,7 +209,6 @@
         infowindow = new kakao.maps.InfoWindow({zIndex: 1});
     }
 
-    // SDK 로드 완료 후에만 초기화 (autoload=false 대응)
     if (window.kakao && kakao.maps && typeof kakao.maps.load === 'function') {
         kakao.maps.load(function () {
             initKakaoMap();
@@ -300,7 +276,6 @@
         const lng = position.getLng();
         const addr = place.road_address_name || place.address_name || '';
 
-        // 단일 선택 전송값
         document.getElementById('placeName').value = place.place_name || '';
         document.getElementById('placeId').value = place.id || '';
         document.getElementById('lat').value = String(lat);
@@ -310,7 +285,6 @@
         document.getElementById('pickedText').textContent =
             `${place.place_name} / ${addr} (lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)})`;
 
-        // 일정 목록에 추가
         addSchedulePlace({
             placeId: String(place.id || ''),
             placeName: String(place.place_name || ''),
@@ -320,7 +294,6 @@
         });
     }
 
-    // 일정 추가 (중복 방지)
     function addSchedulePlace(item) {
         if (!item.placeName) return;
 
@@ -332,7 +305,6 @@
         renderSchedulePlaces();
     }
 
-    // 일정 삭제
     function removeSchedulePlace(index) {
         if (index < 0 || index >= schedulePlaces.length) return;
         schedulePlaces.splice(index, 1);
@@ -340,23 +312,203 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // ✅ endAt 기본값: 작성 시점 + 14일 (비어있을 때만)
-        presetEndAtPlus14Days();
+        initRegionSelects();
+        initDateTimeRules();
 
         loadSchedulePlacesFromHidden();
         renderSchedulePlaces();
+
+        const errEl = document.getElementById('serverError');
+        if (errEl && errEl.dataset && errEl.dataset.message) {
+            alert(errEl.dataset.message);
+        }
+
+        const form = document.querySelector('form.tw-form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (!validateOnSubmit()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        }
     });
 
-    function presetEndAtPlus14Days() {
+    function initRegionSelects() {
+        const provinceEl = document.getElementById('province');
+        const cityEl = document.getElementById('region');
+        if (!provinceEl || !cityEl) return;
+
+        const provinces = Object.keys(REGION_MAP);
+        provinces.forEach((p) => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            provinceEl.appendChild(opt);
+        });
+
+        const initialCity = cityEl.getAttribute('data-initial') || '';
+        if (initialCity) {
+            const found = findProvinceByCity(initialCity);
+            if (found) {
+                provinceEl.value = found;
+                fillCities(found, initialCity);
+                return;
+            }
+        }
+
+        provinceEl.addEventListener('change', function () {
+            fillCities(provinceEl.value, null);
+        });
+    }
+
+    function fillCities(province, selectCity) {
+        const cityEl = document.getElementById('region');
+        if (!cityEl) return;
+
+        cityEl.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.textContent = '선택하세요';
+        cityEl.appendChild(placeholder);
+
+        const cities = REGION_MAP[province] || [];
+        cities.forEach((c) => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            cityEl.appendChild(opt);
+        });
+
+        if (selectCity && cities.includes(selectCity)) {
+            cityEl.value = selectCity;
+        }
+    }
+
+    function findProvinceByCity(city) {
+        const target = String(city).trim();
+        if (!target) return null;
+        for (const [prov, cities] of Object.entries(REGION_MAP)) {
+            if (cities.includes(target)) return prov;
+        }
+        return null;
+    }
+
+    function initDateTimeRules() {
+        const startEl = document.getElementById('startAt');
         const endEl = document.getElementById('endAt');
-        if (!endEl) return;
+        const durEl = document.getElementById('durationMinutes');
 
-        // 값이 이미 있으면 건드리지 않음(사용자 선택/서버 기본값 보호)
-        if (endEl.value && endEl.value.trim().length > 0) return;
+        if (!startEl || !endEl || !durEl) return;
 
-        const d = new Date();
-        d.setDate(d.getDate() + 14);
-        endEl.value = toDatetimeLocalValue(d);
+        const minStart = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const minStartStr = toDatetimeLocalValue(minStart);
+        startEl.min = minStartStr;
+
+        if (!startEl.value || startEl.value.trim().length === 0) {
+            startEl.value = minStartStr;
+        }
+
+        if (!endEl.value || endEl.value.trim().length === 0) {
+            const s = parseDatetimeLocal(startEl.value);
+            const d = new Date(s.getTime() + 60 * 60 * 1000);
+            endEl.value = toDatetimeLocalValue(d);
+        }
+
+        endEl.min = startEl.value;
+        updateDuration();
+
+        startEl.addEventListener('change', function () {
+            const selected = parseDatetimeLocal(startEl.value);
+            const nowPlus24 = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+            if (selected < nowPlus24) {
+                alert('게시글을 작성하는 시간으로부터 24시간 이후 일자만 선택 가능합니다');
+                startEl.value = toDatetimeLocalValue(nowPlus24);
+            }
+
+            endEl.min = startEl.value;
+
+            const endDate = parseDatetimeLocal(endEl.value);
+            const startDate = parseDatetimeLocal(startEl.value);
+            if (endDate < startDate) {
+                alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+                const fix = new Date(startDate.getTime() + 60 * 60 * 1000);
+                endEl.value = toDatetimeLocalValue(fix);
+            }
+
+            updateDuration();
+        });
+
+        endEl.addEventListener('change', function () {
+            const endDate = parseDatetimeLocal(endEl.value);
+            const startDate = parseDatetimeLocal(startEl.value);
+
+            if (endDate < startDate) {
+                alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+                endEl.value = startEl.value;
+            }
+            updateDuration();
+        });
+
+        function updateDuration() {
+            const startDate = parseDatetimeLocal(startEl.value);
+            const endDate = parseDatetimeLocal(endEl.value);
+            const diffMs = endDate.getTime() - startDate.getTime();
+            const minutes = Math.floor(diffMs / 60000);
+            durEl.value = (minutes > 0) ? String(minutes) : '';
+        }
+    }
+
+    function validateOnSubmit() {
+        const startEl = document.getElementById('startAt');
+        const endEl = document.getElementById('endAt');
+        const durEl = document.getElementById('durationMinutes');
+        const provinceEl = document.getElementById('province');
+        const cityEl = document.getElementById('region');
+
+        const nowPlus24 = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        const startDate = parseDatetimeLocal(startEl.value);
+        if (startDate < nowPlus24) {
+            alert('게시글을 작성하는 시간으로부터 24시간 이후 일자만 선택 가능합니다');
+            return false;
+        }
+
+        const endDate = parseDatetimeLocal(endEl.value);
+        if (endDate < startDate) {
+            alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+            return false;
+        }
+
+        const duration = Number(durEl.value);
+        if (!Number.isFinite(duration) || duration <= 0) {
+            alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+            return false;
+        }
+
+        const checkedLang = document.querySelectorAll('input[name="languageCodes"]:checked');
+        if (!checkedLang || checkedLang.length === 0) {
+            alert('진행 언어를 1개 이상 선택해 주세요.');
+            return false;
+        }
+
+        if (!provinceEl.value) {
+            alert('도를 선택해 주세요.');
+            return false;
+        }
+        if (!cityEl.value) {
+            alert('시를 선택해 주세요.');
+            return false;
+        }
+
+        return true;
+    }
+
+    function parseDatetimeLocal(v) {
+        return new Date(v);
     }
 
     function toDatetimeLocalValue(date) {

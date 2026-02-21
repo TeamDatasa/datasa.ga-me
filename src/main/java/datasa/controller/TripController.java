@@ -56,27 +56,37 @@ public class TripController {
 	
 	// 게시글 작성 요청
 	@GetMapping("/write")
-	public String writeForm(Model model, @AuthenticationPrincipal CustomUserDetail user) {
+	public String writeForm(Model model,
+							@AuthenticationPrincipal CustomUserDetail user,
+							@RequestParam(name = "error", required = false) String error) {
 		if (user == null) {
 			log.debug("로그인 해주세요 : {}", user.getUserId());
 			return "redirect:/auth/login";
 		}
 		model.addAttribute("jsKey", kakaoJsKey);
 		model.addAttribute("request", new TripWriteRequest());
+		model.addAttribute("errorMessage", error);
 		return "trip/writeForm";
 	}
-	
+
 	@PostMapping("/write")
 	public String write(@ModelAttribute TripWriteRequest request,
 						@AuthenticationPrincipal CustomUserDetail user) {
-		
+
 		if (user == null) {
 			log.debug("로그인 해주세요 : {}", user.getUserId());
 			return "redirect:/auth/login";
 		}
-		
-		Long tripId = tripService.write(user.getUserId(), request);
-		return "redirect:/trip/detail/" + tripId;
+
+		try {
+			Long tripId = tripService.write(user.getUserId(), request);
+			return "redirect:/trip/detail/" + tripId;
+		} catch (IllegalArgumentException ex) {
+			return "redirect:/trip/write?error=" + java.net.URLEncoder.encode(
+					ex.getMessage(),
+					java.nio.charset.StandardCharsets.UTF_8
+			);
+		}
 	}
 	
 	

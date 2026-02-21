@@ -42,7 +42,6 @@ body{
   letter-spacing: -0.02em;
 }
 
-/* ❗ th:object는 렌더링 후 사라지므로 클래스 기반으로 안정화 */
 .tw-form{
   width: 100%;
   max-width: 1100px;
@@ -57,6 +56,60 @@ body{
 .tw-form > .tw-field{
   max-width: 760px;
   margin: 14px auto 0;
+}
+
+.tw-help{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tw-row{
+  width: min(760px, 100%);
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tw-col{
+  flex: 1 1 260px;
+  min-width: 240px;
+}
+
+.tw-sub-label{
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #334155;
+}
+
+.tw-check-group{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: min(760px, 100%);
+}
+
+.tw-check{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(252,252,251,0.85);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 900;
+  color: #334155;
+}
+
+.tw-check input{
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 label{
@@ -98,7 +151,12 @@ textarea:focus{
 
 select{ cursor:pointer; }
 
-/* ===== MAP UI (update 느낌으로 정리) ===== */
+input[readonly]{
+  background: rgba(2,6,23,0.03);
+  border-color: rgba(15,23,42,0.10);
+}
+
+/* ===== MAP UI ===== */
 .tw-map-section{
   max-width: 760px;
   margin: 18px auto 0;
