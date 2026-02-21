@@ -43,7 +43,6 @@
                 </div>
 
                 <div class="trip-card__footer" onclick="event.stopPropagation();">
-                    <!-- ✅ 좋아요 버튼 (공용 규격) -->
                     <button class="like-btn"
                             type="button"
                             data-like-btn
@@ -74,16 +73,23 @@
     </div>
 </main>
 
-<!-- ✅ Host Card Modal (페이지 1회) -->
+<!-- Host Card Modal (페이지 1회) -->
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
             <div id="hcTitle" class="hc-title">호스트 프로필</div>
             <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
         </div>
+
         <div class="hc-body">
-            <h3 id="hcName" class="hc-name">-</h3>
-            <div id="hcMeta" class="hc-meta"></div>
+            <div class="hc-profile">
+                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <div class="hc-profile__main">
+                    <h3 id="hcName" class="hc-name">-</h3>
+                    <div id="hcMeta" class="hc-meta"></div>
+                </div>
+            </div>
+
             <div id="hcBio" class="hc-bio"></div>
         </div>
     </div>
@@ -96,7 +102,6 @@
 <script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
 <div th:replace="~{fragments/footer :: siteFooter}"></div>
 <script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
-
 
 </body>
 </html>

@@ -6,7 +6,7 @@
 body{
   margin:0;
   font-family:-apple-system, BlinkMacSystemFont, "Segoe UI",
-              Roboto, "Helvetica Neue", Arial, sans-serif;
+  Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color:#f7f8fa;
   color:#222;
 }
@@ -258,6 +258,7 @@ a{ text-decoration:none; color:inherit; }
   display:block;
   cursor:pointer;
   transition: transform .12s ease, box-shadow .12s ease;
+  transition: transform .12s ease, box-shadow .12s ease;
 }
 
 .side-link:hover{
@@ -350,6 +351,27 @@ a{ text-decoration:none; color:inherit; }
 }
 
 /* 모달 내부 그리드 */
+.avatar-preview{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 0 6px;
+}
+
+.avatar-preview__img{
+  width:56px;
+  height:56px;
+  border-radius:999px;
+  object-fit:cover;
+  border:1px solid rgba(0,0,0,0.08);
+  background:#f2f2f2;
+}
+
+.avatar-preview__text{
+  font-size:13px;
+  color:#444;
+}
+
 .avatar-grid{
   display:grid;
   grid-template-columns: repeat(3, 1fr);

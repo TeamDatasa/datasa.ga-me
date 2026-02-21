@@ -38,7 +38,7 @@
                         <div class="name-row">
                             <h2 id="displayName">-</h2>
                             <button type="button" id="openProfilePickerBtn" class="btn btn-ghost btn-sm">
-                            프로필 변경
+                                프로필 변경
                             </button>
                         </div>
                         <p class="sub" id="displayMeta">-</p>
@@ -186,6 +186,10 @@
             </div>
 
             <div class="modal-body">
+                <div class="avatar-preview" aria-label="선택된 프로필 이미지 미리보기">
+                    <img id="avatarPreviewImg" class="avatar-preview__img" alt="선택된 프로필 이미지" />
+                    <div id="avatarPreviewText" class="avatar-preview__text"></div>
+                </div>
                 <div class="avatar-grid" id="avatarGrid"></div>
                 <p class="hint" id="avatarHint"></p>
             </div>

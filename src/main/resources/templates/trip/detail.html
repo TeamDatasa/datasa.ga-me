@@ -212,21 +212,27 @@
     </div>
 </main>
 
-<!-- ✅ Host Card Modal (페이지 1회) -->
+<!-- Host Card Modal -->
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
             <div id="hcTitle" class="hc-title">호스트 프로필</div>
             <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
         </div>
+
         <div class="hc-body">
-            <h3 id="hcName" class="hc-name">-</h3>
-            <div id="hcMeta" class="hc-meta"></div>
+            <div class="hc-profile">
+                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <div class="hc-profile__main">
+                    <h3 id="hcName" class="hc-name">-</h3>
+                    <div id="hcMeta" class="hc-meta"></div>
+                </div>
+            </div>
+
             <div id="hcBio" class="hc-bio"></div>
         </div>
     </div>
 </div>
-
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;

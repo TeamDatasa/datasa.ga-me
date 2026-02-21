@@ -22,6 +22,9 @@
 
     avatar: "avatar",
     displayName: "displayName",
+
+    previewImg: "avatarPreviewImg",
+    previewText: "avatarPreviewText",
   };
 
   let selectedUrl = null;
@@ -60,6 +63,25 @@
     avatarEl.textContent = name ? name[0] : "?";
   }
 
+  function renderPreview(url, isCurrent) {
+    const imgEl = $(IDS.previewImg);
+    const textEl = $(IDS.previewText);
+    if (!imgEl || !textEl) return;
+
+    const label = isCurrent ? "현재 프로필" : "선택한 이미지";
+
+    if (url) {
+      imgEl.style.display = "block";
+      imgEl.src = url;
+      textEl.textContent = label;
+      return;
+    }
+
+    imgEl.style.display = "none";
+    imgEl.removeAttribute("src");
+    textEl.textContent = "현재 프로필: 기본(이니셜)";
+  }
+
   async function fetchProfile() {
     const res = await authFetch("/api/mypage/profile", { method: "GET" });
     if (!res || !res.ok) return null;
@@ -68,9 +90,9 @@
 
   async function savePresetProfile(url) {
     const headers =
-      typeof authHeaders === "function"
-        ? authHeaders()
-        : { "Content-Type": "application/json" };
+        typeof authHeaders === "function"
+            ? authHeaders()
+            : { "Content-Type": "application/json" };
 
     const res = await authFetch("/api/mypage/profile-image/preset", {
       method: "PUT",
@@ -93,7 +115,7 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className =
-        "avatar-option" + (url === selectedUrl ? " is-selected" : "");
+          "avatar-option" + (url === selectedUrl ? " is-selected" : "");
 
       const img = document.createElement("img");
       img.src = url;
@@ -102,9 +124,11 @@
 
       btn.addEventListener("click", () => {
         selectedUrl = url;
+        renderPreview(selectedUrl, selectedUrl === currentUrl);
+
         gridEl
-          .querySelectorAll(".avatar-option")
-          .forEach((el) => el.classList.remove("is-selected"));
+            .querySelectorAll(".avatar-option")
+            .forEach((el) => el.classList.remove("is-selected"));
         btn.classList.add("is-selected");
       });
 
@@ -134,6 +158,7 @@
       selectedUrl = currentUrl;
 
       renderGrid(grid);
+      renderPreview(selectedUrl, true);
       openModal(modal);
     });
 
@@ -158,10 +183,9 @@
         const updated = await savePresetProfile(selectedUrl);
         currentUrl = updated?.profileImageUrl || null;
 
-        // ✅ 즉시 반영
         renderAvatar(currentUrl);
+        renderPreview(currentUrl, true);
 
-        // ✅ mypage.js가 화면 다시 그리면서 덮어쓰는 문제 방지 (서버 기준으로 재로드)
         if (typeof window.loadProfile === "function") {
           await window.loadProfile();
         }

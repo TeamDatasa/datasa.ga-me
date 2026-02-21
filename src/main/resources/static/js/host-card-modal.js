@@ -27,7 +27,6 @@
     if (isBlank(code2)) return null;
     const code = String(code2).toUpperCase();
     try {
-      // 브라우저 지원 시: "AR" -> "아르헨티나"
       const dn = new Intl.DisplayNames(["ko"], { type: "region" });
       return dn.of(code) || code;
     } catch (_) {
@@ -56,16 +55,32 @@
     return { res, data, raw: text };
   }
 
+  function setAvatar(url) {
+    const img = $("#hcAvatar");
+    if (!img) return;
+
+    if (isBlank(url)) {
+      img.removeAttribute("src");
+      img.style.display = "none";
+      return;
+    }
+
+    img.style.display = "";
+    img.src = url;
+  }
+
   function renderLoading() {
     $("#hcName").textContent = "불러오는 중...";
     $("#hcMeta").innerHTML = "";
     $("#hcBio").innerHTML = `<div class="hc-muted">프로필을 불러오는 중입니다.</div>`;
+    setAvatar(null);
   }
 
   function renderError(message) {
     $("#hcName").textContent = "호스트 프로필";
     $("#hcMeta").innerHTML = "";
     $("#hcBio").innerHTML = `<div class="hc-muted">${escapeHtml(message)}</div>`;
+    setAvatar(null);
   }
 
   function chip(label, className) {
@@ -76,13 +91,13 @@
     const name = card?.name ?? "-";
     $("#hcName").textContent = name;
 
+    setAvatar(card?.profileImageUrl);
+
     const chips = [];
 
-    // 나이: birthDate 미입력 -> null이면 숨김, 0/음수도 숨김
     const age = (typeof card?.age === "number" && card.age > 0) ? `${card.age}세` : null;
     if (age) chips.push(chip(age, ""));
 
-    // 성별: 여자=붉은, 남자=푸른, 기타=기본
     const g = card?.gender ? String(card.gender) : null;
     const gKo = genderKo(g);
     if (gKo) {
@@ -90,15 +105,12 @@
       chips.push(chip(gKo, cls));
     }
 
-    // 국가: countryCode가 없으면 숨김
     const country = countryKo(card?.countryCode);
     if (country) chips.push(chip(country, ""));
 
-    // MBTI: 비어있으면 숨김
     const mbti = !isBlank(card?.mbti) ? String(card.mbti).toUpperCase() : null;
     if (mbti) chips.push(chip(mbti, ""));
 
-    // 흡연/음주: null이면 숨김, true면 노랑, false면 off
     if (typeof card?.smoking === "boolean") {
       chips.push(chip(card.smoking ? "흡연" : "비흡연", card.smoking ? "hc-chip--warn" : "hc-chip--off"));
     }
@@ -108,8 +120,6 @@
 
     $("#hcMeta").innerHTML = chips.join("");
 
-    // 자기소개: 비어있으면 안내 문구(이건 “미응답 숨김” 요구와 충돌 가능)
-    // -> 요구사항 기준으로 "미응답이면 섹션 자체를 숨김" 처리
     const bio = !isBlank(card?.bio) ? String(card.bio) : null;
     if (bio) {
       $("#hcBio").style.display = "";
@@ -128,23 +138,20 @@
     const { res, data } = await httpGetJson(`/api/hosts/${hostId}/card`);
 
     if (res.ok) { renderCard(data); return; }
-    if (res.status === 403) { renderError("호스트 카드 프로필이 비공개입니다."); return; }
     if (res.status === 404) { renderError("호스트 정보를 찾을 수 없습니다."); return; }
     renderError("프로필을 불러오지 못했습니다.");
   }
 
   function bind() {
-    // 열기 링크
     $$("#hostCardOpen, [data-host-card-open]").forEach((el) => {
       el.addEventListener("click", (e) => {
         e.preventDefault();
-        e.stopPropagation(); // 카드 전체 클릭 이동 방지
+        e.stopPropagation();
         const hostId = el.getAttribute("data-host-id");
         openHostCard(hostId);
       });
     });
 
-    // 닫기
     const overlay = $("#hostCardModalOverlay");
     if (overlay) {
       overlay.addEventListener("click", (e) => {
