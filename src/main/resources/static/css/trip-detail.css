@@ -279,14 +279,15 @@
   box-shadow: 0 14px 28px rgba(22, 117, 242, 0.12);
 }
 
+/* ✅ 삭제 버튼 붉은 계열 */
 .dt-btn--danger {
-  background: rgba(86, 104, 115, 0.08);
-  color: #1c1c1c;
-  border-color: rgba(86, 104, 115, 0.25);
+  background: rgba(180, 35, 24, 0.08);
+  color: #b42318;
+  border-color: rgba(180, 35, 24, 0.32);
 }
 
 .dt-btn--danger:hover {
-  box-shadow: 0 14px 28px rgba(180, 35, 24, 0.10);
+  box-shadow: 0 14px 28px rgba(180, 35, 24, 0.14);
 }
 
 .dt-disabled,

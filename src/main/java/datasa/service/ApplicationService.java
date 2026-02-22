@@ -40,6 +40,14 @@ public class ApplicationService {
             throw new IllegalStateException("신청 가능한 여행이 아닙니다.");
         }
 
+        // 시작일 기준 24시간 전부터 신청 불가
+        if (trip.getStartAt() != null) {
+            LocalDateTime lockAt = trip.getStartAt().minusHours(24);
+            if (!LocalDateTime.now().isBefore(lockAt)) {
+                throw new IllegalStateException("여정 시작 24시간 전부터는 신청할 수 없습니다.");
+            }
+        }
+
         if (applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId)) {
             throw new IllegalStateException("이미 신청한 여행입니다.");
         }
@@ -49,7 +57,7 @@ public class ApplicationService {
                         tripId, Application.Status.APPROVED
                 );
 
-        if (approvedCount >= trip.getMaxParticipants()) {
+        if (trip.getMaxParticipants() != null && approvedCount >= trip.getMaxParticipants()) {
             throw new IllegalStateException("정원이 초과되었습니다.");
         }
 

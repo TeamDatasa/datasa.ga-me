@@ -12,7 +12,6 @@
     <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
-
     <title>여정 상세</title>
 </head>
 
@@ -69,7 +68,6 @@
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">호스트</span>
 
-                            <!-- ✅ 호스트 클릭 -> 모달 -->
                             <a href="#"
                                class="dt-strong hc-host-link"
                                data-host-card-open
@@ -110,7 +108,7 @@
                 </header>
 
                 <p class="dt-hint dt-hint--top" th:if="${isOwner} and ${!canEditDelete}">
-                    여정 시작 7일 전부터 수정/삭제가 불가능합니다.
+                    일정 시작 7일 전이기 때문에 일정을 수정/삭제 할 수 없습니다
                 </p>
 
                 <div class="dt-divider"></div>
@@ -151,9 +149,18 @@
                         <div class="dt-side-sub dt-muted">신청 후 호스트 승인 시 확정됩니다.</div>
                     </div>
 
-                    <button type="button" id="applyBtn" class="dt-btn dt-btn--primary dt-btn--block">
+                    <button type="button"
+                            id="applyBtn"
+                            class="dt-btn dt-btn--primary dt-btn--block"
+                            th:attr="data-apply-extra-disabled=${applyExtraDisabled},
+                                     data-apply-extra-reason=${applyDisabledReason}">
                         여정 신청하기
                     </button>
+
+<!--                    <p class="dt-hint" th:if="${applyExtraDisabled} and ${applyDisabledReason != null}"-->
+<!--                       th:text="${applyDisabledReason}">-->
+<!--                        - -->
+<!--                    </p>-->
 
                     <div class="dt-side-info">
                         <div class="dt-kv">
@@ -172,47 +179,12 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="dt-card dt-side-card">
-                    <div class="dt-side-top">
-                        <div class="dt-side-title">게시글 관리</div>
-                        <div class="dt-side-sub dt-muted">
-                            내 게시글일 때만 수정/삭제가 가능합니다.
-                        </div>
-                    </div>
-
-                    <div class="dt-owner-actions">
-                        <a class="dt-btn dt-btn--ghost dt-btn--block"
-                           th:href="@{|/trip/update/${trip.tripId}|}"
-                           th:classappend="${!isOwner or !canEditDelete} ? ' dt-disabled' : ''"
-                           th:attr="aria-disabled=${!isOwner or !canEditDelete}"
-                           th:onclick="${!isOwner or !canEditDelete} ? 'return false;' : null">
-                            수정
-                        </a>
-
-                        <form id="deleteTripForm" th:action="@{|/trip/delete/${trip.tripId}|}" method="post">
-                            <button type="submit"
-                                    class="dt-btn dt-btn--danger dt-btn--block"
-                                    th:disabled="${!isOwner or !canEditDelete}">
-                                삭제
-                            </button>
-                        </form>
-
-                        <p class="dt-hint" th:if="${!isOwner}">
-                            내 게시글이 아니라서 수정/삭제가 불가능합니다.
-                        </p>
-                        <p class="dt-hint" th:if="${isOwner} and ${!canEditDelete}">
-                            여정 시작 7일 전부터 수정/삭제가 불가능합니다.
-                        </p>
-                    </div>
-                </div>
             </aside>
 
         </div>
     </div>
 </main>
 
-<!-- Host Card Modal -->
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
@@ -233,6 +205,7 @@
         </div>
     </div>
 </div>
+
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
