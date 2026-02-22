@@ -44,13 +44,7 @@ public class ChatController {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
     private final TripRepository tripRepository;
-    /**
-     * 클라이언트 SEND:
-     *   /app/chat.send/{roomId}
-     *
-     * 서버 BROADCAST:
-     *   /topic/chat/{roomId}
-     */
+
     @MessageMapping("/chat.send/{roomId}")
     public void sendMessage(
             @DestinationVariable Long roomId,
@@ -62,7 +56,6 @@ public class ChatController {
         ChatMessageResponseDto saved =
                 chatService.sendMessage(roomId, userId, dto);
 
-        // 구독자들에게 실시간 전파
         messagingTemplate.convertAndSend("/topic/chat/" + roomId, saved);
     }
 
@@ -75,7 +68,6 @@ public class ChatController {
             throw new IllegalStateException("인증 정보(userId)가 없습니다. JwtHandshakeInterceptor 등록/헤더 전달을 확인하세요.");
         }
         if (!(userIdObj instanceof Long)) {
-            // 혹시 String으로 들어오는 경우 대비
             try {
                 return Long.valueOf(String.valueOf(userIdObj));
             } catch (Exception e) {
@@ -98,7 +90,6 @@ public class ChatController {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
-        // 1️⃣ 로그인 유저
         String email = userDetails.getUsername();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
@@ -139,9 +130,9 @@ public class ChatController {
         System.out.println("email  = " + email);
         System.out.println("userId = " + userId);
 
-        // 4️⃣ 화면 전달
         model.addAttribute("roomId", roomId);
         model.addAttribute("userId", userId);
+        model.addAttribute("readOnly", chatService.isReadOnly(trip));
 
         return "chat/chat-room";
     }

@@ -23,10 +23,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             Pageable pageable
     );
 
-    // ✅ 마지막 메시지
+    //  마지막 메시지
     Optional<ChatMessage> findTopByChatRoom_RoomIdOrderByCreatedAtDesc(Long roomId);
 
-    // ✅ 안 읽은 메시지 수
+    // 안 읽은 메시지 수
     @Query("""
     select count(m)
     from ChatMessage m

@@ -21,12 +21,12 @@ public class RecommendationService {
 
     public List<TripRecommendationDto> recommend(Long userId) {
 
-        // 1️⃣ 로그인 X
+        // 로그인 X
         if (userId == null) {
             return getDefaultTrips();
         }
 
-        // 2️⃣ AI 추천 시도
+        //  AI 추천 시도
         List<Object[]> aiRows =
                 recommendationRepository.findAiRecommendations(userId, 3);
 
@@ -43,7 +43,7 @@ public class RecommendationService {
                     .toList();
         }
 
-        // 3️⃣ fallback → 규칙 기반
+        //  fallback → 규칙 기반
         return getRuleBasedTrips(userId);
     }
 

@@ -45,7 +45,7 @@ public class ChatRoomService {
                         return chatRoomRepository.save(newRoom);
                     });
 
-            // 1️⃣ 마지막 메시지
+            // 마지막 메시지
             Optional<ChatMessage> lastMsg =
                     chatMessageRepository.findTopByChatRoom_RoomIdOrderByCreatedAtDesc(
                             room.getRoomId()
@@ -54,7 +54,7 @@ public class ChatRoomService {
             String lastMessage = lastMsg.map(ChatMessage::getOriginalText).orElse("");
             LocalDateTime lastAt = lastMsg.map(ChatMessage::getCreatedAt).orElse(null);
 
-            // 2️⃣ readAt
+            //  readAt
             LocalDateTime readAt = chatMemberRepository
                     .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), userId)
                     .map(ChatMember::getReadAt)
@@ -99,20 +99,19 @@ public class ChatRoomService {
                     return chatMemberRepository.save(m);
                 });
 
-        // 🔥 핵심: 무조건 현재 시각으로 덮어쓰기
         member.setReadAt(LocalDateTime.now());
     }
 
 
     /**
-     * 🔗 여행 신청 승인 시 채팅방 연결
+     *  여행 신청 승인 시 채팅방 연결
      * - trip 당 chatRoom 1개
      * - host + 승인된 user를 ChatMember로 연결
      */
     @Transactional
     public ChatRoom connectChatMember(Trip trip, User approvedUser) {
 
-        // 1️⃣ 채팅방 조회 or 생성
+        //  채팅방 조회 or 생성
         ChatRoom room = chatRoomRepository
                 .findByTrip_TripId(trip.getTripId())
                 .orElseGet(() -> {
@@ -121,7 +120,7 @@ public class ChatRoomService {
                     newRoom.setCreatedAt(LocalDateTime.now());
                     chatRoomRepository.save(newRoom);
 
-                    // ✅ 채팅방 최초 생성 시 호스트 자동 등록
+                    //  채팅방 최초 생성 시 호스트 자동 등록
                     ChatMember hostMember = new ChatMember();
                     hostMember.setChatRoom(newRoom);
                     hostMember.setUser(trip.getHostUser());
@@ -131,7 +130,7 @@ public class ChatRoomService {
                     return newRoom;
                 });
 
-        // 2️⃣ 승인된 신청자 ChatMember 처리
+        //  승인된 신청자 ChatMember 처리
         chatMemberRepository
                 .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), approvedUser.getUserId())
                 .ifPresentOrElse(

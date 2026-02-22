@@ -29,17 +29,14 @@ public class RecommendationController {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        // 🔥 로그인 안 된 경우 (DEFAULT)
+        // 로그인 안 된 경우 (DEFAULT)
         if (authentication == null
                 || !(authentication.getPrincipal() instanceof UserDetails)) {
 
-            System.out.println("✅ DEFAULT 추천 경로 진입");
             return recommendationService.getDefaultTrips();
         }
 
-        // 🔥 로그인 된 경우
-        System.out.println("🤖 LOGIN 추천 경로 진입");
-
+        //  로그인 된 경우
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow();

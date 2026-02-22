@@ -26,9 +26,6 @@ public class ApplicationService {
     private final NotificationRepository notificationRepository;
 
 
-    /**
-     * U_004 여행 신청
-     */
     // trip 신청
     @Transactional
     public ApplicationCreateResponseDto applyTrip(Long tripId, Long userId) {
@@ -205,7 +202,6 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public void validateApprovedUser(Long tripId, Long userId) {
-        // 개발용: 항상 통과
         return;
     }
 
@@ -240,19 +236,4 @@ public class ApplicationService {
     }
 
 }
-//인증필요
-//    public void validateApprovedUser(Long tripId, Long userId) {
-//
-//
-//        boolean approved = applicationRepository
-//                .existsByTrip_TripIdAndUser_UserIdAndStatus(
-//                        tripId,
-//                        userId,
-//                        Application.Status.APPROVED
-//                );
-//
-//        if (!approved) {
-//            throw new AccessDeniedException("승인된 사용자만 접근할 수 있습니다.");
-//        }
-//    }
 
