@@ -145,7 +145,6 @@
                     <p class="dt-desc" th:text="${trip.description}">설명</p>
                 </section>
 
-                <!-- 일정: 댓글 위(본문 영역)에 위치하도록 이동 -->
                 <section class="dt-section dt-schedule">
                     <h2 class="dt-section-title">일정</h2>
 
@@ -203,16 +202,31 @@
                         여정 신청하기
                     </button>
 
+                    <!-- 수정된 영역: 상태 -> 예상 비용 -> (시작/종료/소요분) -->
                     <div class="dt-side-info">
                         <div class="dt-kv">
                             <span class="dt-k">상태</span>
                             <span class="dt-v" th:text="${trip.status}">OPEN</span>
                         </div>
+
+                        <div class="dt-kv">
+                            <span class="dt-k">예상 비용</span>
+                            <span class="dt-v"
+                                  th:text="${trip.estimatedCost != null} ? ${#numbers.formatInteger(trip.estimatedCost, 0, 'COMMA')} + '원' : '-'">-</span>
+                        </div>
+
+                        <div class="dt-kv">
+                            <span class="dt-k">소요 시간(분)</span>
+                            <span class="dt-v"
+                                  th:text="${trip.durationMinutes != null} ? ${trip.durationMinutes} : '-'">-</span>
+                        </div>
+
                         <div class="dt-kv">
                             <span class="dt-k">시작일</span>
                             <span class="dt-v"
                                   th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                         </div>
+
                         <div class="dt-kv">
                             <span class="dt-k">종료일</span>
                             <span class="dt-v"
