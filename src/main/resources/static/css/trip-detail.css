@@ -126,6 +126,12 @@
   font-weight: 800;
 }
 
+.dt-chip--soft {
+  border: 1px solid rgba(86, 104, 115, 0.20);
+  background: rgba(86, 104, 115, 0.08);
+  color: rgba(28, 31, 36, 0.82);
+}
+
 .dt-dot {
   color: rgba(86, 104, 115, 0.55);
 }
@@ -199,6 +205,72 @@
   line-height: 1.7;
   font-size: 14.5px;
   white-space: pre-wrap;
+}
+
+.dt-schedule {
+  padding-bottom: 10px;
+}
+
+.dt-schedule-empty {
+  font-size: 13.5px;
+  color: rgba(86, 104, 115, 0.9);
+  padding: 10px 0 0;
+}
+
+.dt-schedule-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dt-schedule-item {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(86, 104, 115, 0.18);
+  background: rgba(252, 252, 251, 0.95);
+}
+
+.dt-schedule-no {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: rgba(28, 31, 36, 0.86);
+  border: 1px solid rgba(48, 132, 242, 0.22);
+  background: rgba(48, 132, 242, 0.08);
+}
+
+.dt-schedule-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dt-schedule-name {
+  font-weight: 900;
+  color: rgba(28, 31, 36, 0.92);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dt-schedule-addr {
+  font-size: 13px;
+  color: rgba(86, 104, 115, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dt-side-top {

@@ -62,19 +62,38 @@
 
                         <div class="dt-meta">
                             <span class="dt-chip" th:text="${trip.region} ?: '지역 미정'">지역</span>
+
+                            <th:block th:if="${trip.languageCodes != null} and ${!trip.languageCodes.isEmpty()}">
+                                <th:block th:each="code : ${trip.languageCodes}">
+                                    <span class="dt-chip dt-chip--soft" th:switch="${code}">
+                                        <span th:case="'KOREAN'">한국어</span>
+                                        <span th:case="'ENGLISH'">영어</span>
+                                        <span th:case="'JAPANESE'">일본어</span>
+                                        <span th:case="*" th:text="${code}">-</span>
+                                    </span>
+                                </th:block>
+                            </th:block>
+
+                            <span class="dt-chip dt-chip--soft" th:switch="${trip.theme}">
+                                <span th:case="'FOOD'">맛집</span>
+                                <span th:case="'NATURE'">자연</span>
+                                <span th:case="'CITY'">도시</span>
+                                <span th:case="'CULTURE'">문화</span>
+                                <span th:case="'NIGHT'">야경</span>
+                                <span th:case="*" th:text="${trip.theme} ?: '-'">-</span>
+                            </span>
+
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">모집 정원</span>
                             <span class="dt-strong" th:text="${trip.maxParticipants}">0</span>
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">호스트</span>
 
-                            <!-- 탈퇴한 사용자면 클릭 불가 + 텍스트만 -->
                             <span class="dt-strong dt-host-deleted"
                                   th:if="${trip.hostDeleted}">
                                 탈퇴한 사용자
                             </span>
 
-                            <!-- 정상 사용자면 모달 링크 -->
                             <a href="#"
                                class="dt-strong hc-host-link"
                                data-host-card-open
@@ -124,6 +143,25 @@
                 <section class="dt-section">
                     <h2 class="dt-section-title">여정 소개</h2>
                     <p class="dt-desc" th:text="${trip.description}">설명</p>
+                </section>
+
+                <!-- 일정: 댓글 위(본문 영역)에 위치하도록 이동 -->
+                <section class="dt-section dt-schedule">
+                    <h2 class="dt-section-title">일정</h2>
+
+                    <div class="dt-schedule-empty" th:if="${trip.locations == null} or ${trip.locations.isEmpty()}">
+                        등록된 일정이 없습니다.
+                    </div>
+
+                    <ol class="dt-schedule-list" th:if="${trip.locations != null} and ${!trip.locations.isEmpty()}">
+                        <li class="dt-schedule-item" th:each="p : ${trip.locations}">
+                            <div class="dt-schedule-no" th:text="${p.orderNo}">1</div>
+                            <div class="dt-schedule-body">
+                                <div class="dt-schedule-name" th:text="${p.placeName}">장소명</div>
+                                <div class="dt-schedule-addr" th:text="${p.address} ?: '-'">주소</div>
+                            </div>
+                        </li>
+                    </ol>
                 </section>
 
                 <section class="dt-section">

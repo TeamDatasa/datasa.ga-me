@@ -64,4 +64,6 @@ public class TripDetailResponse {
 	
 	private Long hostUserId;
 	private String hostName;
+
+	private List<String> languageCodes;
 }

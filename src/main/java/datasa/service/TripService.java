@@ -238,6 +238,11 @@ public class TripService {
 		Trip entity = tripRepository.findById(boardNum)
 				.orElseThrow(() -> new EntityNotFoundException("해당 번호의 글 없습니다"));
 
+		List<String> languageCodes = tripLanguageRepository.findByTrip(entity)
+				.stream()
+				.map(TripLanguage::getLanguageCode)
+				.toList();
+
 		List<TripLocationItemResponse> locations = tripLocationRepository
 				.findByTripOrderByOrderNoAsc(entity)
 				.stream()
@@ -288,6 +293,7 @@ public class TripService {
 				.hostUserId(entity.getHostUser().getUserId())
 				.hostName(entity.getHostUser().getName())
 				.hostDeleted(hostDeleted)
+				.languageCodes(languageCodes)
 				.build();
 	}
 
