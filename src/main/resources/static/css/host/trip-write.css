@@ -202,17 +202,17 @@ input[readonly]{
   box-shadow: var(--shadowSoft);
 }
 
+/* 2열: 지도 + 검색결과 */
 .tw-map-grid{
   display:flex;
   gap:12px;
-  margin-top:12px;
-  flex-wrap:wrap;
-  align-items:flex-start;
+  align-items:stretch;
+  flex-wrap: nowrap;
 }
 
 #map{
-  width: 640px;
-  max-width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   height: 360px;
   border-radius: 16px;
   border: 1px solid rgba(15,23,42,0.12);
@@ -220,10 +220,16 @@ input[readonly]{
   overflow: hidden;
 }
 
+.tw-map-side{
+  flex: 0 0 340px;
+  width: 340px;
+  height: 360px;
+  min-width: 0;
+  display:flex;
+}
+
 .tw-result-box{
-  width: 320px;
-  max-width: 100%;
-  max-height:360px;
+  flex: 1 1 auto;
   overflow:auto;
   border:1px solid rgba(15,23,42,0.10);
   border-radius:16px;
@@ -284,19 +290,9 @@ input[readonly]{
   border-color: rgba(48,132,242,0.35);
 }
 
-.tw-picked{
-  margin-top:8px;
-  color:#666;
-  font-size:13px;
-}
-
-#pickedText{
-  font-weight: 900;
-  color: #334155;
-}
-
-.tw-schedule-box{
-  margin-top:14px;
+/* 아래 1열: 일정(가로로 길게) */
+.tw-schedule-wide{
+  margin-top: 12px;
   border:1px solid rgba(15,23,42,0.10);
   border-radius:16px;
   padding:12px;
@@ -364,6 +360,14 @@ button[type="submit"]:hover,
 .btn-cancel:hover{
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(0,0,0,0.16);
+}
+
+@media (max-width: 980px){
+  .tw-map-grid{ flex-wrap: wrap; }
+  .tw-map-side{ width: 100%; flex: 1 1 auto; height: 360px; }
+  #map{ width: 100%; }
+
+  .tw-result-box{ height: 360px; }
 }
 
 @media (max-width: 860px){

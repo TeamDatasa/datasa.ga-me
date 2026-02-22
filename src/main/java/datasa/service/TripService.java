@@ -324,12 +324,20 @@ public class TripService {
 		if (request.getEndAt().isBefore(request.getStartAt())) {
 			throw new IllegalArgumentException("끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다");
 		}
+
+		LocalDateTime minEndAt = request.getStartAt().plusMinutes(30);
+		if (request.getEndAt().isBefore(minEndAt)) {
+			throw new IllegalArgumentException("끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다");
+		}
 	}
 
 	private int calcDurationMinutes(LocalDateTime startAt, LocalDateTime endAt) {
 		long minutes = java.time.Duration.between(startAt, endAt).toMinutes();
 		if (minutes <= 0) {
 			throw new IllegalArgumentException("끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다");
+		}
+		if (minutes < 30) {
+			throw new IllegalArgumentException("끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다");
 		}
 		if (minutes > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException("소요 시간이 너무 깁니다.");
