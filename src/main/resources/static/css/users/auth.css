@@ -350,3 +350,23 @@ body{
 
 
 
+.email-code-row{
+  display:flex;
+  gap:10px;
+  align-items:stretch;
+}
+
+.email-code-row input{
+  flex:1;
+  height:44px;
+}
+
+.email-code-row .secondary-btn{
+  height:44px;
+  padding:0 16px;
+  margin-top:0;
+  white-space:nowrap;
+}
+
+
+

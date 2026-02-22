@@ -36,9 +36,6 @@ public class HostTripService {
 				.toList();
 	}
 	
-	// =========================
-	// 신청현황 조회 (내 투어인지 검증)
-	// =========================
 	@Transactional(readOnly = true)
 	public List<HostApplicationItem> getTripApplications(Long tripId, String hostEmail) {
 		
@@ -58,9 +55,6 @@ public class HostTripService {
 				.toList();
 	}
 	
-	// =========================
-	// 승인/거절 (host 권한 체크)
-	// =========================
 	public void approveApplication(Long tripId, Long applicationId, String hostEmail) {
 		Application a = getOwnedApplication(tripId, applicationId, hostEmail);
 		if (a.getStatus() != Application.Status.PENDING) return;
@@ -70,7 +64,6 @@ public class HostTripService {
 		Trip trip = a.getTrip();
 		User applicant = a.getUser();
 
-		// 신청자에게 승인 알림 저장
 		if (applicant != null && applicant.getUserId() != null) {
 			Notification n = Notification.tripApplicationApproved(applicant, trip.getTitle(), trip.getTripId());
 			notificationRepository.save(n);
@@ -86,7 +79,6 @@ public class HostTripService {
 		Trip trip = a.getTrip();
 		User applicant = a.getUser();
 
-		// 신청자에게 거절 알림 저장
 		if (applicant != null && applicant.getUserId() != null) {
 			Notification n = Notification.tripApplicationRejected(applicant, trip.getTitle(), trip.getTripId());
 			notificationRepository.save(n);
@@ -95,7 +87,6 @@ public class HostTripService {
 	
 	private Application getOwnedApplication(Long tripId, Long applicationId, String hostEmail) {
 		
-		// 내 투어인지 검증
 		getTripApplications(tripId, hostEmail);
 		
 		Application a = applicationRepository.findById(applicationId)

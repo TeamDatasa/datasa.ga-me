@@ -1,8 +1,3 @@
-/**
- * main.js
- * - 메인화면 필터 + 리스트 전용
- * - AI 추천 / 필터 리스트 분리 가능
- */
 
 let currentOrder = 'latest';
 let debounceTimer = null;
@@ -10,13 +5,10 @@ let debounceTimer = null;
 document.addEventListener('DOMContentLoaded', () => {
   bindFilterEvents();   
   applyFilter(); 
-  loadAiRecommend(); // AI 추천 
+  loadAiRecommend();
 
 });
 
-/* ===============================
-   정렬 버튼
-================================ */
 function setOrder(order) {
   currentOrder = order;
 
@@ -28,9 +20,6 @@ function setOrder(order) {
   applyFilter();
 }
 
-/* ===============================
-   기본 목록 로드
-================================ */
 function loadTrips() {
   fetch(`/api/trips?order=${currentOrder}`)
     .then(res => res.json())
@@ -49,11 +38,7 @@ function bindFilterEvents() {
     .forEach(cb => cb.addEventListener('change', applyFilter));
 }
 
-/* ===============================
-   필터 적용 (즉시)
-================================ */
 function applyFilter() {
-  // debounce (연속 변경 방지)
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(fetchFilteredTrips, 150);
 }
@@ -72,7 +57,6 @@ function fetchFilteredTrips() {
   if (region) qs.append('region', region);
   if (theme) qs.append('theme', theme);
 
-  // 🔥 언어는 AND + OR 혼합 (같은 key 여러번)
   languages.forEach(lang => qs.append('languages', lang));
 
   const url = `/api/trips/mainList?${qs.toString()}`;
@@ -83,9 +67,6 @@ function fetchFilteredTrips() {
     .catch(showError);
 }
 
-/* ===============================
-   필터 초기화
-================================ */
 function resetFilter() {
   document.querySelectorAll('.lang')
     .forEach(cb => cb.checked = false);
@@ -99,9 +80,6 @@ function resetFilter() {
   setOrder('latest');
 }
 
-/* ===============================
-   전체 리스트 렌더링
-================================ */
 function renderTrips(trips) {
   const container = document.getElementById('tripList');
   if (!container) return;
@@ -140,9 +118,6 @@ function renderTrips(trips) {
   });
 }
 
-/* ===============================
-   AI 추천 렌더링
-================================ */
 function loadAiRecommend() {
   const container = document.getElementById('aiRecommendList');
   if (!container) return;
@@ -186,9 +161,6 @@ function loadAiRecommend() {
     });
 }
 
-/* ===============================
-   에러 처리
-================================ */
 function showError(err) {
   console.error(err);
   const container = document.getElementById('tripList');
@@ -203,14 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
   applyFilter();
   loadAiRecommend();
 
-  bindRecommendationButton(); // ✅ 추가
+  bindRecommendationButton();
 });
 
-/* ===============================
-   추천받기 버튼 바인딩
-================================ */
 function bindRecommendationButton() {
-  // 예니 버튼에 id 달면 제일 안정적: id="recBtn"
   const btn =
     document.getElementById('recBtn') ||
     document.querySelector('a[href="/recommendations"]');
@@ -218,7 +186,7 @@ function bindRecommendationButton() {
   if (!btn) return;
 
   btn.addEventListener('click', async (e) => {
-    e.preventDefault(); // ✅ 페이지 이동 막음
+    e.preventDefault();
 
     const overlay = openRecommendationOverlay();
     const body = overlay.querySelector('.rec-body');
@@ -244,9 +212,6 @@ function bindRecommendationButton() {
   });
 }
 
-/* ===============================
-   추천 오버레이 UI
-================================ */
 function openRecommendationOverlay() {
   let overlay = document.getElementById('recOverlay');
   if (overlay) {
@@ -268,7 +233,6 @@ function openRecommendationOverlay() {
     </div>
   `;
 
-  // 닫기
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) overlay.classList.add('is-hidden');
   });
@@ -281,14 +245,10 @@ function openRecommendationOverlay() {
   return overlay;
 }
 
-/* ===============================
-   추천 카드 DOM
-================================ */
 function buildRecCard(trip) {
   const card = document.createElement('article');
   card.className = 'yw-card rec-card';
   card.onclick = () => {
-    // 너 기존 상세 url이 /trip/detail/{tripId} 이거니까 그대로
     location.href = `/trip/detail/${trip.tripId}`;
   };
 
@@ -313,9 +273,6 @@ function escapeHtml(s) {
   }[m]));
 }
 
-/* ===============================
-   오버레이 스타일 (CSS 파일 추가 없이)
-================================ */
 function injectRecStyleOnce() {
   if (document.getElementById('recOverlayStyle')) return;
 

@@ -1,18 +1,12 @@
-/* ===============================
-   auth.js (로그인 + 회원가입 + i18n 통합)
-================================ */
 
-/* ===== 언어 목록 ===== */
 const AVAILABLE_LANGUAGES = [
   { code: "ko", label: "한국어" },
   { code: "ja", label: "日本語" },
   { code: "en", label: "English" }
 ];
 
-/* ===== 번역 사전 ===== */
 const I18N = {
   ko: {
-    // login UI
     "login.title": "로그인",
     "login.subtitle": "다시 만나서 반가워요. 로그인해주세요.",
     "login.emailLabel": "이메일 주소",
@@ -23,18 +17,17 @@ const I18N = {
     "login.forgot": "비밀번호를 잊으셨나요?",
     "login.signup": "회원가입",
 
-    // login alerts
     "login.alert.emailRequired": "이메일을 입력해주세요.",
     "login.alert.passwordRequired": "비밀번호를 입력해주세요.",
     "login.alert.failed": "로그인에 실패했습니다.",
 
-    // signup UI
     "signup.title": "회원가입",
     "signup.subtitle": "계정을 생성해주세요",
     "signup.emailLabel": "이메일 주소",
     "signup.sendCode": "인증 코드 보내기",
     "signup.codePlaceholder": "6-digit code",
     "signup.verifyCode": "인증하기",
+    "signup.alert.codeWrong": "인증코드를 다시 입력해 주세요.",
     "signup.passwordLabel": "비밀번호",
     "signup.passwordConfirmLabel": "비밀번호 확인",
     "signup.nicknameLabel": "닉네임",
@@ -54,8 +47,7 @@ const I18N = {
     "signup.haveAccount": "이미 계정이 있으신가요?",
     "signup.loginLink": "로그인",
 
-    // signup status/alerts
-    "signup.status.verified": "✅ 이메일 인증이 완료되었습니다.",
+    "signup.status.verified": "이메일 인증이 완료되었습니다.",
     "signup.alert.emailRequired": "이메일 주소를 입력해 주세요.",
     "signup.alert.codeRequired": "6자리 인증 코드를 입력해 주세요.",
     "signup.alert.codeInvalid": "인증 코드는 6자리 숫자여야 합니다.",
@@ -85,7 +77,6 @@ const I18N = {
   },
 
   ja: {
-    // login UI
     "login.title": "ログイン",
     "login.subtitle": "また会えて嬉しいです。ログインしてください。",
     "login.emailLabel": "メールアドレス",
@@ -96,17 +87,16 @@ const I18N = {
     "login.forgot": "パスワードをお忘れですか？",
     "login.signup": "会員登録",
 
-    // login alerts
     "login.alert.emailRequired": "メールアドレスを入力してください。",
     "login.alert.passwordRequired": "パスワードを入力してください。",
     "login.alert.failed": "ログインに失敗しました。",
 
-    // signup UI
     "signup.title": "会員登録",
     "signup.subtitle": "アカウントを作成してください",
     "signup.emailLabel": "メールアドレス",
     "signup.sendCode": "認証コードを送信",
     "signup.codePlaceholder": "6桁コード",
+    "signup.alert.codeWrong": "認証コードをもう一度入力してください。",
     "signup.verifyCode": "認証する",
     "signup.passwordLabel": "パスワード",
     "signup.passwordConfirmLabel": "パスワード（確認）",
@@ -127,8 +117,7 @@ const I18N = {
     "signup.haveAccount": "すでにアカウントをお持ちですか？",
     "signup.loginLink": "ログイン",
 
-    // signup status/alerts
-    "signup.status.verified": "✅ メール認証が完了しました。",
+    "signup.status.verified": "メール認証が完了しました。",
     "signup.alert.emailRequired": "メールアドレスを入力してください。",
     "signup.alert.codeRequired": "6桁の認証コードを入力してください。",
     "signup.alert.codeInvalid": "認証コードは6桁の数字である必要があります。",
@@ -146,7 +135,6 @@ const I18N = {
     "signup.alert.failed": "会員登録に失敗しました。",
     "signup.alert.success": "会員登録が完了しました。",
 
-    // modal/common
     "common.confirm": "確認",
     "signup.modal.sendGuideTitle": "認証メール送信のご案内",
     "signup.modal.sendGuideMsg": "認証メールを送信しました。到着まで数分かかる場合があります。迷惑メールフォルダも確認してください。",
@@ -158,7 +146,6 @@ const I18N = {
   },
 
   en: {
-    // login UI
     "login.title": "Sign In",
     "login.subtitle": "Welcome back. Please sign in.",
     "login.emailLabel": "Email",
@@ -169,17 +156,16 @@ const I18N = {
     "login.forgot": "Forgot your password?",
     "login.signup": "Sign Up",
 
-    // login alerts
     "login.alert.emailRequired": "Please enter your email address.",
     "login.alert.passwordRequired": "Please enter your password.",
     "login.alert.failed": "Sign in failed.",
 
-    // signup UI
     "signup.title": "Sign Up",
     "signup.subtitle": "Create your account",
     "signup.emailLabel": "Email",
     "signup.sendCode": "Send verification code",
     "signup.codePlaceholder": "6-digit code",
+    "signup.alert.codeWrong": "Please re-enter the verification code.",
     "signup.verifyCode": "Verify",
     "signup.passwordLabel": "Password",
     "signup.passwordConfirmLabel": "Confirm password",
@@ -200,8 +186,7 @@ const I18N = {
     "signup.haveAccount": "Already have an account?",
     "signup.loginLink": "Sign In",
 
-    // signup status/alerts
-    "signup.status.verified": "✅ Email verification completed.",
+    "signup.status.verified": "Email verification completed.",
     "signup.alert.emailRequired": "Please enter your email address.",
     "signup.alert.codeRequired": "Please enter the 6-digit code.",
     "signup.alert.codeInvalid": "The code must be a 6-digit number.",
@@ -219,7 +204,6 @@ const I18N = {
     "signup.alert.failed": "Sign up failed.",
     "signup.alert.success": "Sign up completed.",
 
-    // modal/common
     "common.confirm": "OK",
     "signup.modal.sendGuideTitle": "Verification email sent",
     "signup.modal.sendGuideMsg": "We sent a verification email. It may take a few minutes. Please also check your spam folder.",
@@ -231,7 +215,6 @@ const I18N = {
   }
 };
 
-/* ===== i18n util ===== */
 function getCurrentLang() {
   return localStorage.getItem("lang") || "ko";
 }
@@ -273,9 +256,6 @@ function initLanguageSelect() {
   });
 }
 
-/* ============================
-   국가 텍스트 -> 코드 변환
-============================ */
 function countryNameToCode(name) {
   if (!name) return null;
   const n = name.trim().toLowerCase();
@@ -306,9 +286,6 @@ function countryNameToCode(name) {
   return map[n] || null;
 }
 
-/* ============================
-   로그인 init
-============================ */
 function initLoginForm() {
   const form = document.getElementById("loginForm");
   if (!form) return;
@@ -347,9 +324,6 @@ function initLoginForm() {
   });
 }
 
-/* ============================
-   회원가입 init
-============================ */
 function initSignupForm() {
   const form = document.getElementById("signupForm");
   if (!form) return;
@@ -469,14 +443,13 @@ function initSignupForm() {
         });
 
         if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          throw new Error(text || t("signup.alert.codeInvalid"));
+          throw new Error(t("signup.alert.codeWrong"));
         }
 
         setVerifiedState(true);
         alert(t("signup.status.verified"));
       } catch (err) {
-        alert(err?.message || t("signup.alert.codeInvalid"));
+        alert(t("signup.alert.codeWrong"));
       }
     });
   }
@@ -554,9 +527,8 @@ function initSignupForm() {
   });
 }
 
-/* ===== init ===== */
 document.addEventListener("DOMContentLoaded", () => {
   initLanguageSelect();
-  initLoginForm();   // login 페이지에만 있으면 동작
-  initSignupForm();  // signup 페이지에만 있으면 동작
+  initLoginForm();
+  initSignupForm();
 });

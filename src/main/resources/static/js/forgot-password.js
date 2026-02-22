@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify({ email })
     });
 
-    // 존재 여부 숨김
     msg.textContent = "If the email exists, a reset link has been sent.";
   });
 });

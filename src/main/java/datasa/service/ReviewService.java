@@ -28,7 +28,6 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final ApplicationRepository applicationRepository;
 	
-	/** ✅ 후기 등록 */
 	@Transactional
 	public ReviewResponse create(String email, ReviewCreateRequest req) {
 		
@@ -60,14 +59,12 @@ public class ReviewService {
 		try {
 			saved = reviewRepository.save(Review.create(user, trip, req.rating(), req.content()));
 		} catch (DataIntegrityViolationException e) {
-			// 동시성으로 유니크 터진 경우
 			throw new IllegalArgumentException("Review already exists");
 		}
 		
 		return toResponse(saved);
 	}
 	
-	/** ✅ 후기 수정 (본인만) */
 	@Transactional
 	public ReviewResponse update(String email, Long reviewId, ReviewUpdateRequest req) {
 		
@@ -85,7 +82,6 @@ public class ReviewService {
 		return toResponse(review);
 	}
 	
-	/** ✅ 후기 삭제 (본인만) */
 	@Transactional
 	public void delete(String email, Long reviewId) {
 		
@@ -102,7 +98,6 @@ public class ReviewService {
 		reviewRepository.delete(review);
 	}
 	
-	/** ✅ 특정 Trip의 전체 리뷰 목록 */
 	@Transactional(readOnly = true)
 	public List<ReviewResponse> listByTrip(Long tripId) {
 		return reviewRepository.findAllByTrip_TripIdOrderByCreatedAtDesc(tripId).stream()
@@ -110,7 +105,6 @@ public class ReviewService {
 				.toList();
 	}
 	
-	/** ✅ 내 리뷰 조회 (Trip 기준) */
 	@Transactional(readOnly = true)
 	public ReviewResponse myReview(String email, Long tripId) {
 		User user = userRepository.findByEmail(email)
@@ -122,7 +116,6 @@ public class ReviewService {
 		return toResponse(r);
 	}
 	
-	/** ✅ 리뷰 작성 가능 여부 체크 (유저 디테일 페이지에서 폼 노출용) */
 	@Transactional(readOnly = true)
 	public boolean canWriteReview(String email, Long tripId) {
 		User user = userRepository.findByEmail(email)

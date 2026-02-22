@@ -2,9 +2,6 @@ function authHeaders() {
   return { "Content-Type": "application/json" };
 }
 
-// =============================
-// 표시용 변환 함수
-// =============================
 function countryCodeToKorean(code) {
   const map = { KR: "대한민국", JP: "일본", CN: "중국", US: "미국" };
   return map[code] || code || "-";
@@ -16,14 +13,10 @@ function genderToKorean(gender) {
 }
 
 function formatBirthDate(iso) {
-  // 서버에서 "YYYY-MM-DD"로 내려온다고 가정
   if (!iso) return "-";
-  return iso; // 필요하면 "YYYY. MM. DD."로 포맷도 가능
+  return iso;
 }
 
-// =============================
-// UI helpers
-// =============================
 function setRoleUI(role) {
   const currentRoleEl = document.getElementById("currentRole");
   if (currentRoleEl) currentRoleEl.value = role;
@@ -49,25 +42,17 @@ function setHint(msg = "") {
   if (hint) hint.textContent = msg;
 }
 
-// =============================
-// Readonly lock helpers
-// (HTML에서 readonly로 두는 걸 추천하지만, JS에서도 안전하게 잠금)
-// =============================
 function lockBasicFields() {
   ["name", "birthDate", "gender", "country", "region"].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // 기본정보는 무조건 표시용
     el.readOnly = true;
     el.setAttribute("readonly", "readonly");
     el.classList.add("readonly-input");
   });
 }
 
-// =============================
-// Host Card Profile (Public Toggle)
-// =============================
 async function loadHostCardPublicStatus() {
   const res = await authFetch("/api/mypage/host/card", { method: "GET" });
   if (!res || !res.ok) return;
@@ -91,9 +76,6 @@ async function updateHostCardPublic(isPublic) {
   }
 }
 
-// =============================
-// Load profile
-// =============================
 async function loadProfile() {
   const res = await authFetch("/api/mypage/profile", { method: "GET" });
   if (!res) return;
@@ -105,7 +87,6 @@ async function loadProfile() {
 
   const data = await res.json();
 
-  // ===== Top card =====
   const displayNameEl = document.getElementById("displayName");
   const displayMetaEl = document.getElementById("displayMeta");
   const avatarEl = document.getElementById("avatar");
@@ -131,7 +112,6 @@ async function loadProfile() {
   }
 
 
-  // ===== Form values (기본정보는 표시용) =====
   const nameEl = document.getElementById("name");
   const birthEl = document.getElementById("birthDate");
   const genderEl = document.getElementById("gender");
@@ -144,7 +124,6 @@ async function loadProfile() {
   if (countryEl) countryEl.value = countryCodeToKorean(data.countryCode);
   if (regionEl) regionEl.value = data.region ?? "";
 
-  // ===== Editable fields =====
   const mbtiEl = document.getElementById("mbti");
   const smokingEl = document.getElementById("smoking");
   const drinkingEl = document.getElementById("drinking");
@@ -162,20 +141,15 @@ async function loadProfile() {
 
   if (bioEl) bioEl.value = data.bio ?? "";
 
-  // ===== Role UI =====
   setRoleUI(data.role ?? "USER");
 
-  // ✅ 기본 정보 잠금
   lockBasicFields();
 
-  // ✅ HOST면 카드프로필 공개 상태도 로드
   if ((data.role ?? "USER") === "HOST") {
     await loadHostCardPublicStatus();
   }
 }
 
-// =============================
-// Save profile (ONLY editable fields)
 // =============================
 function bindProfileSave() {
   const form = document.getElementById("profileForm");
@@ -203,7 +177,6 @@ function bindProfileSave() {
 
     const bio = document.getElementById("bio")?.value?.trim() || null;
 
-    // ✅ 기본정보는 절대 보내지 않음
     const payload = {
         mbti: mbti ? mbti.toUpperCase() : null,
         smoking,
@@ -228,9 +201,6 @@ function bindProfileSave() {
     });
 }
 
-// =============================
-// Role change (IMMEDIATE save)
-// =============================
 async function setRole(role) {
   setRoleUI(role);
 
@@ -254,9 +224,6 @@ async function setRole(role) {
 
 window.setRole = setRole;
 
-// =============================
-// Logout / Delete
-// =============================
 function bindAccountActions() {
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     localStorage.removeItem("accessToken");
@@ -308,9 +275,6 @@ function bindAccountActions() {
   });
 }
 
-// =============================
-// Init
-// =============================
 document.addEventListener("DOMContentLoaded", async () => {
   bindMyPageLanguageSelect();
   bindProfileSave();
@@ -334,9 +298,6 @@ function roleToLabel(role) {
   return "-";
 }
 
-/* =============================
-   i18n (MyPage)
-============================= */
 const MY_LANG_KEY = "mypageLang";
 
 const I18N = {
@@ -464,7 +425,6 @@ function applyMyPageLanguage(lang) {
     if (text) el.textContent = text;
   });
 
-  // select 옵션(흡연/음주)
   const smoke = document.getElementById("smoking");
   const drink = document.getElementById("drinking");
   if (smoke) {
@@ -478,7 +438,6 @@ function applyMyPageLanguage(lang) {
     drink.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "아니오";
   }
 
-  // 저장 힌트도 언어 바뀌면 지우기
   setHint("");
 }
 
@@ -495,7 +454,6 @@ function bindMyPageLanguageSelect() {
     localStorage.setItem(MY_LANG_KEY, lang);
     applyMyPageLanguage(lang);
 
-    // 프로필 meta(국가/성별 표시)도 언어에 맞게 다시 뿌리고 싶으면 loadProfile() 재호출
     loadProfile();
   });
 }

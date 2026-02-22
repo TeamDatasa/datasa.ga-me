@@ -20,12 +20,11 @@ function openReviewEdit(btn){
   const title = btn.dataset.tripTitle || "Trip";
 
   document.getElementById("reviewId").value = reviewId;
-  document.getElementById("reviewTripId").value = ""; // 수정은 tripId 필요 없을 수도
+  document.getElementById("reviewTripId").value = "";
   document.getElementById("reviewModalTitle").innerText = "Edit Review";
   document.getElementById("reviewModalSub").innerText = title;
   document.getElementById("reviewHint").innerText = "TODO: load existing review content via API";
 
-  // 임시 값
   document.getElementById("reviewRating").value = "5";
   document.getElementById("reviewContent").value = "";
 
@@ -50,13 +49,8 @@ async function submitReview(e){
   const rating = Number(document.getElementById("reviewRating").value);
   const content = document.getElementById("reviewContent").value;
 
-  // API 붙이기 전 임시
   console.log("submit", {reviewId, tripId, rating, content});
   document.getElementById("reviewHint").innerText = "Saved (stub). Connect API next.";
-
-  // TODO API 연결 예시:
-  // if (!reviewId) POST /api/reviews {tripId, rating, content}
-  // else PUT /api/reviews/{reviewId} {rating, content}
 
   return false;
 }
@@ -68,6 +62,5 @@ async function deleteReview(btn){
   console.log("delete", {reviewId});
   alert("Deleted (stub). Connect API next.");
 
-  // TODO API 연결: DELETE /api/reviews/{reviewId}
 }
 

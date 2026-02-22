@@ -19,7 +19,6 @@ const HOST_T = {
     reviewsHint: "투어 종료 후 작성된 리뷰가 표시돼요.",
     emptyReviews: "아직 리뷰가 없어요.",
 
-    // ✅ 리뷰 카드 라벨
     reviewTripLabel: "투어",
     reviewDateLabel: "작성일",
     reviewRatingLabel: "평점"
@@ -79,7 +78,6 @@ function applyHostI18n(lang) {
   });
 }
 
-/* ✅ 리뷰를 JS로 그리면 여기서 라벨까지 같이 번역 */
 function renderReviews(lang, reviews){
   const list = document.getElementById("reviewList");
   const empty = document.getElementById("reviewEmpty");
@@ -131,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyHostI18n(lang);
 
-  // ✅ 서버에서 리뷰 데이터를 주입했다고 가정 (아래 5번 참고)
   const reviews = window.__HOST_REVIEWS__ || [];
   renderReviews(lang, reviews);
 

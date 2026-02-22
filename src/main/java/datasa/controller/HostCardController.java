@@ -18,7 +18,6 @@ public class HostCardController {
 	
 	private final UserRepository userRepository;
 	
-	// ✅ 공개 여부 조회 (새로고침 시 체크 유지 핵심)
 	@GetMapping
 	public HostCardPublicResponse getPublic(Authentication authentication) {
 		User user = requireUser(authentication);
@@ -30,7 +29,6 @@ public class HostCardController {
 		return new HostCardPublicResponse(Boolean.TRUE.equals(user.getHostCardPublic()));
 	}
 	
-	// ✅ 공개 여부 변경 (DB에 1 저장)
 	@PatchMapping
 	public HostCardPublicResponse updatePublic(
 			@RequestBody HostCardUpdateRequest req,
@@ -49,17 +47,12 @@ public class HostCardController {
 		
 		user.setHostCardPublic(isPublic);
 		
-		// 🔥 이게 핵심 (flush 안 하면 반영 안 된 것처럼 보일 수 있음)
 		userRepository.saveAndFlush(user);
 		
 		System.out.println("[AFTER save] db.hostCardPublic=" + user.getHostCardPublic());
 		
 		return new HostCardPublicResponse(user.getHostCardPublic());
 	}
-	
-	// =========================
-	// 🔒 로그인 유저 보장
-	// =========================
 	private User requireUser(Authentication authentication) {
 		if (authentication == null || !authentication.isAuthenticated()) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");

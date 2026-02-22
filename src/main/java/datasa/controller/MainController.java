@@ -25,7 +25,7 @@ public class MainController {
 					   HttpSession session,
 					   Model model) {
 		
-		boolean isLogin = (userDetails != null); // ✅ 기준 통일
+		boolean isLogin = (userDetails != null);
 		model.addAttribute("isLogin", isLogin);
 		
 		List<TripRecommendationDto> recommendCourses;

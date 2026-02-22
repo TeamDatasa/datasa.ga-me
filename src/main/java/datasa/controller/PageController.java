@@ -32,7 +32,6 @@ public class PageController {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final TripService tripService;
 	
-	// ====== PAGES ======
 	
 	@GetMapping("/login")
 	public String loginPage() {
@@ -79,7 +78,6 @@ public class PageController {
 		
 		model.addAttribute("counts", dto.counts());
 		
-		// ✅ 참여한 투어: 최대 3개만
 		List<MyTourItem> allMyTours = dto.myTours() != null ? dto.myTours() : Collections.emptyList();
 		model.addAttribute("myTours", allMyTours.subList(0, Math.min(3, allMyTours.size())));
 		model.addAttribute("myToursHasMore", allMyTours.size() > 3);
@@ -107,7 +105,6 @@ public class PageController {
 		}
 		model.addAttribute("hostedTours", tripService.getTripsByHost(user.getUserId()));
 		
-		// ✅ users/MyPageDetailsHost.html
 		return "users/MyPageDetailsHost";
 	}
 	
@@ -122,7 +119,6 @@ public class PageController {
 		return "auth/ResetPassword";
 	}
 	
-	// ====== API (같은 컨트롤러 안에서 @ResponseBody로 처리) ======
 	
 	@PatchMapping("/api/mypage/role")
 	@ResponseBody
@@ -141,7 +137,6 @@ public class PageController {
 				.path("/")
 				.httpOnly(true)
 				.sameSite("Lax")
-				// .secure(true) // https면 켜고 localhost http면 주석
 				.build();
 		
 		AuthResponse body = new AuthResponse(newToken, user.getUserId(), user.getEmail(), user.getRole());

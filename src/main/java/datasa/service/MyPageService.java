@@ -6,18 +6,11 @@ import datasa.domain.dto.MyPageProfileUpdateRequest;
 import datasa.domain.entity.User;
 import datasa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 
@@ -94,10 +87,8 @@ public class MyPageService {
 	public void updateHostCardPublic(String email, Boolean isPublic) {
 		User user = getActiveUser(email);
 		
-		// null 들어오면 false로 처리(안전)
 		boolean v = Boolean.TRUE.equals(isPublic);
 		
-		// 엔티티가 HOST 검증까지 해줌
 		user.toggleHostCardPublic(v);
 	}
 	

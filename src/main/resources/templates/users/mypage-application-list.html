@@ -22,14 +22,12 @@
                 </div>
             </div>
 
-            <!-- ✅ 비어있을 때 -->
             <div class="empty" th:if="${applications == null || #lists.isEmpty(applications)}">
                 <div class="empty-box">
                     No applications yet.
                 </div>
             </div>
 
-            <!-- ✅ 리스트 -->
             <div class="list" th:if="${applications != null && !#lists.isEmpty(applications)}">
                 <article class="item" th:each="a : ${applications}">
                     <div class="item-left">
@@ -45,20 +43,15 @@
                     </div>
 
                     <div class="item-right">
-                        <!-- ✅ 승인됨 → 채팅 입장 -->
                         <a class="btn btn-primary"
                            th:if="${a.status.name() == 'APPROVED'}"
                            th:href="@{/chat/room/{tripId}(tripId=${a.tripId})}">
                             Chat
                         </a>
-
-                        <!-- ⏳ 대기중 -->
                         <span th:if="${a.status.name() == 'PENDING'}"
                               class="hint">
               Waiting
             </span>
-
-                        <!-- ❌ 거절 -->
                         <span th:if="${a.status.name() == 'REJECTED'}"
                               class="hint">
               Rejected
