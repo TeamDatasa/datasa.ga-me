@@ -213,7 +213,9 @@ public class TripController {
         long approvedCount = applicationRepository.countByTrip_TripIdAndStatus(
                 tripId, Application.Status.APPROVED
         );
-        if (response.getMaxParticipants() != null && approvedCount >= response.getMaxParticipants()) {
+
+        int maxGuests = response.getMaxParticipants() - 1;
+        if (response.getMaxParticipants() != null && approvedCount >= maxGuests) {
             applyExtraDisabled = true;
             applyDisabledReason = "모집이 마감되었습니다.";
         }

@@ -25,16 +25,24 @@ public class ApplicationService {
     private final ChatRoomService chatRoomService;
     private final NotificationRepository notificationRepository;
 
-
     // trip 신청
     @Transactional
     public ApplicationCreateResponseDto applyTrip(Long tripId, Long userId) {
+
+
 
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("여행이 존재하지 않습니다."));
 
         if (trip.getStatus() != Trip.Status.OPEN) {
             throw new IllegalStateException("신청 가능한 여행이 아닙니다.");
+        }
+
+        // 호스트(작성자)는 본인 여행에 신청 불가
+        if (trip.getHostUser() != null
+                && trip.getHostUser().getUserId() != null
+                && trip.getHostUser().getUserId().equals(userId)) {
+            throw new IllegalStateException("호스트는 본인 여행에 신청할 수 없습니다.");
         }
 
         // 시작일 기준 24시간 전부터 신청 불가
@@ -49,12 +57,17 @@ public class ApplicationService {
             throw new IllegalStateException("이미 신청한 여행입니다.");
         }
 
-        long approvedCount =
+        // 현재 승인된 게스트 수
+        long approvedGuestCount =
                 applicationRepository.countByTrip_TripIdAndStatus(
                         tripId, Application.Status.APPROVED
                 );
 
-        if (trip.getMaxParticipants() != null && approvedCount >= trip.getMaxParticipants()) {
+        // 호스트 1명은 기본 참가자이므로, 승인 가능한 게스트 최대치는 (정원 - 1)
+        int maxParticipants = trip.getMaxParticipants(); // not null (엔티티에서 nullable=false)
+        int maxGuests = maxParticipants - 1;
+
+        if (approvedGuestCount >= maxGuests) {
             throw new IllegalStateException("정원이 초과되었습니다.");
         }
 
@@ -68,7 +81,7 @@ public class ApplicationService {
 
         applicationRepository.save(app);
 
-        // 신청 알림 생성 (호스트한테)
+        // 신청 알림 생성 (호스트에게)
         User host = trip.getHostUser();
         if (host != null && host.getUserId() != null && !host.getUserId().equals(userId)) {
             Notification n = Notification.tripApply(
@@ -87,7 +100,6 @@ public class ApplicationService {
                 app.getStatus().name()
         );
     }
-
 
     /**
      * U_005 내 신청 상태 조회 (목록)
@@ -114,7 +126,6 @@ public class ApplicationService {
         return applicationRepository.existsByTrip_TripIdAndUser_UserId(tripId, userId);
     }
 
-
     // 호스트 신청 관리
     public List<Application> getApplicationsByTripForHost(Long tripId, Long hostUserId) {
         Trip trip = tripRepository.findById(tripId)
@@ -128,7 +139,6 @@ public class ApplicationService {
         return applicationRepository.findByTrip_TripId(tripId);
     }
 
-
     // 신청 승인
     @Transactional
     public void approve(Long applicationId, Long hostUserId) {
@@ -136,6 +146,7 @@ public class ApplicationService {
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("신청 없음"));
 
+        // 동시 승인 경쟁 방지: Trip row lock
         Trip trip = tripRepository.findByIdForUpdate(app.getTrip().getTripId())
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
 
@@ -149,6 +160,20 @@ public class ApplicationService {
             throw new IllegalStateException("이미 처리된 신청");
         }
 
+        // 승인 직전 정원 체크 (호스트 1명 포함 기준)
+        long approvedGuestCount =
+                applicationRepository.countByTrip_TripIdAndStatus(
+                        trip.getTripId(), Application.Status.APPROVED
+                );
+
+        int maxParticipants = trip.getMaxParticipants();
+        int maxGuests = maxParticipants - 1;
+
+        if (approvedGuestCount >= maxGuests) {
+            throw new IllegalStateException("정원이 초과되었습니다.");
+        }
+
+        // 승인 처리
         app.approve();
         applicationRepository.saveAndFlush(app);
 
@@ -156,7 +181,7 @@ public class ApplicationService {
         Notification n = Notification.tripApplicationApproved(app.getUser(), trip.getTitle(), trip.getTripId());
         notificationRepository.save(n);
 
-        // 여기서 chat_room 먼저 생성
+        // 채팅방 생성/조회
         ChatRoom room = chatRoomRepository
                 .findByTrip_TripId(trip.getTripId())
                 .orElseGet(() -> {
@@ -171,10 +196,22 @@ public class ApplicationService {
 
         // 승인된 유저 member
         createChatMemberIfAbsent(room, app.getUser());
+
+        // 승인 후 정원 도달 시 모집 마감(CLOSED)
+        long afterApprovedGuestCount =
+                applicationRepository.countByTrip_TripIdAndStatus(
+                        trip.getTripId(), Application.Status.APPROVED
+                );
+
+        long totalParticipants = afterApprovedGuestCount + 1; // 호스트 1명 포함
+
+        if (totalParticipants >= maxParticipants) {
+            trip.close();
+            tripRepository.saveAndFlush(trip);
+        }
     }
 
-
-    //신청 거절
+    // 신청 거절
     @Transactional
     public void reject(Long applicationId, Long hostUserId) {
 
@@ -199,12 +236,10 @@ public class ApplicationService {
         notificationRepository.save(n);
     }
 
-
     @Transactional(readOnly = true)
     public void validateApprovedUser(Long tripId, Long userId) {
         return;
     }
-
 
     @Transactional(readOnly = true)
     public List<MyApplicationDetailDto> getMyApplicationDetails(Long userId) {
@@ -234,6 +269,4 @@ public class ApplicationService {
                         }
                 );
     }
-
 }
-

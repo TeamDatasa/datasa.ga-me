@@ -271,6 +271,11 @@ public class TripService {
 		boolean hostDeleted = entity.getHostUser() != null
 				&& entity.getHostUser().getStatus() == User.Status.DELETED;
 
+		long approvedGuestCount =
+				applicationRepository.countByTrip_TripIdAndStatus(entity.getTripId(), Application.Status.APPROVED);
+
+		long currentParticipants = approvedGuestCount + 1;
+
 		return TripDetailResponse.builder()
 				.tripId(entity.getTripId())
 				.hostUser(entity.getHostUser())
@@ -294,6 +299,7 @@ public class TripService {
 				.hostName(entity.getHostUser().getName())
 				.hostDeleted(hostDeleted)
 				.languageCodes(languageCodes)
+				.currentParticipants(currentParticipants)
 				.build();
 	}
 

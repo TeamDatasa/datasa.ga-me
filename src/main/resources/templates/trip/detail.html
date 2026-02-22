@@ -84,8 +84,10 @@
                             </span>
 
                             <span class="dt-dot">•</span>
-                            <span class="dt-muted">모집 정원</span>
-                            <span class="dt-strong" th:text="${trip.maxParticipants}">0</span>
+                            <span class="dt-muted">참가 인원</span>
+                            <span class="dt-strong"
+                                  th:text="${trip.currentParticipants} + '/' + ${trip.maxParticipants}">1/3</span>
+
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">호스트</span>
 
@@ -202,7 +204,6 @@
                         여정 신청하기
                     </button>
 
-                    <!-- 수정된 영역: 상태 -> 예상 비용 -> (시작/종료/소요분) -->
                     <div class="dt-side-info">
                         <div class="dt-kv">
                             <span class="dt-k">상태</span>
