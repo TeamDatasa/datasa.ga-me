@@ -20,7 +20,8 @@ public class TripDetailResponse {
 	private Long tripId;
 	
 	private User hostUser;
-	
+	private boolean hostDeleted;
+
 	private String title;
 	
 	private String description;

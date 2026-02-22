@@ -70,6 +70,7 @@ public class TripService {
 						.tripId(dto.getTripId())
 						.hostUserId(dto.getHostUserId())
 						.hostName(dto.getHostName())
+						.hostDeleted(dto.isHostDeleted())
 						.title(dto.getTitle())
 						.description(dto.getDescription())
 						.estimatedCost(dto.getEstimatedCost())
@@ -82,6 +83,8 @@ public class TripService {
 						.updatedAt(dto.getUpdatedAt())
 						.likeCount(countMap.getOrDefault(dto.getTripId(), 0L))
 						.likedByMe(likedSet.contains(dto.getTripId()))
+						.region(dto.getRegion())
+						.theme(dto.getTheme())
 						.build())
 				.toList();
 	}
@@ -260,6 +263,9 @@ public class TripService {
 			likedByMe = tripLikeRepository.existsByTripAndUser(entity, u);
 		}
 
+		boolean hostDeleted = entity.getHostUser() != null
+				&& entity.getHostUser().getStatus() == User.Status.DELETED;
+
 		return TripDetailResponse.builder()
 				.tripId(entity.getTripId())
 				.hostUser(entity.getHostUser())
@@ -281,6 +287,7 @@ public class TripService {
 				.likedByMe(likedByMe)
 				.hostUserId(entity.getHostUser().getUserId())
 				.hostName(entity.getHostUser().getName())
+				.hostDeleted(hostDeleted)
 				.build();
 	}
 

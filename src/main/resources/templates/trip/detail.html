@@ -68,9 +68,17 @@
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">호스트</span>
 
+                            <!-- 탈퇴한 사용자면 클릭 불가 + 텍스트만 -->
+                            <span class="dt-strong dt-host-deleted"
+                                  th:if="${trip.hostDeleted}">
+                                탈퇴한 사용자
+                            </span>
+
+                            <!-- 정상 사용자면 모달 링크 -->
                             <a href="#"
                                class="dt-strong hc-host-link"
                                data-host-card-open
+                               th:if="${!trip.hostDeleted}"
                                th:attr="data-host-id=${trip.hostUserId}"
                                th:text="${trip.hostName} ?: '-'">-</a>
                         </div>
@@ -156,11 +164,6 @@
                                      data-apply-extra-reason=${applyDisabledReason}">
                         여정 신청하기
                     </button>
-
-<!--                    <p class="dt-hint" th:if="${applyExtraDisabled} and ${applyDisabledReason != null}"-->
-<!--                       th:text="${applyDisabledReason}">-->
-<!--                        - -->
-<!--                    </p>-->
 
                     <div class="dt-side-info">
                         <div class="dt-kv">

@@ -145,14 +145,21 @@ public class CommentService {
 		
 		return commentLikeRepository.countByComment_CommentId(commentId);
 	}
-	
+
 	private CommentResponse toResponse(Comment c) {
 		long likeCount = commentLikeRepository.countByComment_CommentId(c.getCommentId());
+
+		User u = c.getUser();
+		boolean deletedUser = (u != null && u.getStatus() == User.Status.DELETED);
+
+		Long userId = deletedUser ? null : u.getUserId();
+		String userName = deletedUser ? "탈퇴한 사용자" : u.getName();
+
 		return new CommentResponse(
 				c.getCommentId(),
 				c.getTrip().getTripId(),
-				c.getUser().getUserId(),
-				c.getUser().getName(),
+				userId,
+				userName,
 				c.getParent() == null ? null : c.getParent().getCommentId(),
 				c.getContent(),
 				c.getStatus().name(),

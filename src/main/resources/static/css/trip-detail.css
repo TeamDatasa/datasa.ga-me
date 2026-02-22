@@ -82,6 +82,11 @@
   font-weight: 800;
 }
 
+.dt-host-deleted {
+  color: rgba(86, 104, 115, 0.95);
+  font-weight: 800;
+}
+
 .dt-head {
   display: flex;
   justify-content: space-between;
@@ -279,7 +284,6 @@
   box-shadow: 0 14px 28px rgba(22, 117, 242, 0.12);
 }
 
-/* ✅ 삭제 버튼 붉은 계열 */
 .dt-btn--danger {
   background: rgba(180, 35, 24, 0.08);
   color: #b42318;
@@ -370,9 +374,23 @@
   margin-bottom: 8px;
 }
 
-.dt-comment-list .comment-author {
-  color: var(--text);
+.dt-comment-list .comment-author-link {
+  color: inherit;
   font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.dt-comment-list .comment-author-link:hover {
+  color: #1675F2;
+}
+
+.dt-comment-list .comment-author-deleted {
+  color: rgba(86, 104, 115, 0.95);
+  font-weight: 900;
+  text-decoration: none;
+  cursor: default;
 }
 
 .dt-comment-list .comment-time {

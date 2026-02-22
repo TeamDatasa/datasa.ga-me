@@ -55,13 +55,23 @@
                               th:text="${trip.likeCount}">0</span>
                     </button>
 
-                    <span class="trip-card__host">
-                        <a href="#"
-                           class="hc-host-link"
-                           data-host-card-open
-                           th:attr="data-host-id=${trip.hostUserId}"
-                           th:text="${trip.hostName}">호스트</a>
-                    </span>
+                    <span class="trip-card__host"
+                          onclick="event.stopPropagation();">
+
+    <span class="hc-host-deleted"
+          th:if="${trip.hostDeleted}">
+        탈퇴한 사용자
+    </span>
+
+    <a href="#"
+       class="hc-host-link"
+       data-host-card-open
+       th:if="${!trip.hostDeleted}"
+       th:attr="data-host-id=${trip.hostUserId}"
+       th:text="${trip.hostName}">
+        호스트
+    </a>
+</span>
                 </div>
             </article>
 
@@ -73,7 +83,6 @@
     </div>
 </main>
 
-<!-- Host Card Modal (페이지 1회) -->
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">

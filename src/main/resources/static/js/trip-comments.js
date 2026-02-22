@@ -62,6 +62,7 @@
         .join("");
   }
 
+
   async function refresh() {
     const comments = await fetchComments();
     render(comments);

@@ -2,6 +2,7 @@ package datasa.domain.dto;
 
 
 import datasa.domain.entity.Trip;
+import datasa.domain.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,7 +21,7 @@ public class TripListResponse {
 	// 호스트 정보(필요 최소)
 	private Long hostUserId;
 	private String hostName;
-	
+	private boolean hostDeleted;
 	
 	// Trip 기본 정보
 	private String title;
@@ -42,13 +43,17 @@ public class TripListResponse {
 	
 	private long likeCount;
 	private boolean likedByMe;
-	
-	
+
+
 	public static TripListResponse from(Trip trip) {
+		boolean hostDeleted = trip.getHostUser() != null
+				&& trip.getHostUser().getStatus() == User.Status.DELETED;
+
 		return TripListResponse.builder()
 				.tripId(trip.getTripId())
 				.hostUserId(trip.getHostUser().getUserId())
 				.hostName(trip.getHostUser().getName())
+				.hostDeleted(hostDeleted)
 				.title(trip.getTitle())
 				.description(trip.getDescription())
 				.region(trip.getRegion())

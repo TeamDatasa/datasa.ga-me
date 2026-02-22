@@ -1,6 +1,5 @@
 (function () {
   const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
   function escapeHtml(s) {
     return String(s ?? "")
@@ -51,7 +50,9 @@
     const res = await fn(url, { method: "GET", redirectOn401: false });
     const text = await res.text();
     let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch (_) {}
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (_) {}
     return { res, data, raw: text };
   }
 
@@ -70,16 +71,22 @@
   }
 
   function renderLoading() {
-    $("#hcName").textContent = "불러오는 중...";
-    $("#hcMeta").innerHTML = "";
-    $("#hcBio").innerHTML = `<div class="hc-muted">프로필을 불러오는 중입니다.</div>`;
+    const nameEl = $("#hcName");
+    const metaEl = $("#hcMeta");
+    const bioEl = $("#hcBio");
+    if (nameEl) nameEl.textContent = "불러오는 중...";
+    if (metaEl) metaEl.innerHTML = "";
+    if (bioEl) bioEl.innerHTML = `<div class="hc-muted">프로필을 불러오는 중입니다.</div>`;
     setAvatar(null);
   }
 
   function renderError(message) {
-    $("#hcName").textContent = "호스트 프로필";
-    $("#hcMeta").innerHTML = "";
-    $("#hcBio").innerHTML = `<div class="hc-muted">${escapeHtml(message)}</div>`;
+    const nameEl = $("#hcName");
+    const metaEl = $("#hcMeta");
+    const bioEl = $("#hcBio");
+    if (nameEl) nameEl.textContent = "호스트 프로필";
+    if (metaEl) metaEl.innerHTML = "";
+    if (bioEl) bioEl.innerHTML = `<div class="hc-muted">${escapeHtml(message)}</div>`;
     setAvatar(null);
   }
 
@@ -88,20 +95,24 @@
   }
 
   function renderCard(card) {
+    const nameEl = $("#hcName");
+    const metaEl = $("#hcMeta");
+    const bioEl = $("#hcBio");
+
     const name = card?.name ?? "-";
-    $("#hcName").textContent = name;
+    if (nameEl) nameEl.textContent = name;
 
     setAvatar(card?.profileImageUrl);
 
     const chips = [];
 
-    const age = (typeof card?.age === "number" && card.age > 0) ? `${card.age}세` : null;
+    const age = typeof card?.age === "number" && card.age > 0 ? `${card.age}세` : null;
     if (age) chips.push(chip(age, ""));
 
     const g = card?.gender ? String(card.gender) : null;
     const gKo = genderKo(g);
     if (gKo) {
-      const cls = (g === "FEMALE") ? "hc-chip--female" : (g === "MALE") ? "hc-chip--male" : "";
+      const cls = g === "FEMALE" ? "hc-chip--female" : g === "MALE" ? "hc-chip--male" : "";
       chips.push(chip(gKo, cls));
     }
 
@@ -118,39 +129,62 @@
       chips.push(chip(card.drinking ? "음주" : "비음주", card.drinking ? "hc-chip--warn" : "hc-chip--off"));
     }
 
-    $("#hcMeta").innerHTML = chips.join("");
+    if (metaEl) metaEl.innerHTML = chips.join("");
 
     const bio = !isBlank(card?.bio) ? String(card.bio) : null;
+    if (!bioEl) return;
+
     if (bio) {
-      $("#hcBio").style.display = "";
-      $("#hcBio").textContent = bio;
+      bioEl.style.display = "";
+      bioEl.textContent = bio;
     } else {
-      $("#hcBio").style.display = "none";
-      $("#hcBio").textContent = "";
+      bioEl.style.display = "none";
+      bioEl.textContent = "";
     }
   }
 
   async function openHostCard(hostId) {
-    if (!hostId) return;
+    if (isBlank(hostId)) return;
+
     openModal();
     renderLoading();
 
     const { res, data } = await httpGetJson(`/api/hosts/${hostId}/card`);
 
-    if (res.ok) { renderCard(data); return; }
-    if (res.status === 404) { renderError("호스트 정보를 찾을 수 없습니다."); return; }
+    if (res.ok) {
+      renderCard(data);
+      return;
+    }
+    if (res.status === 404) {
+      renderError("호스트 정보를 찾을 수 없습니다.");
+      return;
+    }
     renderError("프로필을 불러오지 못했습니다.");
   }
 
   function bind() {
-    $$("#hostCardOpen, [data-host-card-open]").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const hostId = el.getAttribute("data-host-id");
-        openHostCard(hostId);
-      });
-    });
+    document.addEventListener(
+        "click",
+        (e) => {
+          const trigger = e.target.closest("#hostCardOpen, [data-host-card-open]");
+          if (!trigger) return;
+
+          const ariaDisabled = trigger.getAttribute("aria-disabled");
+          if (ariaDisabled === "true") return;
+
+          const hostId = trigger.getAttribute("data-host-id");
+          if (isBlank(hostId)) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof e.stopImmediatePropagation === "function") {
+            e.stopImmediatePropagation();
+          }
+
+          openHostCard(hostId);
+        },
+        true
+    );
 
     const overlay = $("#hostCardModalOverlay");
     if (overlay) {
@@ -158,6 +192,7 @@
         if (e.target === overlay) closeModal();
       });
     }
+
     const closeBtn = $("#hostCardModalClose");
     if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
