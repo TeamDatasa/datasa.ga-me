@@ -22,7 +22,6 @@
         </div>
 
         <div class="grid" style="grid-template-columns: 1.2fr .8fr; margin-top:14px;">
-            <!-- ✅ LEFT: joined tours list -->
             <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
                 <h3 style="margin:0 0 6px 0;">Joined Tours</h3>
                 <p class="hint">Approved tours you joined.</p>
@@ -41,21 +40,18 @@
                         </div>
 
                         <div class="actions">
-                            <!-- Write -->
                             <a class="btn"
                                th:if="${t.canWrite()}"
                                th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}">
                                 Write
                             </a>
 
-                            <!-- Edit -->
                             <a class="btn"
                                th:if="${t.hasReview()}"
                                th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}">
                                 Edit
                             </a>
 
-                            <!-- Delete (confirm) -->
                             <a class="btn btn-danger"
                                th:if="${t.hasReview()}"
                                th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}">
@@ -70,15 +66,12 @@
                 </ul>
             </div>
 
-            <!-- ✅ RIGHT: mode panel -->
             <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
-                <!-- 기본 안내 -->
                 <div th:if="${mode == ''}">
                     <h3 style="margin:0 0 6px 0;">Select a tour</h3>
                     <p class="hint">Choose Write / Edit / Delete from the list.</p>
                 </div>
 
-                <!-- ✅ NEW -->
                 <div th:if="${mode == 'new'}">
                     <h3 style="margin:0 0 6px 0;">Write Review</h3>
                     <p class="hint">Rating 1~5, content up to 2000 chars.</p>
@@ -108,7 +101,6 @@
                     </form>
                 </div>
 
-                <!-- ✅ EDIT -->
                 <div th:if="${mode == 'edit'}">
                     <h3 style="margin:0 0 6px 0;">Edit Review</h3>
                     <p class="hint">Only your review can be edited.</p>
@@ -139,7 +131,6 @@
                     </form>
                 </div>
 
-                <!-- ✅ DELETE CONFIRM -->
                 <div th:if="${mode == 'delete'}">
                     <h3 style="margin:0 0 6px 0;">Delete Review</h3>
                     <p class="hint">This action cannot be undone.</p>

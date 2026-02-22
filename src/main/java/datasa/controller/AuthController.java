@@ -49,8 +49,7 @@ public class AuthController {
 				.httpOnly(true)
 				.path("/")
 				.sameSite("Lax")
-				// .secure(true) // https 쓰면 켜
-				.maxAge(60 * 60 * 24) // 1 day (원하는대로)
+				.maxAge(60 * 60 * 24)
 				.build();
 		
 		return ResponseEntity.ok()
@@ -85,7 +84,6 @@ public class AuthController {
 	) {
 		authService.withdraw(userDetails.getUsername());
 		
-		// 🔥 access_token 쿠키 삭제
 		ResponseCookie access = ResponseCookie.from("access_token", "")
 				.httpOnly(true)
 				.path("/")

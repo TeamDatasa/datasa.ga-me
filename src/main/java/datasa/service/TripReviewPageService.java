@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TripReviewPageService {
 	
-	private final TripLikeService tripLikeService; // 너가 이미 getTripDetail 여기 둠
+	private final TripLikeService tripLikeService;
 	private final ReviewService reviewService;
 	
 	@Transactional(readOnly = true)
@@ -33,7 +33,6 @@ public class TripReviewPageService {
 		try {
 			myReview = reviewService.myReview(email, tripId);
 		} catch (IllegalArgumentException e) {
-			// "Review not found" 같은 케이스 -> null로 두면 됨
 		}
 		
 		return new TripReviewPageResponse(trip, canWrite, myReview, reviews);

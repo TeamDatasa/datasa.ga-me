@@ -206,7 +206,6 @@ function renderRow(app) {
 }
 
     function load() {
-      // ✅ hostUserId 없이: 서버가 로그인한 host 기준으로 검증/조회
       fetch(`/api/host/trips/${tripId}/applications`, {
         method: "GET",
         credentials: "same-origin"

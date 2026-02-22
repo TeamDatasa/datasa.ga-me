@@ -31,7 +31,6 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<Map<String, Object>> handle(ResponseStatusException e) {
-		// reason(메시지)를 JSON으로 내려줌
 		return ResponseEntity
 				.status(e.getStatusCode())
 				.body(Map.of(

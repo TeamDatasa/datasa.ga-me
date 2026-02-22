@@ -158,10 +158,8 @@
         const updated = await savePresetProfile(selectedUrl);
         currentUrl = updated?.profileImageUrl || null;
 
-        // ✅ 즉시 반영
         renderAvatar(currentUrl);
 
-        // ✅ mypage.js가 화면 다시 그리면서 덮어쓰는 문제 방지 (서버 기준으로 재로드)
         if (typeof window.loadProfile === "function") {
           await window.loadProfile();
         }

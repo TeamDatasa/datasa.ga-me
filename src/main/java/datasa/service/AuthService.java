@@ -23,19 +23,16 @@ public class AuthService {
 	
 	@Transactional
 	public void signup(SignupRequest req) {
-		// ✅ 이메일 중복 선 체크 (500 방지)
 		if (userRepository.existsByEmail(req.getEmail())) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
 		}
 		
 		String encoded = passwordEncoder.encode(req.getPassword());
 		
-		// ✅ role null 들어와도 USER로 보정
 		User.Role role = (req.getRole() == null) ? User.Role.USER : req.getRole();
 		
 		User user = User.create(req.getEmail(), encoded, req.getName(), role);
 		
-		// ✅ 추가 정보 세팅
 		user.setBirthDate(req.getBirthDate());
 		user.setGender(req.getGender());
 		user.setCountryCode(req.getCountryCode());
@@ -56,7 +53,6 @@ public class AuthService {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password.");
 		}
 		
-		// status가 null이면 ACTIVE로 간주하기
 		User.Status status = (user.getStatus() == null) ? User.Status.ACTIVE : user.getStatus();
 		
 		if (status == User.Status.DELETED) {
@@ -66,7 +62,6 @@ public class AuthService {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비활성화된 계정입니다.");
 		}
 		
-		// role이 null이면 USER로 보정하기
 		User.Role role = (user.getRole() == null) ? User.Role.USER : user.getRole();
 		
 		String accessToken = jwtTokenProvider.createToken(user.getEmail(), role);
@@ -91,15 +86,12 @@ public class AuthService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 탈퇴된 계정입니다.");
 		}
 		
-		// ✅ 비식별 + DELETED 처리
 		user.withdrawAnonymize();
 		
-		// ✅ 비밀번호 무효화(선택이지만 추천)
 		user.changePassword(
 				passwordEncoder.encode("DELETED-" + user.getUserId() + "-" + System.currentTimeMillis())
 		);
 		
-		// ✅ 확실히 반영(권장)
 		userRepository.save(user);
 		userRepository.flush();
 	}

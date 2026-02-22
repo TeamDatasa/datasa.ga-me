@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!form) return;
 
-  // ✅ 메일 링크에서 token 꺼내기: /reset-password?token=...
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") || "";
 
@@ -32,13 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const raw = await res.text();
 
       if (!res.ok) {
-        // 서버가 IllegalArgumentException 메시지 같은 걸 raw로 줄 수 있음
         throw new Error(raw || `비밀번호 변경 실패 (${res.status})`);
       }
 
       if (msg) msg.innerText = "비밀번호 변경 완료! 다시 로그인해 주세요.";
 
-      // ✅ 기존 JWT/세션 쿠키 제거 (헷갈림 방지)
       document.cookie = "access_token=; Path=/; Max-Age=0; SameSite=Lax";
       document.cookie = "JSESSIONID=; Path=/; Max-Age=0;";
 

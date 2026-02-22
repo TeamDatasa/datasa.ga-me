@@ -28,7 +28,7 @@ public class MyReviewsController {
 	@GetMapping
 	public String page(
 			@AuthenticationPrincipal UserDetails userDetails,
-			@RequestParam(required = false) String mode,      // new | edit | delete
+			@RequestParam(required = false) String mode,
 			@RequestParam(required = false) Long tripId,
 			@RequestParam(required = false) Long reviewId,
 			Model model
@@ -75,7 +75,6 @@ public class MyReviewsController {
 			Model model
 	) {
 		if (br.hasErrors()) {
-			// 목록도 다시 깔아줘야 화면 유지됨
 			model.addAttribute("items", myReviewPageService.getMyJoinedTrips(userDetails.getUsername()));
 			model.addAttribute("mode", "new");
 			return "users/myreview";

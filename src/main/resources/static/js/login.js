@@ -1,15 +1,10 @@
-/* ===============================
-   로그인 페이지 i18n + 로직 통합
-================================ */
 
-/* ===== 언어 목록 ===== */
 const AVAILABLE_LANGUAGES = [
   { code: "ko", label: "한국어" },
   { code: "ja", label: "日本語" },
   { code: "en", label: "English" }
 ];
 
-/* ===== 번역 사전 ===== */
 const I18N = {
   ko: {
     "login.title": "로그인",
@@ -58,7 +53,6 @@ const I18N = {
   }
 };
 
-/* ===== i18n 유틸 ===== */
 function getCurrentLang() {
   return localStorage.getItem("lang") || "ko";
 }
@@ -80,7 +74,6 @@ function applyLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
-/* ===== 언어 셀렉트 ===== */
 function initLanguageSelect() {
   const select = document.getElementById("langSelect");
   if (!select) return;
@@ -103,7 +96,6 @@ function initLanguageSelect() {
   });
 }
 
-/* ===== 로그인 로직 ===== */
 function initLoginForm() {
   const form = document.getElementById("loginForm");
   if (!form) return;
@@ -142,7 +134,6 @@ function initLoginForm() {
   });
 }
 
-/* ===== 초기화 ===== */
 document.addEventListener("DOMContentLoaded", () => {
   initLanguageSelect();
   initLoginForm();
