@@ -155,6 +155,13 @@ public class CommentService {
 		Long userId = deletedUser ? null : u.getUserId();
 		String userName = deletedUser ? "탈퇴한 사용자" : u.getName();
 
+		boolean hostCardOpenable = false;
+		if (!deletedUser && u != null) {
+			hostCardOpenable =
+					u.getRole() == User.Role.HOST
+							&& Boolean.TRUE.equals(u.getHostCardPublic());
+		}
+
 		return new CommentResponse(
 				c.getCommentId(),
 				c.getTrip().getTripId(),
@@ -165,7 +172,9 @@ public class CommentService {
 				c.getStatus().name(),
 				likeCount,
 				c.getCreatedAt(),
-				c.getUpdatedAt()
+				c.getUpdatedAt(),
+				hostCardOpenable
 		);
 	}
+
 }

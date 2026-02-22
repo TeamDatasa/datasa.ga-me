@@ -12,5 +12,6 @@ public record CommentResponse(
 		String status,
 		long likeCount,
 		LocalDateTime createdAt,
-		LocalDateTime updatedAt
+		LocalDateTime updatedAt,
+		boolean hostCardOpenable
 ) {}

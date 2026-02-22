@@ -37,6 +37,16 @@
         .replaceAll("'", "&#039;");
   }
 
+  function renderAuthor(c) {
+    const userName = escapeHtml(c.userName);
+    const userId = c.userId;
+
+    if (c.hostCardOpenable && userId != null) {
+      return `<a href="#" class="comment-author-link" data-host-card-open data-host-id="${userId}">${userName}</a>`;
+    }
+    return `<strong class="comment-author">${userName}</strong>`;
+  }
+
   function render(comments) {
     const visible = Array.isArray(comments) ? comments : [];
     if (countEl) countEl.textContent = String(visible.length);
@@ -44,10 +54,11 @@
     listEl.innerHTML = visible
         .map((c) => {
           const mine = currentUserId && c.userId && Number(currentUserId) === Number(c.userId);
+
           return `
           <li class="comment-item" data-comment-id="${c.commentId}">
             <div class="comment-meta">
-              <strong class="comment-author">${escapeHtml(c.userName)}</strong>
+              ${renderAuthor(c)}
               <span class="comment-time">${formatTime(c.createdAt)}</span>
             </div>
             <div class="comment-content" data-content>${escapeHtml(c.content)}</div>
@@ -61,7 +72,6 @@
         })
         .join("");
   }
-
 
   async function refresh() {
     const comments = await fetchComments();
