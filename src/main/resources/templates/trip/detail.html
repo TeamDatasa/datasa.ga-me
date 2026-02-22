@@ -9,6 +9,9 @@
     <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-detail.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
 
     <title>여정 상세</title>
 </head>
@@ -65,7 +68,13 @@
                             <span class="dt-strong" th:text="${trip.maxParticipants}">0</span>
                             <span class="dt-dot">•</span>
                             <span class="dt-muted">호스트</span>
-                            <span class="dt-strong" th:text="${trip.hostName} ?: '-'">-</span>
+
+                            <!-- ✅ 호스트 클릭 -> 모달 -->
+                            <a href="#"
+                               class="dt-strong hc-host-link"
+                               data-host-card-open
+                               th:attr="data-host-id=${trip.hostUserId}"
+                               th:text="${trip.hostName} ?: '-'">-</a>
                         </div>
                     </div>
 
@@ -121,10 +130,10 @@
                     </div>
 
                     <form id="commentForm" class="dt-comment-form">
-            <textarea id="commentContent"
-                      class="dt-textarea"
-                      rows="3"
-                      placeholder="댓글을 입력하세요"></textarea>
+                        <textarea id="commentContent"
+                                  class="dt-textarea"
+                                  rows="3"
+                                  placeholder="댓글을 입력하세요"></textarea>
 
                         <div class="dt-comment-actions">
                             <button type="submit" class="dt-btn dt-btn--primary">등록</button>
@@ -203,6 +212,21 @@
     </div>
 </main>
 
+<!-- ✅ Host Card Modal (페이지 1회) -->
+<div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
+    <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
+        <div class="hc-head">
+            <div id="hcTitle" class="hc-title">호스트 프로필</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+        </div>
+        <div class="hc-body">
+            <h3 id="hcName" class="hc-name">-</h3>
+            <div id="hcMeta" class="hc-meta"></div>
+            <div id="hcBio" class="hc-bio"></div>
+        </div>
+    </div>
+</div>
+
 <script th:inline="javascript">
     const tripId = /*[[${trip.tripId}]]*/ 0;
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
@@ -216,6 +240,9 @@
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-comments.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-delete.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 
 </body>
 </html>

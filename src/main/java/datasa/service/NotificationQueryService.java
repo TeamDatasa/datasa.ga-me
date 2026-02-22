@@ -130,5 +130,22 @@ public class NotificationQueryService {
 		notificationRepository.delete(n);
 	}
 	
+	// 알림 읽음 처리(단건)
+	@Transactional
+	public void markOneRead(Authentication authentication, Long notificationId) {
+		User me = currentUserOrDefault(authentication);
+		
+		Notification n = notificationRepository.findById(notificationId)
+				.orElseThrow(() -> new IllegalArgumentException("알림이 존재하지 않습니다."));
+		
+		// 내 알림인지 검증
+		if (!n.getUser().getUserId().equals(me.getUserId())) {
+			throw new org.springframework.security.access.AccessDeniedException("읽음 처리 권한 없음");
+		}
+		
+		if (!Boolean.TRUE.equals(n.getIsRead())) {
+			n.setIsRead(true);
+		}
+	}
 	
 }
