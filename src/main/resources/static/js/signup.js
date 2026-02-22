@@ -27,6 +27,7 @@ const I18N = {
     "signup.sendCode": "인증 코드 보내기",
     "signup.codePlaceholder": "6-digit code",
     "signup.verifyCode": "인증하기",
+    "signup.alert.codeWrong": "인증코드를 다시 입력해 주세요.",
     "signup.passwordLabel": "비밀번호",
     "signup.passwordConfirmLabel": "비밀번호 확인",
     "signup.nicknameLabel": "닉네임",
@@ -95,6 +96,7 @@ const I18N = {
     "signup.emailLabel": "メールアドレス",
     "signup.sendCode": "認証コードを送信",
     "signup.codePlaceholder": "6桁コード",
+    "signup.alert.codeWrong": "認証コードをもう一度入力してください。",
     "signup.verifyCode": "認証する",
     "signup.passwordLabel": "パスワード",
     "signup.passwordConfirmLabel": "パスワード（確認）",
@@ -163,6 +165,7 @@ const I18N = {
     "signup.emailLabel": "Email",
     "signup.sendCode": "Send verification code",
     "signup.codePlaceholder": "6-digit code",
+    "signup.alert.codeWrong": "Please re-enter the verification code.",
     "signup.verifyCode": "Verify",
     "signup.passwordLabel": "Password",
     "signup.passwordConfirmLabel": "Confirm password",
@@ -440,14 +443,13 @@ function initSignupForm() {
         });
 
         if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          throw new Error(text || t("signup.alert.codeInvalid"));
+          throw new Error(t("signup.alert.codeWrong"));
         }
 
         setVerifiedState(true);
         alert(t("signup.status.verified"));
       } catch (err) {
-        alert(err?.message || t("signup.alert.codeInvalid"));
+        alert(t("signup.alert.codeWrong"));
       }
     });
   }
