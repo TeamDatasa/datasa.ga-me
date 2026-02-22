@@ -4,6 +4,11 @@
 
 const roomId = window.ROOM_ID;
 const userId = window.USER_ID;
+const isReadOnly = !!window.CHAT_READ_ONLY;
+
+if (isReadOnly) {
+  applyReadOnlyUI();
+}
 
 /* ===== WebSocket ===== */
 const socket = new WebSocket(
@@ -51,6 +56,12 @@ stompClient.connect(
 function sendMessage() {
   const input = document.getElementById("messageInput");
   const text = input.value.trim();
+
+
+  if (isReadOnly) {
+    alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+    return;
+  }
   if (!text) return;
 
   stompClient.send(
@@ -143,6 +154,11 @@ document.getElementById("chatMessages").addEventListener("click", (e) => {
   const wrapper = messageMap.get(messageId);
   if (!wrapper) return;
 
+
+    if (isReadOnly) {
+      alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+      return;
+    }
   showLanguageSelect(wrapper, messageId);
 });
 
@@ -233,6 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
+async function leaveRoom() {
+  if (isReadOnly) {
+    alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+    return;
+  }
+  const res = await fetch(`/api/chat/rooms/${roomId}/leave?userId=${userId}`, { method: "POST" });
+  // ...
+}
 
 

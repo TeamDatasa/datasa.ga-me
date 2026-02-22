@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,12 +32,9 @@ public class ChatService {
     private final UserRepository userRepository;
     private final TripRepository tripRepository;
     private final SimpMessagingTemplate messagingTemplate;
-    // ✅ 이미 프로젝트에 있는 "승인 사용자만 채팅 가능" 검증 로직을 여기에 연결하면 됨
 
     private final ApplicationService applicationService;
 
-    // 번역 기능이 실제로 있다면 주입해서 사용
-    // private final TranslationService translationService;
 
     /**
      * 실시간 메시지 저장 + (선택) 번역 적용.
@@ -59,9 +57,10 @@ public class ChatService {
 
         // 승인 사용자만 채팅 가능
         Trip trip = room.getTrip();
+        validateNotReadOnly(trip);
         applicationService.validateApprovedUser(trip.getTripId(), userId);
 
-        //  원문 메시지 저장 (번역 X)
+        //  원문 메시지 저장
         ChatMessage message = new ChatMessage(
                 room,
                 sender,
@@ -70,7 +69,6 @@ public class ChatService {
         chatMessageRepository.save(message);
 
 
-        //  원문 DTO 즉시 반환 (WS 전송용)
         return ChatMessageResponseDto.from(message);
     }
 
@@ -90,30 +88,24 @@ public class ChatService {
         }
     }
 
-
-    /**
-     * (선택) tripId로 방 생성/조회가 필요하면 이 메서드로 통일하면 좋음
-     * - trip 1개 = chatroom 1개
-     */
-
         @Transactional
         public Long getRoomIdForEntry(Long tripId, Long userId) {
 
-            // 1️⃣ 승인 여부 검증
+            //  승인 여부 검증
             applicationService.validateApprovedUser(tripId, userId);
 
-            // 2️⃣ 채팅방 조회
+            // 채팅방 조회
             ChatRoom room = chatRoomRepository.findByTrip_TripId(tripId)
                     .orElseThrow(() -> new IllegalStateException("채팅방 없음"));
 
-            // 3️⃣ ChatMember 검증
+            // ChatMember 검증
             ChatMember member = chatMemberRepository
                     .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), userId)
                     .orElseThrow(() -> new IllegalStateException("채팅방 멤버 아님"));
 
-            // 4️⃣ 나갔다가 재입장 허용
+            //  나갔다가 재입장 허용
             if (!member.isActive()) {
-                member.rejoin(); // leftAt = null
+                member.rejoin();
             }
 
             return room.getRoomId();
@@ -129,7 +121,7 @@ public class ChatService {
                         roomId, pageable
                 );
 
-        // Entity → DTO 변환
+
         return page.map(ChatMessageResponseDto::from);
 
 
@@ -144,6 +136,7 @@ public class ChatService {
                 .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
                 .orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
 
+        validateNotReadOnly(member.getChatRoom().getTrip());
         // 이미 나간 경우 방어
         if (!member.isActive()) {
             return;
@@ -180,6 +173,7 @@ public class ChatService {
         ChatMessage message = chatMessageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("메시지 없음"));
 
+        validateNotReadOnly(message.getChatRoom().getTrip());
         String translated = translationService.translate(
                 message.getOriginalText(),
                 targetLanguage
@@ -191,6 +185,21 @@ public class ChatService {
                 .build();
     }
 
+
+
+    @Transactional(readOnly = true)
+    public boolean isReadOnly(Trip trip) {
+        if (trip == null || trip.getEndAt() == null) return false;
+        return trip.getEndAt().plusDays(7).isBefore(LocalDateTime.now());
+    }
+
+    private void validateNotReadOnly(Trip trip) {
+        if (isReadOnly(trip)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다."
+            );
+        }
+    }
 
 }
 

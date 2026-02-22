@@ -18,10 +18,8 @@ import java.util.List;
 public class ApplicationController {
 	
 	private final ApplicationService applicationService;
-	
-	/**
-	 * U_004 여행 신청
-	 */
+
+
 	@GetMapping("/trips/{tripId}")
 	public List<ApplicationListResponseDto> list(
 			@PathVariable Long tripId
@@ -33,7 +31,7 @@ public class ApplicationController {
     @GetMapping("/host/trips/{tripId}")
     public List<ApplicationListResponseDto> listByTripForHost(
             @PathVariable Long tripId,
-            @RequestParam Long hostUserId   // 🔥 지금은 테스트용
+            @RequestParam Long hostUserId
     ) {
         return applicationService.getApplicationsByTripForHost(tripId, hostUserId)
                 .stream()
