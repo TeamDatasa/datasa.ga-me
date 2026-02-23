@@ -144,3 +144,38 @@
   background: rgba(86, 104, 115, 0.08);
   color: rgba(28, 31, 36, 0.72);
 }
+
+/* ===============================
+   여정 작성 버튼 (헤더 로그아웃 느낌: 노란 pill)
+   - main.css의 .btn 영향 차단을 위해 listAll 전용 클래스 사용
+================================ */
+
+.tl-write-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 40px;
+  padding: 0 16px;
+
+  border-radius: 999px;
+  border: 0;
+  background: #F2E96D;
+  color: #1a1a1a;
+
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+
+  box-shadow: 0 12px 26px rgba(242, 233, 109, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.tl-write-btn:hover {
+  filter: brightness(0.98);
+  box-shadow: 0 14px 30px rgba(242, 233, 109, 0.42);
+}
+
+.tl-write-btn:active {
+  transform: scale(0.99);
+}
