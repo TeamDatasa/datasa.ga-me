@@ -16,34 +16,35 @@
 </head>
 
 <body>
-<header class="yw-header">
-    <div class="yw-container yw-header__inner">
-        <a class="yw-logo" href="/">
-            <span class="yw-logo__mark">●</span>
-            <span class="yw-logo__text">ga-me</span>
-        </a>
+<!--<header class="yw-header">-->
+<!--    <div class="yw-container yw-header__inner">-->
+<!--        <a class="yw-logo" href="/">-->
+<!--            <span class="yw-logo__mark">●</span>-->
+<!--            <span class="yw-logo__text">ga-me</span>-->
+<!--        </a>-->
 
-        <nav class="yw-nav">
-            <a class="yw-nav__link" href="/">홈</a>
-            <a class="yw-nav__link" href="/trip/listAll">여행</a>
-            <a class="yw-nav__link" href="/community">고객센터</a>
-        </nav>
+<!--        <nav class="yw-nav">-->
+<!--            <a class="yw-nav__link" href="/">홈</a>-->
+<!--            <a class="yw-nav__link" href="/trip/listAll">여행</a>-->
+<!--            <a class="yw-nav__link" href="/community">고객센터</a>-->
+<!--        </nav>-->
 
-        <div class="yw-auth">
-            <div id="guestMenu">
-                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
-                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
-            </div>
+<!--        <div class="yw-auth">-->
+<!--            <div id="guestMenu">-->
+<!--                <a class="yw-btn yw-btn&#45;&#45;ghost" th:href="@{/login}">로그인</a>-->
+<!--                <a class="yw-btn yw-btn&#45;&#45;primary" th:href="@{/signup}">회원가입</a>-->
+<!--            </div>-->
 
-            <div id="userMenu" style="display:none;">
-                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>
-                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
-                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-                <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
-            </div>
-        </div>
-    </div>
-</header>
+<!--            <div id="userMenu" style="display:none;">-->
+<!--                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>-->
+<!--                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>-->
+<!--                <a class="yw-btn yw-btn&#45;&#45;ghost" th:href="@{/mypage}">마이페이지</a>-->
+<!--                <button class="yw-btn yw-btn&#45;&#45;primary" id="logoutBtn" type="button">로그아웃</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</header>-->
+<div th:replace="~{fragments/header :: siteHeader}"></div>
 
 <main class="dt-page">
     <div class="dt-container">
@@ -204,11 +205,17 @@
                         여정 신청하기
                     </button>
 
-                    <div class="dt-side-info">
-                        <div class="dt-kv">
-                            <span class="dt-k">상태</span>
-                            <span class="dt-v" th:text="${trip.status}">OPEN</span>
-                        </div>
+                    <div class="dt-kv">
+                        <span class="dt-k">상태</span>
+                        <span class="dt-v" th:switch="${trip.status != null ? trip.status.name() : ''}">
+                        <span th:case="'DRAFT'">임시저장</span>
+                        <span th:case="'OPEN'">모집중</span>
+                        <span th:case="'CLOSED'">모집마감</span>
+                        <span th:case="'IN_PROGRESS'">진행중</span>
+                        <span th:case="'FINISHED'">종료됨</span>
+                        <span th:case="*">-</span>
+                    </span>
+                    </div>
 
                         <div class="dt-kv">
                             <span class="dt-k">예상 비용</span>

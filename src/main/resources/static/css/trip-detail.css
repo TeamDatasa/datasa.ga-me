@@ -515,3 +515,37 @@
     font-size: 24px;
   }
 }
+
+/* ===============================
+   여정 참여 사이드 간격 개선
+================================ */
+
+/* 상태~종료일 블록 전체 간격 */
+.dt-side-card .dt-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+
+/* 첫 번째 kv는 위 간격 제거 */
+.dt-side-card .dt-kv:first-of-type {
+  margin-top: 10px;
+}
+
+/* label(상태, 예상 비용 등) */
+.dt-side-card .dt-k {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* 값(OPEN, 12,000원 등) */
+.dt-side-card .dt-v {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* 상태 위 버튼과의 간격 */
+#applyBtn {
+  margin-bottom: 20px;
+}

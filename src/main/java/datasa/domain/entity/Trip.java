@@ -83,6 +83,10 @@ public class Trip {
 
     /* ===== ENUM ===== */
 	public enum Status {
-		DRAFT, OPEN, CLOSED
+		DRAFT,         // 임시저장
+		OPEN,          // 모집중
+		CLOSED,        // 모집마감
+		IN_PROGRESS,   // 진행중
+		FINISHED       // 종료됨
 	}
 }

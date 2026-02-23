@@ -52,7 +52,14 @@ public class TripService {
 		List<Long> tripIds = baseList.stream()
 				.map(TripListResponse::getTripId)
 				.toList();
-
+		
+		Map<Long, List<String>> languageMap = new HashMap<>();
+		for (Object[] row : tripLanguageRepository.findCodesByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			String code = (String) row[1];
+			languageMap.computeIfAbsent(tripId, k -> new ArrayList<>()).add(code);
+		}
+		
 		Map<Long, Long> countMap = new HashMap<>();
 		for (Object[] row : tripLikeRepository.countByTripIds(tripIds)) {
 			Long tripId = (Long) row[0];
@@ -85,6 +92,7 @@ public class TripService {
 						.likedByMe(likedSet.contains(dto.getTripId()))
 						.region(dto.getRegion())
 						.theme(dto.getTheme())
+						.languageCodes(languageMap.getOrDefault(dto.getTripId(), List.of()))
 						.build())
 				.toList();
 	}
