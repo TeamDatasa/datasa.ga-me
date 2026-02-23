@@ -15,21 +15,29 @@
   gap: 8px;
 }
 
+/* 핵심: header의 .yw-icon-btn(38x38)과 충돌하지 않게 알림 버튼을 동일 규격으로 고정 */
 .notif-icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 14px;
+
   border: 1px solid var(--notif-border);
   background: var(--notif-bg);
-  border-radius: 999px;
-  padding: 10px 12px;
   cursor: pointer;
+
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: var(--notif-shadow);
+  justify-content: center;
+
+  box-shadow: none;
   color: var(--notif-text);
 }
 
 .notif-icon-btn:hover {
-  filter: brightness(0.98);
+  background: rgba(86, 104, 115, 0.06);
+  filter: none;
 }
 
 .notif-icon {
@@ -38,17 +46,26 @@
   display: inline-block;
 }
 
+/* 핵심: 뱃지를 버튼 우상단에 겹치게 해서 레이아웃이 늘어나지 않게 처리 */
 .notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
   min-width: 18px;
   height: 18px;
   padding: 0 6px;
   border-radius: 999px;
+
   font-size: 12px;
   line-height: 18px;
   text-align: center;
+
   background: var(--notif-blue);
   color: #fff;
+
   display: none;
+  pointer-events: none;
 }
 
 .notif-popover {
@@ -101,7 +118,7 @@
 }
 
 .notif-item {
-  position: relative; /* 삭제 버튼 위치 기준 */
+  position: relative;
   padding: 12px 14px;
   border-bottom: 1px solid var(--notif-border);
 }
@@ -119,7 +136,7 @@
   font-weight: 800;
   margin-bottom: 4px;
   color: var(--notif-text);
-  padding-right: 34px; /* X 버튼 공간 확보 */
+  padding-right: 34px;
 }
 
 .notif-item__body {
@@ -127,14 +144,14 @@
   opacity: 0.92;
   margin-bottom: 6px;
   color: var(--notif-text);
-  padding-right: 34px; /* X 버튼 공간 확보 */
+  padding-right: 34px;
 }
 
 .notif-item__meta {
   font-size: 12px;
   opacity: 0.65;
   color: var(--notif-gray);
-  padding-right: 34px; /* X 버튼 공간 확보 */
+  padding-right: 34px;
 }
 
 .notif-item__link {
@@ -154,7 +171,6 @@
   color: var(--notif-gray);
 }
 
-/* X 삭제 버튼 */
 .notif-item__delete {
   position: absolute;
   top: 10px;
@@ -177,9 +193,6 @@
   filter: brightness(0.97);
 }
 
-/* 파일: src/main/resources/static/css/notifications.css */
-
-/* 토스트 영역 */
 .notif-toast-area {
   position: absolute;
   top: calc(100% + 10px);
@@ -190,7 +203,6 @@
   z-index: 10000;
 }
 
-/* 토스트 카드 */
 .notif-toast {
   width: min(360px, calc(100vw - 28px));
   background: var(--notif-bg);
@@ -219,26 +231,4 @@
   font-size: 12px;
   color: var(--notif-gray);
   opacity: 0.7;
-}
-
-.yw-header .notif-icon-btn {
-  width: 38px;
-  height: 38px;
-
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: #fff;
-
-  padding: 0;
-  box-shadow: none;
-  gap: 0;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.yw-header .notif-icon-btn:hover {
-  background: rgba(86, 104, 115, 0.06);
-  filter: none;
 }
