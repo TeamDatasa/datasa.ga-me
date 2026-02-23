@@ -20,19 +20,16 @@ public class HostCardPublicViewController {
 	
 	@GetMapping("/{hostId}/card")
 	public HostCardResponse getHostCard(@PathVariable Long hostId) {
-		User host = userRepository.findById(hostId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "호스트 없음"));
+		User user = userRepository.findById(hostId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 없음"));
 		
-		if (host.getRole() != User.Role.HOST) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "호스트 아님");
+		// 탈퇴 사용자는 카드 조회 불가(원하시면 이것도 허용으로 바꿀 수 있음)
+		if (user.getStatus() == User.Status.DELETED) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 없음");
 		}
 		
-		if (!host.getHostCardPublic()) {
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비공개");
-		}
-		
-		Integer age = calcAge(host.getBirthDate());
-		return HostCardResponse.from(host, age);
+		Integer age = calcAge(user.getBirthDate());
+		return HostCardResponse.from(user, age);
 	}
 	
 	private Integer calcAge(LocalDate birthDate) {
