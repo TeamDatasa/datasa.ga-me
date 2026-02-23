@@ -40,15 +40,15 @@ public class TripService {
 
 	@Transactional(readOnly = true)
 	public List<TripListResponse> getListAll(Long loginUserId) {
-
+		
 		Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		List<Trip> entityList = tripRepository.findAll(sort);
 		if (entityList.isEmpty()) return List.of();
-
+		
 		List<TripListResponse> baseList = entityList.stream()
 				.map(TripListResponse::from)
 				.toList();
-
+		
 		List<Long> tripIds = baseList.stream()
 				.map(TripListResponse::getTripId)
 				.toList();
@@ -66,12 +66,19 @@ public class TripService {
 			Long cnt = (Long) row[1];
 			countMap.put(tripId, cnt);
 		}
-
+		
 		final Set<Long> likedSet =
 				(loginUserId == null)
 						? Set.of()
 						: new HashSet<>(tripLikeRepository.findLikedTripIds(loginUserId, tripIds));
-
+		
+		Map<Long, Long> approvedGuestMap = new HashMap<>();
+		for (Object[] row : applicationRepository.countApprovedByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			Long approvedGuestCount = (Long) row[1];
+			approvedGuestMap.put(tripId, approvedGuestCount);
+		}
+		
 		return baseList.stream()
 				.map(dto -> TripListResponse.builder()
 						.tripId(dto.getTripId())
@@ -82,6 +89,7 @@ public class TripService {
 						.description(dto.getDescription())
 						.estimatedCost(dto.getEstimatedCost())
 						.maxParticipants(dto.getMaxParticipants())
+						.currentParticipants(approvedGuestMap.getOrDefault(dto.getTripId(), 0L) + 1L)
 						.durationMinutes(dto.getDurationMinutes())
 						.startAt(dto.getStartAt())
 						.endAt(dto.getEndAt())

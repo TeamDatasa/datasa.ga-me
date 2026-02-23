@@ -35,8 +35,8 @@ public class TripListResponse {
 	private long likeCount;
 	private boolean likedByMe;
 	
-	// 추가
 	private List<String> languageCodes;
+	private long currentParticipants;
 	
 	public static TripListResponse from(Trip trip) {
 		boolean hostDeleted = trip.getHostUser() != null
@@ -62,6 +62,7 @@ public class TripListResponse {
 				.likeCount(0L)
 				.likedByMe(false)
 				.languageCodes(List.of()) // 기본값
+				.currentParticipants(1L)
 				.build();
 	}
 }

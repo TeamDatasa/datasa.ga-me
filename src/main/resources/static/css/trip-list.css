@@ -26,19 +26,31 @@
   cursor: pointer;
 }
 
+.trip-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
 .trip-card__title {
   font-weight: 800;
   font-size: 16px;
-  margin-bottom: 6px;
+  margin: 0;
+}
+
+.trip-card__status {
+  flex: none;
 }
 
 .trip-card__meta {
   font-size: 12px;
-  opacity: 0.75;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .trip-card__desc {
@@ -66,4 +78,69 @@
 .empty {
   padding: 24px;
   opacity: 0.7;
+}
+
+/* ===============================
+   리스트 칩/상태 pill (detail과 동일 톤)
+================================ */
+
+.tl-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(48, 132, 242, 0.25);
+  background: rgba(48, 132, 242, 0.08);
+  color: #1675F2;
+  font-weight: 800;
+}
+
+.tl-people {
+  font-weight: 800;
+  color: rgba(28, 31, 36, 0.86);
+}
+
+.tl-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(86, 104, 115, 0.20);
+  background: rgba(86, 104, 115, 0.08);
+  color: rgba(28, 31, 36, 0.82);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tl-pill--open {
+  border: 1px solid rgba(48, 132, 242, 0.25);
+  background: rgba(48, 132, 242, 0.08);
+  color: #1675F2;
+}
+
+.tl-pill--progress {
+  border: 1px solid rgba(24, 169, 87, 0.30);
+  background: rgba(24, 169, 87, 0.10);
+  color: rgba(10, 112, 55, 0.98);
+}
+
+.tl-pill--closed {
+  border: 1px solid rgba(227, 75, 75, 0.30);
+  background: rgba(227, 75, 75, 0.10);
+  color: rgba(171, 38, 38, 0.98);
+}
+
+.tl-pill--finished {
+  border: 1px solid rgba(86, 104, 115, 0.24);
+  background: rgba(86, 104, 115, 0.10);
+  color: rgba(28, 31, 36, 0.72);
+}
+
+.tl-pill--draft {
+  border: 1px solid rgba(86, 104, 115, 0.22);
+  background: rgba(86, 104, 115, 0.08);
+  color: rgba(28, 31, 36, 0.72);
 }
