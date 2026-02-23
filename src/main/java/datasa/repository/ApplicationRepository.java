@@ -70,7 +70,14 @@ List<Trip> findApprovedTripsForChat(@Param("userId") Long userId);
     @Modifying
     @Query("delete from Application a where a.trip.tripId = :tripId")
     void deleteByTrip_TripId(@Param("tripId") Long tripId);
-
-
+	
+	@Query("""
+            select a.trip.tripId, count(a)
+            from Application a
+            where a.trip.tripId in :tripIds
+              and a.status = 'APPROVED'
+            group by a.trip.tripId
+            """)
+	List<Object[]> countApprovedByTripIds(@Param("tripIds") Collection<Long> tripIds);
 }
 

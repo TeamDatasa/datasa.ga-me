@@ -38,12 +38,20 @@
   }
 
   function renderAuthor(c) {
-    const userName = escapeHtml(c.userName);
     const userId = c.userId;
+    const userNameRaw = c.userName ?? "";
+    const userName = escapeHtml(userNameRaw);
+
+    const isDeletedUser = userId == null || userNameRaw === "탈퇴한 사용자";
+
+    if (isDeletedUser) {
+      return `<strong class="comment-author-deleted">탈퇴한 사용자</strong>`;
+    }
 
     if (c.hostCardOpenable && userId != null) {
       return `<a href="#" class="comment-author-link" data-host-card-open data-host-id="${userId}">${userName}</a>`;
     }
+
     return `<strong class="comment-author">${userName}</strong>`;
   }
 
@@ -64,8 +72,12 @@
             <div class="comment-content" data-content>${escapeHtml(c.content)}</div>
             <div class="comment-actions">
               <button type="button" class="btn-like" data-like>♥ ${c.likeCount}</button>
-              ${mine ? `<button type="button" class="btn-edit" data-edit>수정</button>
-                        <button type="button" class="btn-del" data-del>삭제</button>` : ``}
+              ${
+              mine
+                  ? `<button type="button" class="btn-edit" data-edit>수정</button>
+                     <button type="button" class="btn-del" data-del>삭제</button>`
+                  : ``
+          }
             </div>
           </li>
         `;
@@ -78,7 +90,6 @@
     render(comments);
   }
 
-  // 댓글 작성
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -100,13 +111,11 @@
     await refresh();
   });
 
-  // 좋아요/수정/삭제 (이벤트 위임)
   listEl.addEventListener("click", async (e) => {
     const li = e.target.closest("li[data-comment-id]");
     if (!li) return;
     const commentId = li.getAttribute("data-comment-id");
 
-    // 좋아요
     if (e.target.matches("[data-like]")) {
       const res = await authFetch(`/api/comments/${commentId}/like`, { method: "POST" });
       if (res.ok) {
@@ -116,7 +125,6 @@
       return;
     }
 
-    // 삭제
     if (e.target.matches("[data-del]")) {
       if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
@@ -130,7 +138,6 @@
       return;
     }
 
-    // 수정
     if (e.target.matches("[data-edit]")) {
       const contentDiv = li.querySelector("[data-content]");
       const old = contentDiv ? contentDiv.textContent : "";
@@ -155,6 +162,5 @@
     }
   });
 
-  // 초기 로드
   refresh();
 })();

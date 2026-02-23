@@ -18,4 +18,11 @@ public interface TripLanguageRepository extends JpaRepository<TripLanguage, Long
     @Modifying
     @Query("delete from TripLanguage tl where tl.trip.tripId = :tripId")
     void deleteByTripId(@Param("tripId") Long tripId);
+    
+    @Query("""
+    select tl.trip.tripId, tl.languageCode
+    from TripLanguage tl
+    where tl.trip.tripId in :tripIds
+""")
+    List<Object[]> findCodesByTripIds(@Param("tripIds") List<Long> tripIds);
 }
