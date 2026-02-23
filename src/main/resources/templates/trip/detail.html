@@ -16,34 +16,6 @@
 </head>
 
 <body>
-<!--<header class="yw-header">-->
-<!--    <div class="yw-container yw-header__inner">-->
-<!--        <a class="yw-logo" href="/">-->
-<!--            <span class="yw-logo__mark">●</span>-->
-<!--            <span class="yw-logo__text">ga-me</span>-->
-<!--        </a>-->
-
-<!--        <nav class="yw-nav">-->
-<!--            <a class="yw-nav__link" href="/">홈</a>-->
-<!--            <a class="yw-nav__link" href="/trip/listAll">여행</a>-->
-<!--            <a class="yw-nav__link" href="/community">고객센터</a>-->
-<!--        </nav>-->
-
-<!--        <div class="yw-auth">-->
-<!--            <div id="guestMenu">-->
-<!--                <a class="yw-btn yw-btn&#45;&#45;ghost" th:href="@{/login}">로그인</a>-->
-<!--                <a class="yw-btn yw-btn&#45;&#45;primary" th:href="@{/signup}">회원가입</a>-->
-<!--            </div>-->
-
-<!--            <div id="userMenu" style="display:none;">-->
-<!--                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>-->
-<!--                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>-->
-<!--                <a class="yw-btn yw-btn&#45;&#45;ghost" th:href="@{/mypage}">마이페이지</a>-->
-<!--                <button class="yw-btn yw-btn&#45;&#45;primary" id="logoutBtn" type="button">로그아웃</button>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</header>-->
 <div th:replace="~{fragments/header :: siteHeader}"></div>
 
 <main class="dt-page">
@@ -66,7 +38,7 @@
 
                             <th:block th:if="${trip.languageCodes != null} and ${!trip.languageCodes.isEmpty()}">
                                 <th:block th:each="code : ${trip.languageCodes}">
-                                    <span class="dt-chip dt-chip--soft" th:switch="${code}">
+                                    <span class="dt-chip" th:switch="${code}">
                                         <span th:case="'KOREAN'">한국어</span>
                                         <span th:case="'ENGLISH'">영어</span>
                                         <span th:case="'JAPANESE'">일본어</span>
@@ -75,7 +47,7 @@
                                 </th:block>
                             </th:block>
 
-                            <span class="dt-chip dt-chip--soft" th:switch="${trip.theme}">
+                            <span class="dt-chip" th:switch="${trip.theme}">
                                 <span th:case="'FOOD'">맛집</span>
                                 <span th:case="'NATURE'">자연</span>
                                 <span th:case="'CITY'">도시</span>
@@ -205,41 +177,49 @@
                         여정 신청하기
                     </button>
 
-                    <div class="dt-kv">
+                    <div class="dt-kv" th:with="st=${trip.status != null ? trip.status.name() : ''}">
                         <span class="dt-k">상태</span>
-                        <span class="dt-v" th:switch="${trip.status != null ? trip.status.name() : ''}">
-                        <span th:case="'DRAFT'">임시저장</span>
-                        <span th:case="'OPEN'">모집중</span>
-                        <span th:case="'CLOSED'">모집마감</span>
-                        <span th:case="'IN_PROGRESS'">진행중</span>
-                        <span th:case="'FINISHED'">종료됨</span>
-                        <span th:case="*">-</span>
-                    </span>
+                        <span class="dt-v">
+                            <span class="dt-pill"
+                                  th:classappend="${st} == 'OPEN' ? ' dt-pill--open' :
+                                                  (${st} == 'IN_PROGRESS' ? ' dt-pill--progress' :
+                                                  (${st} == 'CLOSED' ? ' dt-pill--closed' :
+                                                  (${st} == 'FINISHED' ? ' dt-pill--finished' :
+                                                  (${st} == 'DRAFT' ? ' dt-pill--draft' : ' dt-pill--draft'))))">
+                                <span th:switch="${st}">
+                                    <span th:case="'DRAFT'">임시저장</span>
+                                    <span th:case="'OPEN'">모집중</span>
+                                    <span th:case="'CLOSED'">모집마감</span>
+                                    <span th:case="'IN_PROGRESS'">진행중</span>
+                                    <span th:case="'FINISHED'">종료됨</span>
+                                    <span th:case="*">-</span>
+                                </span>
+                            </span>
+                        </span>
                     </div>
 
-                        <div class="dt-kv">
-                            <span class="dt-k">예상 비용</span>
-                            <span class="dt-v"
-                                  th:text="${trip.estimatedCost != null} ? ${#numbers.formatInteger(trip.estimatedCost, 0, 'COMMA')} + '원' : '-'">-</span>
-                        </div>
+                    <div class="dt-kv">
+                        <span class="dt-k">예상 비용</span>
+                        <span class="dt-v"
+                              th:text="${trip.estimatedCost != null} ? ${#numbers.formatInteger(trip.estimatedCost, 0, 'COMMA')} + '원' : '-'">-</span>
+                    </div>
 
-                        <div class="dt-kv">
-                            <span class="dt-k">소요 시간(분)</span>
-                            <span class="dt-v"
-                                  th:text="${trip.durationMinutes != null} ? ${trip.durationMinutes} : '-'">-</span>
-                        </div>
+                    <div class="dt-kv">
+                        <span class="dt-k">소요 시간(분)</span>
+                        <span class="dt-v"
+                              th:text="${trip.durationMinutes != null} ? ${trip.durationMinutes} : '-'">-</span>
+                    </div>
 
-                        <div class="dt-kv">
-                            <span class="dt-k">시작일</span>
-                            <span class="dt-v"
-                                  th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
-                        </div>
+                    <div class="dt-kv">
+                        <span class="dt-k">시작일</span>
+                        <span class="dt-v"
+                              th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
+                    </div>
 
-                        <div class="dt-kv">
-                            <span class="dt-k">종료일</span>
-                            <span class="dt-v"
-                                  th:text="${trip.endAt != null} ? ${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
-                        </div>
+                    <div class="dt-kv">
+                        <span class="dt-k">종료일</span>
+                        <span class="dt-v"
+                              th:text="${trip.endAt != null} ? ${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                     </div>
                 </div>
             </aside>
