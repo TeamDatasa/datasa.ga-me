@@ -473,16 +473,11 @@ a {
   padding-right: 0;
 }
 
-/* =========================
-   HERO SLIDER (ga-me tone)
-   ========================= */
-
 /* 슬라이더 wrapper */
 .yw-heroSlider{
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  /* 왼쪽 카피 영역만 슬라이더로 만들 거라 배경 살짝 */
   background: linear-gradient(
     135deg,
     rgba(242, 233, 109, 0.18),
@@ -499,19 +494,16 @@ a {
   will-change: transform;
 }
 
-/* 슬라이드 */
 .yw-heroSlide{
   flex: 0 0 100%;
-  padding: 28px 26px;  /* ✅ 기존 hero padding 느낌 맞춤 */
+  padding: 28px 26px;
 }
 
-/* 슬라이드 내부 카피는 기존 클래스 그대로 사용 */
 .yw-heroSlide .yw-hero__title{
   margin-top: 14px;
 }
 
-/* 화살표 버튼 */
-/* 원형 완전 제거 */
+
 .yw-heroArrow{
   position: absolute;
   top: 50%;
@@ -524,23 +516,20 @@ a {
   font-size: 22px;
   font-weight: 900;
 
-  /* ✅ 히어로 배경과 비슷한 톤 */
   color: rgba(22, 117, 242, 0.35);
 
   cursor: pointer;
   padding: 0;
 }
 
-/* 🔥 글자 안 가리게 바깥으로 살짝 빼기 */
 .yw-heroArrow--prev{
-  left: 8px;   /* 필요하면 4~12px 사이에서 조정 */
+  left: 8px;
 }
 
 .yw-heroArrow--next{
   right: 8px;
 }
 
-/* hover 시만 살짝 진하게 */
 .yw-heroArrow:hover{
   color: rgba(22, 117, 242, 0.65);
   transform: translateY(-50%) scale(1.05);
@@ -577,4 +566,12 @@ a {
   opacity: 1;
   background: rgba(48, 132, 242, 0.18);
   border-color: rgba(22, 117, 242, 0.35);
+}
+
+/* 헤더 오른쪽 버튼 폰트 완전 통일 */
+.yw-header a.yw-btn,
+.yw-header button.yw-btn {
+  font-size: 15px;      /* 로그아웃 기준 */
+  font-weight: 800;
+  line-height: 1;
 }

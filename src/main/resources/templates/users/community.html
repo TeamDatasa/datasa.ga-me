@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>고객센터 | ga-me</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 </head>
 <style>
-    /* =========================
-   Community / Customer Center
-========================= */
 
 /* HERO */
 .cs-hero {
@@ -171,35 +170,7 @@
 
 </style>
 <body>
-
-<header class="yw-header">
-    <div class="yw-container yw-header__inner">
-        <a class="yw-logo" href="/">
-            <span class="yw-logo__mark">●</span>
-            <span class="yw-logo__text">ga-me</span>
-        </a>
-
-        <nav class="yw-nav">
-            <a class="yw-nav__link" href="/">홈</a>
-            <a class="yw-nav__link" href="/trip/listAll">여행</a>
-            <a class="yw-nav__link" href="/community">고객센터</a>
-        </nav>
-
-        <div class="yw-auth">
-            <div id="guestMenu">
-                <a class="yw-btn yw-btn--ghost" href="/login">로그인</a>
-                <a class="yw-btn yw-btn--primary" href="/signup">회원가입</a>
-            </div>
-
-            <div id="userMenu" style="display:none;">
-                <a class="yw-nav__link chat-link" href="/chat/rooms">💬</a>
-                <a class="yw-btn yw-btn--ghost" href="/mypage">마이페이지</a>
-                <button class="yw-btn yw-btn--primary" type="button" id="logoutBtn">로그아웃</button>
-            </div>
-        </div>
-    </div>
-</header>
-
+<div th:replace="~{fragments/header :: siteHeader}"></div>
 <main>
 
     <!-- HERO -->
@@ -316,9 +287,6 @@
                         문의 접수하기
                     </button>
 
-                    <p class="cs-help">
-                        ※ 본 페이지는 예시 화면으로 실제 문의는 저장되지 않습니다.
-                    </p>
                 </form>
             </div>
 
@@ -372,12 +340,8 @@
 
 </main>
 
-<footer class="yw-footer">
-    <div class="yw-container yw-footer__inner">
-        <span>© ga-me</span>
-    </div>
-</footer>
-
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+<script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 <script>
     document.querySelectorAll(".cs-qa .cs-q").forEach(btn => {
     (async function () {
