@@ -4,7 +4,9 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
     <link rel="stylesheet" th:href="@{/css/host/trip-write.css}"/>
+    <link rel="stylesheet" th:href="@{/css/notifications.css}"/>
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}"/>
 
     <title>여행 글 작성</title>
@@ -175,7 +177,11 @@
 
 </form>
 
+<script th:src="@{/js/authFetch.js}"></script>
+<script th:src="@{/js/main-auth.js}"></script>
+<script th:src="@{/js/notifications.js}"></script>
 <script th:src="@{/js/trip-write.js}"></script>
+
 <div th:replace="~{fragments/footer :: siteFooter}"></div>
 <script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 </body>
