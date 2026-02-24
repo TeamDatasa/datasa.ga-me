@@ -3,6 +3,8 @@
 let currentOrder = 'latest';
 let debounceTimer = null;
 
+const MAIN_LIMIT = 3;
+
 const REGION_MAP = {
   "서울특별시": ["서울"],
   "인천광역시": ["인천"],
@@ -80,6 +82,7 @@ function applyFilter() {
 }
 
 function fetchFilteredTrips() {
+  const province = document.getElementById('province')?.value || '';
   const region = document.getElementById('region')?.value || '';
   const theme = document.getElementById('theme')?.value || '';
 
@@ -89,19 +92,27 @@ function fetchFilteredTrips() {
   const qs = new URLSearchParams();
   qs.append('order', currentOrder);
 
+  // listAll로 넘길 값(도/시/테마/언어/정렬)
+  if (province) qs.append('province', province);
   if (region) qs.append('region', region);
   if (theme) qs.append('theme', theme);
   languages.forEach(lang => qs.append('languages', lang));
 
-  const url = `/api/trips/mainList?${qs.toString()}`;
+  updateMoreLink(qs.toString());
+
+  const apiQs = new URLSearchParams(qs.toString());
+  apiQs.set('page', '0');
+  apiQs.set('size', String(MAIN_LIMIT + 1)); // 4
+
+  const url = `/api/trips/mainList?${apiQs.toString()}`;
 
   fetch(url, { credentials: 'include' })
       .then(res => res.json())
-      .then(data => renderTrips(data.content || data))
+      .then(data => renderTrips(data.content || data, qs.toString()))
       .catch(showError);
 }
 
-function renderTrips(trips) {
+function renderTrips(trips, qs) {
   const container = document.getElementById('tripList');
   if (!container) return;
 
@@ -109,10 +120,15 @@ function renderTrips(trips) {
 
   if (!trips || trips.length === 0) {
     container.innerHTML = `<div class="empty">등록된 여정이 없습니다.</div>`;
+    toggleMore(false);
     return;
   }
 
-  trips.forEach(trip => {
+  // 메인에서는 최대 3개만 출력
+  const limited = trips.slice(0, MAIN_LIMIT);
+  toggleMore(trips.length > MAIN_LIMIT);
+
+  limited.forEach(trip => {
     const article = document.createElement('article');
     article.className = 'trip-card';
     article.onclick = () => {
@@ -218,12 +234,27 @@ function renderTrips(trips) {
   });
 }
 
+function updateMoreLink(qs) {
+  const moreWrap = document.getElementById('mainMoreWrap');
+  const moreLink = document.getElementById('mainMoreLink');
+  if (!moreWrap || !moreLink) return;
+
+  moreLink.href = qs ? `/trip/listAll?${qs}` : `/trip/listAll`;
+}
+
+function toggleMore(show) {
+  const moreWrap = document.getElementById('mainMoreWrap');
+  if (!moreWrap) return;
+  moreWrap.style.display = show ? 'flex' : 'none';
+}
+
 function showError(err) {
   console.error(err);
   const container = document.getElementById('tripList');
   if (container) {
     container.innerHTML = `<div class="empty">데이터를 불러오는 중 오류가 발생했습니다.</div>`;
   }
+  toggleMore(false);
 }
 
 function escapeHtml(s) {
