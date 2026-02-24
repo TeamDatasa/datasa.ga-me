@@ -1,0 +1,26 @@
+
+.main-trip-cards {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (min-width: 980px) {
+  .main-trip-cards {
+    gap: 14px;
+  }
+}
+
+/* 메인 섹션 안에서는 카드가 꽉 차 보이도록 */
+.main-trip-cards .trip-card {
+  width: 100%;
+}
+
+/* 메인에서는 카드 설명이 너무 길어질 수 있어 2줄 정도로 제한 */
+.main-trip-cards .trip-card__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

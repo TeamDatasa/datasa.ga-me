@@ -1,8 +1,10 @@
+// src/main/java/datasa/controller/TripApiController.java
+
 package datasa.controller;
 
-import datasa.domain.dto.TripDetailResponse;
 import datasa.domain.dto.TripDetailResponseDto;
-import datasa.domain.dto.TripListResponseDto;
+import datasa.domain.dto.TripListResponse;
+import datasa.security.CustomUserDetail;
 import datasa.service.TripService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,34 +22,32 @@ public class TripApiController {
 	
 	private final TripService tripService;
 	
-	/** U_001 */
+	/** U_001 (메인 카드 UI용) */
 	@GetMapping
-	public Page<TripListResponseDto> list(
+	public Page<TripListResponse> list(
 			@RequestParam(defaultValue = "latest") String order,
-			Pageable pageable
+			Pageable pageable,
+			@org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetail user
 	) {
-		return tripService.getTripList(order, pageable);
+		Long userId = (user != null) ? user.getUserId() : null;
+		return tripService.getTripListForMainUi(order, pageable, userId);
 	}
 	
-	/** U_002 */
+	/** U_002 (메인 카드 UI용 필터) */
 	@GetMapping("/mainList")
-	public Page<TripListResponseDto> searchTrips(
-            @RequestParam String order,
-            @RequestParam(required = false) String region,
-            @RequestParam(required = false) String theme,
-            @RequestParam(required = false) List<String> languages,
-            Pageable pageable
-    ) {
-		return tripService.searchTrips(
-				languages, region, theme, order, pageable
-		);
+	public Page<TripListResponse> searchTrips(
+			@RequestParam String order,
+			@RequestParam(required = false) String region,
+			@RequestParam(required = false) String theme,
+			@RequestParam(required = false) List<String> languages,
+			Pageable pageable,
+			@org.springframework.security.core.annotation.AuthenticationPrincipal CustomUserDetail user
+	) {
+		Long userId = (user != null) ? user.getUserId() : null;
+		return tripService.searchTripsForMainUi(languages, region, theme, order, pageable, userId);
 	}
 	
-	/**
-	 * U_003 여행 상세 (API)
-	 * - 비로그인: applicationStatus = null
-	 * - 로그인: token에서 email -> userId 조회 후 applicationStatus 계산
-	 */
+	/** U_003 여행 상세(API) 기존 유지 */
 	@GetMapping("/{tripId}")
 	public TripDetailResponseDto getTripDetail(
 			@PathVariable Long tripId,
@@ -72,5 +72,4 @@ public class TripApiController {
 		
 		return tripService.getTripDetail_jiwon(tripId, loginUserId);
 	}
-	
 }

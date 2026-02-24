@@ -5,9 +5,15 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/notifications.css}">
+    <link rel="stylesheet" th:href="@{/css/trip-list.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
+    <link rel="stylesheet" th:href="@{/css/main-trip-list.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
+
     <title>main page</title>
 </head>
 <body>
@@ -123,7 +129,6 @@
 
             <div class="yw-filter">
 
-                <!-- 언어 -->
                 <div class="yw-filter__box">
                     <strong>언어</strong>
                     <span class="yw-muted">(복수 선택)</span>
@@ -132,7 +137,6 @@
                     <label><input type="checkbox" class="lang" value="JAPANESE"> 일본어</label>
                 </div>
 
-                <!-- 지역 (도 -> 시) -->
                 <div class="yw-filter__box">
                     <strong>지역</strong>
                     <select id="province">
@@ -143,7 +147,6 @@
                     </select>
                 </div>
 
-                <!-- 테마 (write 기준) -->
                 <div class="yw-filter__box">
                     <strong>테마</strong>
                     <select id="theme">
@@ -156,7 +159,6 @@
                     </select>
                 </div>
 
-                <!-- 정렬 -->
                 <div class="yw-filter__box">
                     <strong>정렬</strong>
                     <button id="latestBtn" class="active" type="button" onclick="setOrder('latest')">최신순</button>
@@ -165,18 +167,46 @@
 
             </div>
 
-            <div class="yw-cards" id="tripList"></div>
+            <!-- listAll과 동일한 카드 UI 영역 -->
+            <section class="trip-cards main-trip-cards" id="tripList"></section>
 
         </div>
     </section>
 
 </main>
 
+<!-- host card modal (listAll과 동일) -->
+<div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
+    <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
+        <div class="hc-head">
+            <div id="hcTitle" class="hc-title">호스트 프로필</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+        </div>
+
+        <div class="hc-body">
+            <div class="hc-profile">
+                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <div class="hc-profile__main">
+                    <h3 id="hcName" class="hc-name">-</h3>
+                    <div id="hcMeta" class="hc-meta"></div>
+                </div>
+            </div>
+
+            <div id="hcBio" class="hc-bio"></div>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
-<script th:src="@{/js/main-course.js}"></script>
+
+<script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
+<script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+
+<script th:src="@{/js/main-course.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/hero-slider.js}"></script>
+
 <div th:replace="~{fragments/footer :: siteFooter}"></div>
 <script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>
 

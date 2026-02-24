@@ -219,6 +219,58 @@ public class TripService {
 			}
 		}
 	}
+	
+	public Page<TripMainCardResponseDto> getTripListForMain(String order, Pageable pageable) {
+		Page<TripListResponseDto> page = getTripList(order, pageable);
+		return attachLanguages(page);
+	}
+	
+	public Page<TripMainCardResponseDto> searchTripsForMain(
+			List<String> languages,
+			String region,
+			String theme,
+			String order,
+			Pageable pageable
+	) {
+		Page<TripListResponseDto> page = searchTrips(languages, region, theme, order, pageable);
+		return attachLanguages(page);
+	}
+	
+	private Page<TripMainCardResponseDto> attachLanguages(Page<TripListResponseDto> page) {
+		List<TripListResponseDto> content = page.getContent();
+		if (content.isEmpty()) {
+			return page.map(dto -> new TripMainCardResponseDto(
+					dto.getTripId(),
+					dto.getTitle(),
+					dto.getRegion(),
+					dto.getTheme(),
+					dto.getMaxParticipants(),
+					dto.getApprovedCount(),
+					List.of()
+			));
+		}
+		
+		List<Long> tripIds = content.stream()
+				.map(TripListResponseDto::getTripId)
+				.toList();
+		
+		Map<Long, List<String>> languageMap = new HashMap<>();
+		for (Object[] row : tripLanguageRepository.findCodesByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			String code = (String) row[1];
+			languageMap.computeIfAbsent(tripId, k -> new ArrayList<>()).add(code);
+		}
+		
+		return page.map(dto -> new TripMainCardResponseDto(
+				dto.getTripId(),
+				dto.getTitle(),
+				dto.getRegion(),
+				dto.getTheme(),
+				dto.getMaxParticipants(),
+				dto.getApprovedCount(),
+				languageMap.getOrDefault(dto.getTripId(), List.of())
+		));
+	}
 
 	public TripDetailResponseDto getTripDetailview(Long tripId) {
 		Trip trip = tripRepository.findById(tripId)
@@ -493,5 +545,112 @@ public class TripService {
 	@Transactional(readOnly = true)
 	public List<Trip> getTripsByHost(Long hostUserId) {
 		return tripRepository.findByHostUser_UserIdOrderByCreatedAtDesc(hostUserId);
+	}
+	
+	// src/main/java/datasa/service/TripService.java
+	
+	public Page<TripListResponse> getTripListForMainUi(String order, Pageable pageable, Long loginUserId) {
+		Page<TripListResponseDto> page = getTripList(order, pageable);
+		return attachMainUiExtras(page, loginUserId);
+	}
+	
+	public Page<TripListResponse> searchTripsForMainUi(
+			List<String> languages,
+			String region,
+			String theme,
+			String order,
+			Pageable pageable,
+			Long loginUserId
+	) {
+		Page<TripListResponseDto> page = searchTrips(languages, region, theme, order, pageable);
+		return attachMainUiExtras(page, loginUserId);
+	}
+	
+	private Page<TripListResponse> attachMainUiExtras(Page<TripListResponseDto> page, Long loginUserId) {
+		List<TripListResponseDto> content = page.getContent();
+		if (content.isEmpty()) {
+			return page.map(dto -> TripListResponse.builder()
+					.tripId(dto.getTripId())
+					.title(dto.getTitle())
+					.region(dto.getRegion())
+					.theme(dto.getTheme())
+					.maxParticipants(dto.getMaxParticipants())
+					.currentParticipants((dto.getApprovedCount() != null ? dto.getApprovedCount() : 0L) + 1L)
+					.languageCodes(List.of())
+					.likeCount(0L)
+					.likedByMe(false)
+					.build());
+		}
+		
+		List<Long> tripIds = content.stream().map(TripListResponseDto::getTripId).toList();
+		
+		// 1) Trip 엔티티 로드(호스트/설명/상태 등)
+		List<Trip> trips = tripRepository.findAllById(tripIds);
+		Map<Long, Trip> tripMap = new HashMap<>();
+		for (Trip t : trips) tripMap.put(t.getTripId(), t);
+		
+		// 2) 언어코드
+		Map<Long, List<String>> languageMap = new HashMap<>();
+		for (Object[] row : tripLanguageRepository.findCodesByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			String code = (String) row[1];
+			languageMap.computeIfAbsent(tripId, k -> new ArrayList<>()).add(code);
+		}
+		
+		// 3) 좋아요 카운트
+		Map<Long, Long> likeCountMap = new HashMap<>();
+		for (Object[] row : tripLikeRepository.countByTripIds(tripIds)) {
+			Long tripId = (Long) row[0];
+			Long cnt = (Long) row[1];
+			likeCountMap.put(tripId, cnt);
+		}
+		
+		// 4) 내가 좋아요한 tripIds
+		Set<Long> likedSet = new HashSet<>();
+		if (loginUserId != null) {
+			likedSet.addAll(tripLikeRepository.findLikedTripIds(loginUserId, tripIds));
+		}
+		
+		return page.map(dto -> {
+			Trip trip = tripMap.get(dto.getTripId());
+			if (trip == null) {
+				return TripListResponse.builder()
+						.tripId(dto.getTripId())
+						.title(dto.getTitle())
+						.region(dto.getRegion())
+						.theme(dto.getTheme())
+						.maxParticipants(dto.getMaxParticipants())
+						.currentParticipants((dto.getApprovedCount() != null ? dto.getApprovedCount() : 0L) + 1L)
+						.languageCodes(languageMap.getOrDefault(dto.getTripId(), List.of()))
+						.likeCount(likeCountMap.getOrDefault(dto.getTripId(), 0L))
+						.likedByMe(likedSet.contains(dto.getTripId()))
+						.build();
+			}
+			
+			boolean hostDeleted = trip.getHostUser() != null && trip.getHostUser().getStatus() == User.Status.DELETED;
+			
+			return TripListResponse.builder()
+					.tripId(trip.getTripId())
+					.hostUserId(trip.getHostUser() != null ? trip.getHostUser().getUserId() : null)
+					.hostName(trip.getHostUser() != null ? trip.getHostUser().getName() : null)
+					.hostDeleted(hostDeleted)
+					.title(trip.getTitle())
+					.description(trip.getDescription())
+					.region(trip.getRegion())
+					.theme(trip.getTheme())
+					.estimatedCost(trip.getEstimatedCost())
+					.maxParticipants(trip.getMaxParticipants())
+					.durationMinutes(trip.getDurationMinutes())
+					.startAt(trip.getStartAt())
+					.endAt(trip.getEndAt())
+					.status(trip.getStatus())
+					.createdAt(trip.getCreatedAt())
+					.updatedAt(trip.getUpdatedAt())
+					.languageCodes(languageMap.getOrDefault(trip.getTripId(), List.of()))
+					.likeCount(likeCountMap.getOrDefault(trip.getTripId(), 0L))
+					.likedByMe(likedSet.contains(trip.getTripId()))
+					.currentParticipants((dto.getApprovedCount() != null ? dto.getApprovedCount() : 0L) + 1L)
+					.build();
+		});
 	}
 }
