@@ -13,34 +13,7 @@
 </head>
 
 <body>
-<header class="yw-header">
-    <div class="yw-container yw-header__inner">
-        <a class="yw-logo" href="/">
-            <span class="yw-logo__mark">●</span>
-            <span class="yw-logo__text">ga-me</span>
-        </a>
-
-        <nav class="yw-nav">
-            <a class="yw-nav__link" href="/">홈</a>
-            <a class="yw-nav__link" href="/trip/listAll">여행</a>
-            <a class="yw-nav__link" href="/community">고객센터</a>
-        </nav>
-
-        <div class="yw-auth">
-            <div id="guestMenu">
-                <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
-                <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
-            </div>
-
-            <div id="userMenu" style="display:none;">
-                <a class="yw-nav__link chat-link" href="/chat/rooms">채팅</a>
-                <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
-                <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-                <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
-            </div>
-        </div>
-    </div>
-</header>
+<div th:replace="~{fragments/header :: siteHeader}"></div>
 
 <main class="up-page">
     <div class="up-container">
