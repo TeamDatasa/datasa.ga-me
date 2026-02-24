@@ -22,11 +22,70 @@
 
         <div class="trip-list-head">
             <h2>여행 목록</h2>
-            <!-- class 변경: btn -> tl-write-btn -->
             <a class="tl-write-btn" href="/trip/write">여정 작성</a>
         </div>
 
-        <section class="trip-cards">
+        <!-- 메인과 동일한 필터/정렬 -->
+        <form id="listFilterForm" class="yw-filter" method="get" action="/trip/listAll"
+              th:attr="data-selected-province=${selectedProvince},
+                       data-selected-region=${selectedRegion},
+                       data-selected-theme=${selectedTheme},
+                       data-selected-order=${selectedOrder}">
+            <input type="hidden" name="order" id="orderInput" th:value="${selectedOrder} ?: 'latest'"/>
+
+            <div class="yw-filter__box">
+                <strong>언어</strong>
+                <span class="yw-muted">(복수 선택)</span>
+                <label>
+                    <input type="checkbox" class="lang" name="languages" value="KOREAN"
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('KOREAN')}"> 한국어
+                </label>
+                <label>
+                    <input type="checkbox" class="lang" name="languages" value="ENGLISH"
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('ENGLISH')}"> 영어
+                </label>
+                <label>
+                    <input type="checkbox" class="lang" name="languages" value="JAPANESE"
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('JAPANESE')}"> 일본어
+                </label>
+            </div>
+
+            <div class="yw-filter__box">
+                <strong>지역</strong>
+                <select id="province" name="province">
+                    <option value="">전체(도)</option>
+                </select>
+                <select id="region" name="region">
+                    <option value="">전체(시)</option>
+                </select>
+            </div>
+
+            <div class="yw-filter__box">
+                <strong>테마</strong>
+                <select id="theme" name="theme">
+                    <option value="">전체</option>
+                    <option value="FOOD" th:selected="${selectedTheme} == 'FOOD'">맛집</option>
+                    <option value="NATURE" th:selected="${selectedTheme} == 'NATURE'">자연</option>
+                    <option value="CITY" th:selected="${selectedTheme} == 'CITY'">도시</option>
+                    <option value="CULTURE" th:selected="${selectedTheme} == 'CULTURE'">문화</option>
+                    <option value="NIGHT" th:selected="${selectedTheme} == 'NIGHT'">야경</option>
+                </select>
+            </div>
+
+            <div class="yw-filter__box">
+                <strong>정렬</strong>
+                <button id="latestBtn" type="button"
+                        th:classappend="${selectedOrder} == null or ${selectedOrder} == 'latest' ? 'active' : ''">
+                    최신순
+                </button>
+                <button id="popularBtn" type="button"
+                        th:classappend="${selectedOrder} == 'popular' ? 'active' : ''">
+                    인기순
+                </button>
+            </div>
+        </form>
+
+        <section class="trip-cards" id="tripList">
             <article class="trip-card" th:each="trip : ${boardList}"
                      th:onclick="|location.href='/trip/detail/' + ${trip.tripId}|">
 
@@ -148,6 +207,8 @@
 <script th:src="@{/js/notifications.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
+
+<script th:src="@{/js/trip-list-filter.js(v=${#dates.createNow().time})}"></script>
 
 <div th:replace="~{fragments/footer :: siteFooter}"></div>
 <script th:src="@{/js/footer.js(v=${#dates.createNow().time})}"></script>

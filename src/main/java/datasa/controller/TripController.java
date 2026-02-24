@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import datasa.domain.entity.Application;
 import datasa.repository.ApplicationRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -38,13 +40,50 @@ public class TripController {
     private String kakaoJsKey;
 
     @GetMapping("/listAll")
-    public String listAll(Model model, @AuthenticationPrincipal CustomUserDetail user) {
-
+    public String listAll(
+            Model model,
+            @AuthenticationPrincipal CustomUserDetail user,
+            @RequestParam(defaultValue = "latest") String order,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String theme,
+            @RequestParam(required = false) List<String> languages,
+            @RequestParam(required = false) String province
+    ) {
         Long userId = (user != null) ? user.getUserId() : null;
-
-        List<TripListResponse> boardList = tripService.getListAll(userId);
+        
+        List<TripListResponse> boardList;
+        
+        boolean hasFilter =
+                (region != null && !region.isBlank())
+                        || (theme != null && !theme.isBlank())
+                        || (languages != null && !languages.isEmpty())
+                        || ("popular".equalsIgnoreCase(order));
+        
+        if (!hasFilter) {
+            // 기존 동작 그대로
+            boardList = tripService.getListAll(userId);
+        } else {
+            // 필터/정렬 적용 (사이즈 크게)
+            Pageable pageable = PageRequest.of(0, 2000);
+            boardList = tripService.searchTripsForMainUi(
+                    languages,
+                    (region != null && !region.isBlank()) ? region : null,
+                    (theme != null && !theme.isBlank()) ? theme : null,
+                    order,
+                    pageable,
+                    userId
+            ).getContent();
+        }
+        
         model.addAttribute("boardList", boardList);
-
+        
+        // 필터 UI 유지용
+        model.addAttribute("selectedOrder", order);
+        model.addAttribute("selectedTheme", theme);
+        model.addAttribute("selectedRegion", region);
+        model.addAttribute("selectedLanguages", languages);
+        model.addAttribute("selectedProvince", province);
+        
         String role = null;
         if (user != null) {
             User u = userRepository.findById(user.getUserId())
@@ -52,6 +91,7 @@ public class TripController {
             role = u.getRole().name();
         }
         model.addAttribute("role", role);
+        
         return "trip/listAll";
     }
 
