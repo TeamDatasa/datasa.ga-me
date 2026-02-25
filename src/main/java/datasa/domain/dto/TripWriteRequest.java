@@ -1,6 +1,5 @@
 package datasa.domain.dto;
 
-
 import datasa.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,39 +15,42 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class TripWriteRequest {
-
+	
 	private User hostUser;
-
+	
 	private String title;
-
+	
 	private String description;
-
+	
 	private String region;
-
+	
 	private Integer estimatedCost; // KRW
-
+	
 	private Integer maxParticipants; // 정원
-
+	
 	private Integer durationMinutes;
-
+	
 	// 게시글 진행 언어(다중 선택)
 	// 예: ["KOREAN", "ENGLISH"]
 	private List<String> languageCodes;
-
+	
 	private String theme;
-
+	
+	// 기타(직접 입력) 선택 시 사용, 10자 미만
+	private String themeCustom;
+	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime startAt;
-
+	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime endAt;
-
+	
 	// kakao map
 	private Double lat;
 	private Double lng;
 	private String address;
 	private String placeName;
-
+	
 	// write form에서 입력된 일정을 다중값으로 받기
 	// schedulePlaces[0].placeId 형태로 바인딩
 	private List<TripWriteSchedulePlaceRequest> schedulePlaces;

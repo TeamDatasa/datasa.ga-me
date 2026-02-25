@@ -69,6 +69,14 @@
                     <option value="CITY" th:selected="${selectedTheme} == 'CITY'">도시</option>
                     <option value="CULTURE" th:selected="${selectedTheme} == 'CULTURE'">문화</option>
                     <option value="NIGHT" th:selected="${selectedTheme} == 'NIGHT'">야경</option>
+
+                    <!-- 추가 6개 -->
+                    <option value="HEALING" th:selected="${selectedTheme} == 'HEALING'">힐링</option>
+                    <option value="ACTIVITY" th:selected="${selectedTheme} == 'ACTIVITY'">액티비티</option>
+                    <option value="SHOPPING" th:selected="${selectedTheme} == 'SHOPPING'">쇼핑</option>
+                    <option value="HISTORY" th:selected="${selectedTheme} == 'HISTORY'">역사</option>
+                    <option value="PHOTO" th:selected="${selectedTheme} == 'PHOTO'">사진</option>
+                    <option value="FAMILY" th:selected="${selectedTheme} == 'FAMILY'">가족</option>
                 </select>
             </div>
 
@@ -132,6 +140,16 @@
                             <span th:case="'CITY'">도시</span>
                             <span th:case="'CULTURE'">문화</span>
                             <span th:case="'NIGHT'">야경</span>
+
+                            <!-- 추가 6개 -->
+                            <span th:case="'HEALING'">힐링</span>
+                            <span th:case="'ACTIVITY'">액티비티</span>
+                            <span th:case="'SHOPPING'">쇼핑</span>
+                            <span th:case="'HISTORY'">역사</span>
+                            <span th:case="'PHOTO'">사진</span>
+                            <span th:case="'FAMILY'">가족</span>
+
+                            <!-- 커스텀/기타 등은 그대로 출력 -->
                             <span th:case="*" th:text="${trip.theme} ?: '-'">-</span>
                         </span>
 

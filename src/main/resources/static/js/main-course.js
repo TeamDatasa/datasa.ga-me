@@ -30,7 +30,14 @@ const THEME_LABEL = {
   NATURE: "자연",
   CITY: "도시",
   CULTURE: "문화",
-  NIGHT: "야경"
+  NIGHT: "야경",
+
+  HEALING: "힐링",
+  ACTIVITY: "액티비티",
+  SHOPPING: "쇼핑",
+  HISTORY: "역사",
+  PHOTO: "사진",
+  FAMILY: "가족"
 };
 
 const LANG_LABEL = {
@@ -92,7 +99,6 @@ function fetchFilteredTrips() {
   const qs = new URLSearchParams();
   qs.append('order', currentOrder);
 
-  // listAll로 넘길 값(도/시/테마/언어/정렬)
   if (province) qs.append('province', province);
   if (region) qs.append('region', region);
   if (theme) qs.append('theme', theme);
@@ -102,7 +108,7 @@ function fetchFilteredTrips() {
 
   const apiQs = new URLSearchParams(qs.toString());
   apiQs.set('page', '0');
-  apiQs.set('size', String(MAIN_LIMIT + 1)); // 4
+  apiQs.set('size', String(MAIN_LIMIT + 1));
 
   const url = `/api/trips/mainList?${apiQs.toString()}`;
 
@@ -124,7 +130,6 @@ function renderTrips(trips, qs) {
     return;
   }
 
-  // 메인에서는 최대 3개만 출력
   const limited = trips.slice(0, MAIN_LIMIT);
   toggleMore(trips.length > MAIN_LIMIT);
 

@@ -374,10 +374,10 @@ public class TripService {
 	@Transactional
 	public Long write(Long userId, TripWriteRequest request) {
 		validateWriteRequestTimes(request);
-
+		
 		User hostUser = userRepository.findById(userId)
 				.orElseThrow(() -> new IllegalArgumentException("호스트 유저가 존재하지 않습니다. id=" + userId));
-
+		
 		Trip trip = new Trip();
 		trip.setHostUser(hostUser);
 		trip.setTitle(request.getTitle());
@@ -389,12 +389,30 @@ public class TripService {
 		trip.setEndAt(request.getEndAt());
 		trip.setDurationMinutes(calcDurationMinutes(request.getStartAt(), request.getEndAt()));
 		trip.setStatus(Trip.Status.OPEN);
-		trip.setTheme(request.getTheme());
-		Trip saved = tripRepository.save(trip);
 
+		// theme 수기 입력
+		String theme = request.getTheme();
+		if (theme == null || theme.isBlank()) {
+			throw new IllegalArgumentException("테마를 선택해 주세요.");
+		}
+		if ("OTHER".equals(theme)) {
+			String custom = (request.getThemeCustom() == null) ? "" : request.getThemeCustom().trim();
+			if (custom.isBlank()) {
+				throw new IllegalArgumentException("기타를 선택한 경우 10자 미만으로 테마를 입력해 주세요.");
+			}
+			if (custom.length() >= 10) {
+				throw new IllegalArgumentException("기타 테마는 10자 미만으로 입력해 주세요.");
+			}
+			trip.setTheme(custom);
+		} else {
+			trip.setTheme(theme);
+		}
+		
+		Trip saved = tripRepository.save(trip);
+		
 		saveTripLocations(saved, request);
 		saveTripLanguages(saved, request);
-
+		
 		return saved.getTripId();
 	}
 
