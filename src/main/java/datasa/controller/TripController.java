@@ -224,7 +224,10 @@ public class TripController {
 
         model.addAttribute("trip", response);
         model.addAttribute("currentUserId", userId);
-
+        
+        // 추가: 카카오 지도 JS 키 전달
+        model.addAttribute("jsKey", kakaoJsKey);
+        
         boolean isOwner = false;
         if (userId != null) {
             if (response.getHostUserId() != null) {
