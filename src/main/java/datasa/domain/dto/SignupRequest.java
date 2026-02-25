@@ -24,9 +24,6 @@ public class SignupRequest {
 	private String name;
 	
 	@NotNull
-	private User.Role role;
-	
-	@NotNull
 	private LocalDate birthDate;
 	
 	@NotNull

@@ -28,17 +28,6 @@ public class EmailVerificationService {
 	}
 	
 	@Transactional
-	public void sendCode(String email) {
-		codeRepository.deleteByEmail(email);
-		
-		String code = generate6Digits();
-		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(EXPIRE_MIN);
-		
-		codeRepository.save(EmailVerificationCode.create(email, code, expiresAt));
-		mailService.sendEmailVerificationCodeMail(email, code);
-	}
-	
-	@Transactional
 	public void verifyCode(String email, String code) {
 		EmailVerificationCode evc = codeRepository
 				.findTopByEmailAndCodeAndUsedFalseOrderByIdDesc(email, code)
@@ -53,5 +42,22 @@ public class EmailVerificationService {
 		
 		codeRepository.save(evc);
 		if (user != null) userRepository.save(user);
+	}
+	
+	@Transactional
+	public void sendCode(String email) {
+		
+		// 탈퇴 안 한 상태에서 이미 존재하면 막기
+		if (userRepository.existsByEmailAndStatusNot(email, User.Status.DELETED)) {
+			throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+		}
+		
+		codeRepository.deleteByEmail(email);
+		
+		String code = generate6Digits();
+		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(EXPIRE_MIN);
+		
+		codeRepository.save(EmailVerificationCode.create(email, code, expiresAt));
+		mailService.sendEmailVerificationCodeMail(email, code);
 	}
 }
