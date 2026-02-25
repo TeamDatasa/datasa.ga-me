@@ -6,153 +6,170 @@
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
     <style>
-/* ===== 전체 레이아웃 ===== */
-body {
-  margin: 0;
-  background: #FCFCFB;
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
-               "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
-}
+        body {
+            margin: 0;
+            background: #FCFCFB;
+            font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+            "Noto Sans KR", "Segoe UI", Roboto, sans-serif;
+        }
 
-.yw-container {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 32px 24px 100px;
-}
+        .yw-container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 32px 24px 100px;
+        }
 
-.yw-section {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-}
+        .yw-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        }
 
-.yw-section__head {
-  margin-bottom: 24px;
-}
+        .yw-section__head {
+            margin-bottom: 24px;
+        }
 
-.yw-section__title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-}
+        .yw-section__title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
 
-.yw-section__desc {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #566873;
-}
+        .yw-section__desc {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #566873;
+        }
 
-/* ===== 신청자 카드 리스트 ===== */
-.host-app-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+        .host-app-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-/* ===== 카드 ===== */
-.host-app-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+        .host-app-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-  padding: 18px 20px;
-  background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid #eee;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+            padding: 18px 20px;
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #eee;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.04);
 
-  transition: transform .15s ease, box-shadow .15s ease;
-}
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
 
-.host-app-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(0,0,0,0.07);
-}
+        .host-app-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.07);
+        }
 
-/* ===== 왼쪽 정보 ===== */
-.host-app-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+        .host-app-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-.host-app-name {
-  font-size: 15px;
-  font-weight: 600;
-}
+        .host-app-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
 
-/* ===== 상태 배지 ===== */
-.host-status {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
+        .host-status {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-/* 상태별 */
-.host-status.PENDING {
-  background: rgba(242, 233, 109, 0.45); /* #F2E96D */
-  color: #6a5d00;
-}
+        .host-status.PENDING {
+            background: rgba(242, 233, 109, 0.45);
+            color: #6a5d00;
+        }
 
-.host-status.APPROVED {
-  background: rgba(48, 132, 242, 0.12); /* #3084F2 */
-  color: #1675F2;
-}
+        .host-status.APPROVED {
+            background: rgba(48, 132, 242, 0.12);
+            color: #1675F2;
+        }
 
-.host-status.REJECTED,
-.host-status.CANCELED {
-  background: rgba(86, 104, 115, 0.15); /* #566873 */
-  color: #566873;
-}
+        .host-status.REJECTED,
+        .host-status.CANCELED {
+            background: rgba(86, 104, 115, 0.15);
+            color: #566873;
+        }
 
-/* ===== 버튼 영역 ===== */
-.host-app-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+        /* 취소 신청 상태 배지 */
+        .host-cancel {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(86,104,115,0.22);
+            background: rgba(86,104,115,0.08);
+            color: #566873;
+        }
 
-/* 버튼 공통 */
-.yw-btn {
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid transparent;
-  background: #fff;
-  transition: all .15s ease;
-}
+        .host-cancel.PENDING {
+            border-color: rgba(239,68,68,0.22);
+            background: rgba(239,68,68,0.08);
+            color: rgba(239,68,68,0.9);
+        }
 
-/* 승인 버튼 */
-.yw-btn--primary {
-  border-color: #3084F2;
-  color: #3084F2;
-}
+        .host-cancel.APPROVED {
+            border-color: rgba(34,197,94,0.22);
+            background: rgba(34,197,94,0.10);
+            color: rgba(34,197,94,0.95);
+        }
 
-.yw-btn--primary:hover {
-  background: rgba(48,132,242,0.08);
-}
+        .host-app-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-/* 거절 버튼 */
-.yw-btn--ghost {
-  border-color: #566873;
-  color: #566873;
-}
+        .yw-btn {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: #fff;
+            transition: all .15s ease;
+        }
 
-.yw-btn--ghost:hover {
-  background: rgba(86,104,115,0.08);
-}
+        .yw-btn--primary {
+            border-color: #3084F2;
+            color: #3084F2;
+        }
+        .yw-btn--primary:hover {
+            background: rgba(48,132,242,0.08);
+        }
 
-/* 처리 완료 텍스트 */
-.host-muted {
-  font-size: 13px;
-  color: #566873;
-  font-weight: 600;
-}
+        .yw-btn--ghost {
+            border-color: #566873;
+            color: #566873;
+        }
+        .yw-btn--ghost:hover {
+            background: rgba(86,104,115,0.08);
+        }
 
+        .yw-btn--danger {
+            border-color: rgba(239,68,68,0.35);
+            color: rgba(239,68,68,0.95);
+        }
+        .yw-btn--danger:hover {
+            background: rgba(239,68,68,0.08);
+        }
+
+        .host-muted {
+            font-size: 13px;
+            color: #566873;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -170,88 +187,132 @@ body {
     </div>
 </div>
 
-
 <script th:inline="javascript">
     const tripId = [[${tripId}]];
 
     function statusLabel(status) {
-      if (status === "PENDING") return "대기";
-      if (status === "APPROVED") return "승인";
-      if (status === "REJECTED") return "거절";
-      if (status === "CANCELED") return "취소";
-      return status || "-";
+        if (status === "PENDING") return "대기";
+        if (status === "APPROVED") return "승인";
+        if (status === "REJECTED") return "거절";
+        if (status === "CANCELED") return "취소";
+        return status || "-";
     }
 
-function renderRow(app) {
-  let actions = "";
+    function cancelLabel(cancelStatus) {
+        if (cancelStatus === "PENDING") return "취소 신청";
+        if (cancelStatus === "APPROVED") return "취소 승인됨";
+        if (cancelStatus === "REJECTED") return "취소 거부됨";
+        return "";
+    }
 
-  if (app.status === "PENDING") {
-    actions = `
-      <button class="yw-btn yw-btn--primary" onclick="approve(${app.applicationId})">승인</button>
-      <button class="yw-btn yw-btn--ghost" onclick="reject(${app.applicationId})">거절</button>
-    `;
-  } else {
-    actions = `<span class="host-muted">처리 완료</span>`;
-  }
+    function renderRow(app) {
+        let actions = "";
+        const cancelStatus = app.cancelStatus || null;
 
-  return `
-    <div class="host-app-card">
-      <div class="host-app-info">
-        <div class="host-app-name">${app.userName ?? "-"}</div>
-        <span class="host-status ${app.status}">${statusLabel(app.status)}</span>
-      </div>
-      <div class="host-app-actions">
-        ${actions}
-      </div>
-    </div>
-  `;
-}
+        // 1) 일반 신청 처리
+        if (app.status === "PENDING") {
+            actions = `
+          <button class="yw-btn yw-btn--primary" onclick="approve(${app.applicationId})">승인</button>
+          <button class="yw-btn yw-btn--ghost" onclick="reject(${app.applicationId})">거절</button>
+        `;
+        }
+        // 2) 취소 신청 처리(승인된 신청 + 취소요청 PENDING)
+        else if (app.status === "APPROVED" && cancelStatus === "PENDING") {
+            actions = `
+          <button class="yw-btn yw-btn--danger" onclick="approveCancel(${app.applicationId})">취소 승인</button>
+          <button class="yw-btn yw-btn--ghost" onclick="rejectCancel(${app.applicationId})">취소 거부</button>
+        `;
+        }
+        else {
+            actions = `<span class="host-muted">처리 완료</span>`;
+        }
+
+        const cancelBadge = cancelStatus
+            ? `<span class="host-cancel ${cancelStatus}">${cancelLabel(cancelStatus)}</span>`
+            : "";
+
+        return `
+        <div class="host-app-card">
+          <div class="host-app-info">
+            <div class="host-app-name">${app.userName ?? "-"}</div>
+            <span class="host-status ${app.status}">${statusLabel(app.status)}</span>
+            ${cancelBadge}
+          </div>
+          <div class="host-app-actions">
+            ${actions}
+          </div>
+        </div>
+      `;
+    }
 
     function load() {
-      //  hostUserId 없이: 서버가 로그인한 host 기준으로 검증/조회
-      fetch(`/api/host/trips/${tripId}/applications`, {
-        method: "GET",
-        credentials: "same-origin"
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("신청 목록을 불러오지 못했습니다.");
-          return res.json();
+        fetch(`/api/host/trips/${tripId}/applications`, {
+            method: "GET",
+            credentials: "same-origin"
         })
-        .then(data => {
-          const tbody = document.getElementById("application-body");
-          tbody.innerHTML = (data || []).map(renderRow).join("");
+            .then(res => {
+                if (!res.ok) throw new Error("신청 목록을 불러오지 못했습니다.");
+                return res.json();
+            })
+            .then(data => {
+                const tbody = document.getElementById("application-body");
+                tbody.innerHTML = (data || []).map(renderRow).join("");
 
-          if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="muted">아직 신청이 없습니다.</td></tr>`;
-          }
-        })
-        .catch(err => {
-          alert(err.message || "오류가 발생했습니다.");
-        });
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<div class="host-muted">아직 신청이 없습니다.</div>`;
+                }
+            })
+            .catch(err => {
+                alert(err.message || "오류가 발생했습니다.");
+            });
     }
 
     function approve(id) {
-      fetch(`/api/host/trips/${tripId}/applications/${id}/approve`, {
-        method: "POST",
-        credentials: "same-origin"
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("승인 처리에 실패했습니다.");
-          return res.text().catch(() => "");
+        fetch(`/api/host/trips/${tripId}/applications/${id}/approve`, {
+            method: "POST",
+            credentials: "same-origin"
         })
-        .then(() => load());
+            .then(res => {
+                if (!res.ok) throw new Error("승인 처리에 실패했습니다.");
+                return res.text().catch(() => "");
+            })
+            .then(() => load());
     }
 
     function reject(id) {
-      fetch(`/api/host/trips/${tripId}/applications/${id}/reject`, {
-        method: "POST",
-        credentials: "same-origin"
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("거절 처리에 실패했습니다.");
-          return res.text().catch(() => "");
+        fetch(`/api/host/trips/${tripId}/applications/${id}/reject`, {
+            method: "POST",
+            credentials: "same-origin"
         })
-        .then(() => load());
+            .then(res => {
+                if (!res.ok) throw new Error("거절 처리에 실패했습니다.");
+                return res.text().catch(() => "");
+            })
+            .then(() => load());
+    }
+
+    function approveCancel(id) {
+        fetch(`/api/host/trips/${tripId}/applications/${id}/cancel/approve`, {
+            method: "POST",
+            credentials: "same-origin"
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("취소 승인에 실패했습니다.");
+                return res.text().catch(() => "");
+            })
+            .then(() => load());
+    }
+
+    function rejectCancel(id) {
+        fetch(`/api/host/trips/${tripId}/applications/${id}/cancel/reject`, {
+            method: "POST",
+            credentials: "same-origin"
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("취소 거부에 실패했습니다.");
+                return res.text().catch(() => "");
+            })
+            .then(() => load());
     }
 
     load();

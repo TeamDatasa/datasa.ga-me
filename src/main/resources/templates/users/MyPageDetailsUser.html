@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>My Page Details</title>
-    <link rel="stylesheet" href="/css/users/mypage-user.css" />
+    <link rel="stylesheet" href="/css/users/mypage-user.css"/>
 </head>
 
 <body>
@@ -100,6 +100,24 @@
                            data-i18n="deleteReview">
                             후기 삭제
                         </a>
+
+                        <button class="btn btn-danger"
+                                type="button"
+                                th:if="${t.canCancelRequest()}"
+                                th:attr="data-application-id=${t.applicationId()}"
+                                onclick="requestCancel(this)">
+                            참가 취소 신청
+                        </button>
+
+                        <span class="hint"
+                              th:if="${t.cancelStatus() == 'PENDING'}">
+                            참가 취소 신청 처리중
+                        </span>
+
+                        <span class="hint"
+                              th:if="${t.cancelStatus() == 'REJECTED'}">
+                            참가 취소 신청이 거부되었습니다
+                        </span>
                     </div>
                 </li>
             </ul>
@@ -148,5 +166,6 @@
 
 <script src="/js/mypage-user-i18n.js"></script>
 <script src="/js/mypage-details.js"></script>
+<script src="/js/mypage-cancel.js"></script>
 </body>
 </html>

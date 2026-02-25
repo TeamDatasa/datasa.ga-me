@@ -9,16 +9,18 @@ public record HostApplicationItem(
 		String userName,
 		String status,
 		String message,
-		LocalDateTime createdAt
+		LocalDateTime createdAt,
+		String cancelStatus
 ) {
-	public static HostApplicationItem from(Application a) {
+	public static HostApplicationItem from(Application a, String cancelStatus) {
 		return new HostApplicationItem(
 				a.getApplicationId(),
 				a.getUser().getUserId(),
 				a.getUser().getName(),
 				a.getStatus().name(),
 				a.getMessage(),
-				a.getCreatedAt()
+				a.getCreatedAt(),
+				cancelStatus
 		);
 	}
 }

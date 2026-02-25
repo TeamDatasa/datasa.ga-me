@@ -24,8 +24,9 @@ public class MyPageUserService {
 	private final UserRepository userRepository;
 	private final ApplicationRepository applicationRepository;
 	private final ReviewRepository reviewRepository;
-	private final TripLikeRepository TripLikeRepository;
+	private final TripLikeRepository tripLikeRepository;
 	private final TripViewLogRepository tripViewLogRepository;
+	private final TripCancelRepository tripCancelRequestRepository;
 	
 	
 	
@@ -59,11 +60,24 @@ public class MyPageUserService {
 						.toList();
 		
 		// 3) 참여 투어(APPROVED)
-		List<MyTourItem> myTours =
+		List<Application> approvedApps =
 				applicationRepository.findByUser_UserIdAndStatusOrderByApplicationIdDesc(
-								userId, Application.Status.APPROVED
-						)
-						.stream()
+						userId, Application.Status.APPROVED
+				);
+		
+		List<Long> appIds = approvedApps.stream()
+				.map(Application::getApplicationId)
+				.toList();
+		
+		var cancelMap = tripCancelRequestRepository.findByApplication_ApplicationIdIn(appIds)
+				.stream()
+				.collect(java.util.stream.Collectors.toMap(
+						r -> r.getApplication().getApplicationId(),
+						r -> r.getStatus().name()
+				));
+		
+		List<MyTourItem> myTours =
+				approvedApps.stream()
 						.map(a -> {
 							Trip trip = a.getTrip();
 							
@@ -76,15 +90,27 @@ public class MyPageUserService {
 							
 							boolean canReview = isPast && reviewId == null;
 							
+							String cancelStatus = cancelMap.get(a.getApplicationId());
+							
+							boolean before24h = trip.getStartAt() != null
+									&& LocalDateTime.now().isBefore(trip.getStartAt().minusHours(24));
+							
+							boolean hasPendingCancel = "PENDING".equals(cancelStatus);
+							
+							boolean canCancelRequest = before24h && !hasPendingCancel;
+							
 							return new MyTourItem(
 									trip.getTripId(),
+									a.getApplicationId(),
 									trip.getTitle(),
 									trip.getRegion(),
 									trip.getStartAt(),
 									trip.getEndAt(),
 									a.getStatus().name(),
 									reviewId,
-									canReview
+									canReview,
+									cancelStatus,
+									canCancelRequest
 							);
 						})
 						.toList();
@@ -123,7 +149,7 @@ public class MyPageUserService {
 	public List<MyTourItem> getLikedTours(String email) {
 		User user = userRepository.findByEmail(email).orElseThrow();
 		
-		return TripLikeRepository
+		return tripLikeRepository
 				.findTop20ByUser_UserIdOrderByCreatedAtDesc(user.getUserId())
 				.stream()
 				.map(tl -> MyTourItem.fromLiked(tl.getTrip()))
@@ -141,11 +167,14 @@ public class MyPageUserService {
 					Trip t = v.getTrip();
 					return new MyTourItem(
 							t.getTripId(),
+							null,
 							t.getTitle(),
 							t.getRegion(),
 							t.getStartAt(),
 							t.getEndAt(),
 							null,
+							null,
+							false,
 							null,
 							false
 					);

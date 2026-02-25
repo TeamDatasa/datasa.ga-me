@@ -46,4 +46,24 @@ public class HostApplicationApiController {
 		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 		hostTripService.rejectApplication(tripId, applicationId, user.getUsername());
 	}
+	
+	@PostMapping("/{tripId}/applications/{applicationId}/cancel/approve")
+	public void approveCancel(
+			@PathVariable Long tripId,
+			@PathVariable Long applicationId,
+			@AuthenticationPrincipal CustomUserDetail user
+	) {
+		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+		hostTripService.approveCancel(tripId, applicationId, user.getUsername());
+	}
+	
+	@PostMapping("/{tripId}/applications/{applicationId}/cancel/reject")
+	public void rejectCancel(
+			@PathVariable Long tripId,
+			@PathVariable Long applicationId,
+			@AuthenticationPrincipal CustomUserDetail user
+	) {
+		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+		hostTripService.rejectCancel(tripId, applicationId, user.getUsername());
+	}
 }

@@ -67,6 +67,16 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 """)
 List<Trip> findApprovedTripsForChat(@Param("userId") Long userId);
 
+	// 채팅방 목록에는 취소 승인된 여행도 남겨두기(입장/전송은 별도 권한검사로 제한)
+	@Query("""
+	select a.trip
+	from Application a
+	where a.user.userId = :userId
+	  and a.status in ('APPROVED','CANCELED')
+	order by a.applicationId desc
+""")
+	List<Trip> findTripsForChatIncludeCanceled(@Param("userId") Long userId);
+
     @Modifying
     @Query("delete from Application a where a.trip.tripId = :tripId")
     void deleteByTrip_TripId(@Param("tripId") Long tripId);

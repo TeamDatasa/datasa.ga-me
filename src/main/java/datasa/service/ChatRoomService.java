@@ -32,7 +32,7 @@ public class ChatRoomService {
 
         Set<Trip> allTrips = new LinkedHashSet<>();
         allTrips.addAll(tripRepository.findByHostUser_UserIdOrderByCreatedAtDesc(userId));
-        allTrips.addAll(applicationRepository.findApprovedTripsForChat(userId));
+        allTrips.addAll(applicationRepository.findTripsForChatIncludeCanceled(userId));
 
         return allTrips.stream().map(trip -> {
 
