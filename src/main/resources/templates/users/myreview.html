@@ -1,157 +1,156 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>My Reviews</title>
+    <title>내 리뷰</title>
+    <link rel="stylesheet" href="/css/users/mypage.css" />
     <link rel="stylesheet" href="/css/users/mypage-user.css" />
 </head>
+
 <body>
 <div class="details-wrap">
-    <header class="details-top">
-        <div class="brand">ga-me</div>
-        <a class="btn btn-ghost" href="/mypage/details/user">Back</a>
+    <header class="yw-header">
+        <div class="yw-container yw-header__inner">
+            <a class="yw-logo" href="/">
+                <span class="yw-logo__mark">●</span>
+                <span class="yw-logo__text">ga-me</span>
+            </a>
+
+            <div class="yw-auth">
+                <div class="auth-lang mypage-lang">
+                    <select id="langSelect" class="translate-select">
+                        <option value="ko">한국어</option>
+                        <option value="ja">日本語</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <a class="yw-icon-btn" href="/mypage" aria-label="닫기">
+                    <span class="yw-icon" aria-hidden="true">✕</span>
+                </a>
+            </div>
+        </div>
     </header>
 
     <section class="panel">
         <div class="panel-head">
             <div>
-                <h3>My Reviews</h3>
-                <p class="hint">Write after tour ends. One review per tour.</p>
+                <h3>내 리뷰</h3>
+                <p class="hint">투어 종료 후 작성할 수 있습니다. 투어당 1개의 리뷰만 작성 가능합니다.</p>
             </div>
-            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Reset</a>
+            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">초기화</a>
         </div>
 
-        <div class="grid" style="grid-template-columns: 1.2fr .8fr; margin-top:14px;">
+        <!-- ✅ 기존 우측 mode 패널 제거: 목록만 사용 (모달로 처리) -->
+        <div class="grid" style="grid-template-columns: 1fr; margin-top:14px;">
             <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
-                <h3 style="margin:0 0 6px 0;">Joined Tours</h3>
-                <p class="hint">Approved tours you joined.</p>
+                <h3 style="margin:0 0 6px 0;">참여한 투어</h3>
+                <p class="hint">승인되어 참여한 투어 목록입니다.</p>
 
                 <div class="empty" th:if="${items == null or #lists.isEmpty(items)}" style="height:90px;">
-                    No approved tours yet.
+                    승인된 투어가 아직 없습니다.
                 </div>
 
                 <ul class="list" th:if="${items != null and !#lists.isEmpty(items)}">
                     <li class="list-item" th:each="t : ${items}">
-                        <div class="title" th:text="${t.title()}">Tour title</div>
+                        <div class="title" th:text="${t.title()}">투어 제목</div>
                         <div class="meta">
-                            <span th:text="${t.region()}">Region</span>
-                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">Start</span>
-                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">End</span>
+                            <span th:text="${t.region()}">지역</span>
+                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">시작일</span>
+                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">종료일</span>
                         </div>
 
                         <div class="actions">
-                            <a class="btn"
-                               th:if="${t.canWrite()}"
-                               th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}">
-                                Write
-                            </a>
+                            <!-- 작성 -->
+                            <button type="button"
+                                    class="btn"
+                                    th:if="${t.canWrite()}"
+                                    th:attr="data-trip-id=${t.tripId()}"
+                                    onclick="openReviewModal('new', this)">
+                                작성
+                            </button>
 
-                            <a class="btn"
-                               th:if="${t.hasReview()}"
-                               th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}">
-                                Edit
-                            </a>
+                            <!-- 수정 -->
+                            <button type="button"
+                                    class="btn"
+                                    th:if="${t.hasReview()}"
+                                    th:attr="data-trip-id=${t.tripId()},
+                                             data-review-id=${t.reviewId()},
+                                             data-rating=${t.rating()},
+                                             data-content=${t.content()}"
+                                    onclick="openReviewModal('edit', this)">
+                                수정
+                            </button>
 
-                            <a class="btn btn-danger"
-                               th:if="${t.hasReview()}"
-                               th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}">
-                                Delete
-                            </a>
+                            <!-- 삭제 -->
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    th:if="${t.hasReview()}"
+                                    th:attr="data-review-id=${t.reviewId()}"
+                                    onclick="openReviewModal('delete', this)">
+                                삭제
+                            </button>
 
                             <span class="hint" th:if="${!t.ended()}" style="margin-left:6px;">
-                                After end time
-                            </span>
+                종료 후 작성 가능
+              </span>
                         </div>
                     </li>
                 </ul>
             </div>
-
-            <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
-                <div th:if="${mode == ''}">
-                    <h3 style="margin:0 0 6px 0;">Select a tour</h3>
-                    <p class="hint">Choose Write / Edit / Delete from the list.</p>
-                </div>
-
-                <div th:if="${mode == 'new'}">
-                    <h3 style="margin:0 0 6px 0;">Write Review</h3>
-                    <p class="hint">Rating 1~5, content up to 2000 chars.</p>
-
-                    <form th:action="@{/mypage/reviews/create}" method="post" th:object="${form}">
-                        <input type="hidden" th:field="*{tripId}"/>
-
-                        <div class="row" style="margin-top:12px;">
-                            <label class="hint" style="display:block;margin-bottom:6px;">Rating</label>
-                            <select th:field="*{rating}">
-                                <option value="5">5</option><option value="4">4</option><option value="3">3</option>
-                                <option value="2">2</option><option value="1">1</option>
-                            </select>
-                            <p class="hint" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></p>
-                        </div>
-
-                        <div class="row" style="margin-top:12px;">
-                            <label class="hint" style="display:block;margin-bottom:6px;">Content</label>
-                            <textarea th:field="*{content}" placeholder="Write your experience..."></textarea>
-                            <p class="hint" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
-                        </div>
-
-                        <div class="actions" style="justify-content:flex-end; margin-top:12px;">
-                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
-                            <button class="btn" type="submit">Save</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div th:if="${mode == 'edit'}">
-                    <h3 style="margin:0 0 6px 0;">Edit Review</h3>
-                    <p class="hint">Only your review can be edited.</p>
-
-                    <form th:action="@{/mypage/reviews/update}" method="post" th:object="${form}">
-                        <input type="hidden" th:field="*{reviewId}"/>
-                        <input type="hidden" th:field="*{tripId}"/>
-
-                        <div class="row" style="margin-top:12px;">
-                            <label class="hint" style="display:block;margin-bottom:6px;">Rating</label>
-                            <select th:field="*{rating}">
-                                <option value="5">5</option><option value="4">4</option><option value="3">3</option>
-                                <option value="2">2</option><option value="1">1</option>
-                            </select>
-                            <p class="hint" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></p>
-                        </div>
-
-                        <div class="row" style="margin-top:12px;">
-                            <label class="hint" style="display:block;margin-bottom:6px;">Content</label>
-                            <textarea th:field="*{content}"></textarea>
-                            <p class="hint" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
-                        </div>
-
-                        <div class="actions" style="justify-content:flex-end; margin-top:12px;">
-                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
-                            <button class="btn" type="submit">Update</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div th:if="${mode == 'delete'}">
-                    <h3 style="margin:0 0 6px 0;">Delete Review</h3>
-                    <p class="hint">This action cannot be undone.</p>
-
-                    <div class="panel" style="margin-top:12px; box-shadow:none; border:1px dashed rgba(17,19,24,0.14); background:rgba(246,247,249,0.55);">
-                        <p class="hint" style="margin:0 0 6px 0;">Content preview</p>
-                        <div style="white-space:pre-wrap; font-size:13px;" th:text="${form.content}">content</div>
-                    </div>
-
-                    <form th:action="@{/mypage/reviews/delete}" method="post" style="margin-top:12px;">
-                        <input type="hidden" name="reviewId" th:value="${form.reviewId}"/>
-                        <div class="actions" style="justify-content:flex-end;">
-                            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">Cancel</a>
-                            <button class="btn btn-danger" type="submit">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
-
     </section>
 </div>
+
+<!-- =========================
+     Modal
+========================= -->
+<div id="reviewModal" class="yw-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="yw-modal__card">
+        <div class="yw-modal__head">
+            <h3 id="modalTitle" class="yw-modal__title">리뷰</h3>
+            <button type="button" class="yw-icon-btn" aria-label="닫기" onclick="closeReviewModal()">
+                <span class="yw-icon" aria-hidden="true">✕</span>
+            </button>
+        </div>
+
+        <form id="reviewForm" method="post" class="yw-modal__body">
+            <input type="hidden" name="tripId" id="modalTripId">
+            <input type="hidden" name="reviewId" id="modalReviewId">
+
+            <!-- 작성/수정 필드 -->
+            <div id="modalFields">
+                <div class="row">
+                    <label id="labelRating">평점</label>
+                    <select name="rating" id="modalRating">
+                        <option value="5">5</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label id="labelContent">내용</label>
+                    <textarea name="content" id="modalContent" placeholder="투어 경험을 작성해주세요..."></textarea>
+                </div>
+            </div>
+
+            <!-- 삭제 안내 -->
+            <div id="deleteBox" class="yw-modal__dangerBox" style="display:none;">
+                <p id="deleteHint" class="hint" style="margin:0;">
+                    정말 삭제할까요? 삭제하면 되돌릴 수 없어요.
+                </p>
+            </div>
+
+            <div class="yw-modal__actions">
+                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">취소</button>
+                <button id="modalSubmitBtn" type="submit" class="btn">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="/js/mypage-reviews-modal.js" defer></script>
 </body>
 </html>

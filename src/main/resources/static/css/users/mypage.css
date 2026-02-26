@@ -137,7 +137,7 @@ a{ text-decoration:none; color:inherit; }
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden; /* 이미지 넣을 때 잘림 방지 */
+  overflow:hidden;
   background-size:cover;
   background-position:center;
 }
@@ -411,13 +411,13 @@ a{ text-decoration:none; color:inherit; }
 
 /* ===== Header ===== */
 .yw-header{
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  position: static;   /* 또는 아예 position 줄 삭제 */
+  top: auto;
+  z-index: auto;
 
-  background: transparent;      /* ✅ 배경 제거 */
-  backdrop-filter: none;        /* ✅ blur 제거 */
-  border-bottom: none;          /* ✅ 아래 선도 제거(원하면 다시 켜줄게) */
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
 }
 
 .yw-header__inner {
@@ -470,6 +470,7 @@ a{ text-decoration:none; color:inherit; }
 .yw-auth {
   display: flex;
   align-items: center;
+  gap: 14px;
 }
 
 #userMenu {
@@ -543,6 +544,28 @@ a{ text-decoration:none; color:inherit; }
   cursor: pointer;
 }
 
-#logoutBtn.yw-btn.yw-btn--primary:hover{
-  filter: brightness(0.98);
+.close-btn{
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.yw-icon-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+.yw-icon-btn:hover {
+  background: rgba(86, 104, 115, 0.06);
+}
+
+.yw-icon {
+  font-size: 18px;
+  line-height: 1;
 }
