@@ -1,41 +1,86 @@
+// src/main/resources/static/js/main-course.js
 
 let currentOrder = 'latest';
 let debounceTimer = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  bindFilterEvents();   
-  applyFilter(); 
-  loadAiRecommend();
+const MAIN_LIMIT = 3;
 
+const REGION_MAP = {
+  "서울특별시": ["서울"],
+  "인천광역시": ["인천"],
+  "부산광역시": ["부산"],
+  "대구광역시": ["대구"],
+  "대전광역시": ["대전"],
+  "광주광역시": ["광주"],
+  "울산광역시": ["울산"],
+  "세종특별자치시": ["세종"],
+  "제주특별자치도": ["제주", "서귀포"],
+  "경기도": ["가평", "고양", "과천", "광명", "광주", "구리", "군포", "김포", "남양주", "동두천", "부천", "성남", "수원", "시흥", "안산", "안성", "안양", "양주", "여주", "오산", "용인", "의왕", "의정부", "이천", "파주", "평택", "포천", "하남", "화성"],
+  "강원특별자치도": ["강릉", "고성", "동해", "삼척", "속초", "양양", "원주", "인제", "정선", "춘천", "태백", "평창", "홍천"],
+  "충청북도": ["제천", "청주", "충주"],
+  "충청남도": ["공주", "논산", "당진", "보령", "부여", "서산", "아산", "천안", "태안"],
+  "전라북도": ["군산", "김제", "남원", "익산", "전주", "정읍"],
+  "전라남도": ["광양", "나주", "목포", "무안", "보성", "순천", "여수", "완도", "해남"],
+  "경상북도": ["경주", "구미", "김천", "문경", "안동", "영주", "영천", "포항"],
+  "경상남도": ["거제", "김해", "밀양", "사천", "양산", "진주", "창원", "통영"]
+};
+
+const THEME_LABEL = {
+  FOOD: "맛집",
+  NATURE: "자연",
+  CITY: "도시",
+  CULTURE: "문화",
+  NIGHT: "야경",
+
+  HEALING: "힐링",
+  ACTIVITY: "액티비티",
+  SHOPPING: "쇼핑",
+  HISTORY: "역사",
+  PHOTO: "사진",
+  FAMILY: "가족"
+};
+
+const LANG_LABEL = {
+  KOREAN: "한국어",
+  ENGLISH: "영어",
+  JAPANESE: "일본어"
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  initRegionSelects();
+  bindFilterEvents();
+  applyFilter();
 });
 
 function setOrder(order) {
   currentOrder = order;
 
-  document.getElementById('latestBtn')
-    ?.classList.toggle('active', order === 'latest');
-  document.getElementById('popularBtn')
-    ?.classList.toggle('active', order === 'popular');
+  const latestBtn = document.getElementById('latestBtn');
+  const popularBtn = document.getElementById('popularBtn');
+
+  if (latestBtn) latestBtn.classList.toggle('active', order === 'latest');
+  if (popularBtn) popularBtn.classList.toggle('active', order === 'popular');
 
   applyFilter();
 }
 
-function loadTrips() {
-  fetch(`/api/trips?order=${currentOrder}`)
-    .then(res => res.json())
-    .then(data => renderTrips(data.content || data))
-    .catch(showError);
-}
-
 function bindFilterEvents() {
-  document.getElementById('region')
-    ?.addEventListener('change', applyFilter);
+  const provinceEl = document.getElementById('province');
+  const regionEl = document.getElementById('region');
+  const themeEl = document.getElementById('theme');
 
-  document.getElementById('theme')
-    ?.addEventListener('change', applyFilter);
+  if (provinceEl) {
+    provinceEl.addEventListener('change', () => {
+      fillCities(provinceEl.value || '');
+      applyFilter();
+    });
+  }
+
+  if (regionEl) regionEl.addEventListener('change', applyFilter);
+  if (themeEl) themeEl.addEventListener('change', applyFilter);
 
   document.querySelectorAll('.lang')
-    .forEach(cb => cb.addEventListener('change', applyFilter));
+      .forEach(cb => cb.addEventListener('change', applyFilter));
 }
 
 function applyFilter() {
@@ -44,280 +89,230 @@ function applyFilter() {
 }
 
 function fetchFilteredTrips() {
-  const region = document.getElementById('region')?.value;
-  const theme = document.getElementById('theme')?.value;
+  const province = document.getElementById('province')?.value || '';
+  const region = document.getElementById('region')?.value || '';
+  const theme = document.getElementById('theme')?.value || '';
 
-  const languages = Array.from(
-    document.querySelectorAll('.lang:checked')
-  ).map(cb => cb.value);
+  const languages = Array.from(document.querySelectorAll('.lang:checked'))
+      .map(cb => cb.value);
 
   const qs = new URLSearchParams();
   qs.append('order', currentOrder);
 
+  if (province) qs.append('province', province);
   if (region) qs.append('region', region);
   if (theme) qs.append('theme', theme);
-
   languages.forEach(lang => qs.append('languages', lang));
 
-  const url = `/api/trips/mainList?${qs.toString()}`;
+  updateMoreLink(qs.toString());
 
-  fetch(url)
-    .then(res => res.json())
-    .then(data => renderTrips(data.content || data))
-    .catch(showError);
+  const apiQs = new URLSearchParams(qs.toString());
+  apiQs.set('page', '0');
+  apiQs.set('size', String(MAIN_LIMIT + 1));
+
+  const url = `/api/trips/mainList?${apiQs.toString()}`;
+
+  fetch(url, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => renderTrips(data.content || data, qs.toString()))
+      .catch(showError);
 }
 
-function resetFilter() {
-  document.querySelectorAll('.lang')
-    .forEach(cb => cb.checked = false);
-
-  const region = document.getElementById('region');
-  const theme = document.getElementById('theme');
-
-  if (region) region.value = '';
-  if (theme) theme.value = '';
-
-  setOrder('latest');
-}
-
-function renderTrips(trips) {
+function renderTrips(trips, qs) {
   const container = document.getElementById('tripList');
   if (!container) return;
 
   container.innerHTML = '';
 
   if (!trips || trips.length === 0) {
-    container.innerHTML =
-      `<p class="yw-muted">표시할 프로젝트가 없습니다.</p>`;
+    container.innerHTML = `<div class="empty">등록된 여정이 없습니다.</div>`;
+    toggleMore(false);
     return;
   }
 
-  trips.forEach(trip => {
-    const card = document.createElement('article');
-    card.className = 'yw-card';
-    card.onclick = () => {
+  const limited = trips.slice(0, MAIN_LIMIT);
+  toggleMore(trips.length > MAIN_LIMIT);
+
+  limited.forEach(trip => {
+    const article = document.createElement('article');
+    article.className = 'trip-card';
+    article.onclick = () => {
       location.href = `/trip/detail/${trip.tripId}`;
     };
 
-    card.innerHTML = `
-      <div class="yw-card__thumb"></div>
-      <div class="yw-card__body">
-        <div class="yw-card__title">${trip.title}</div>
-        <div class="yw-card__meta">
-          <span>${trip.region}</span>
-          <span class="yw-dot">•</span>
-          <span>${trip.theme}</span>
+    const st = (trip.status && typeof trip.status === 'string')
+        ? trip.status
+        : (trip.status && trip.status.name ? trip.status.name : '');
+
+    const statusClass = st === 'OPEN'
+        ? ' tl-pill--open'
+        : (st === 'IN_PROGRESS'
+            ? ' tl-pill--progress'
+            : (st === 'CLOSED'
+                ? ' tl-pill--closed'
+                : (st === 'FINISHED'
+                    ? ' tl-pill--finished'
+                    : ' tl-pill--draft')));
+
+    const statusText = st === 'DRAFT'
+        ? '임시저장'
+        : (st === 'OPEN'
+            ? '모집중'
+            : (st === 'CLOSED'
+                ? '모집마감'
+                : (st === 'IN_PROGRESS'
+                    ? '진행중'
+                    : (st === 'FINISHED'
+                        ? '종료됨'
+                        : '-'))));
+
+    const regionChip = escapeHtml(trip.region ?? '지역 미정');
+
+    const langCodes = Array.isArray(trip.languageCodes) ? trip.languageCodes : [];
+    const langChipsHtml = langCodes.map(code => {
+      const key = String(code || '').toUpperCase();
+      const label = LANG_LABEL[key] || key;
+      return `<span class="tl-chip">${escapeHtml(label)}</span>`;
+    }).join('');
+
+    const themeKey = String(trip.theme || '').toUpperCase();
+    const themeLabel = THEME_LABEL[themeKey] || (trip.theme ?? '-');
+    const themeChip = `<span class="tl-chip">${escapeHtml(themeLabel)}</span>`;
+
+    const current = Number(trip.currentParticipants ?? 0);
+    const max = trip.maxParticipants ?? '-';
+
+    const likedByMe = Boolean(trip.likedByMe);
+    const likeCount = Number(trip.likeCount ?? 0);
+
+    const hostDeleted = Boolean(trip.hostDeleted);
+    const hostName = trip.hostName ?? '호스트';
+    const hostUserId = trip.hostUserId ?? '';
+
+    article.innerHTML = `
+      <div class="trip-card__body">
+        <div class="trip-card__title-row">
+          <div class="trip-card__title">${escapeHtml(trip.title ?? '제목')}</div>
+
+          <div class="trip-card__status">
+            <span class="tl-pill${statusClass}">
+              <span>${escapeHtml(statusText)}</span>
+            </span>
+          </div>
         </div>
-        <div class="yw-card__meta muted">
-          모집 ${trip.approvedCount}/ ${trip.maxParticipants}
+
+        <div class="trip-card__meta">
+          <span class="tl-chip">${regionChip}</span>
+          ${langChipsHtml}
+          ${themeChip}
+          <span class="dot">•</span>
+          <span class="tl-people">${escapeHtml(String(current))}/${escapeHtml(String(max))}</span>
         </div>
+
+        <div class="trip-card__desc">${escapeHtml(trip.description ?? '')}</div>
+      </div>
+
+      <div class="trip-card__footer" onclick="event.stopPropagation();">
+        <button class="like-btn"
+                type="button"
+                data-like-btn
+                data-trip-id="${escapeHtml(String(trip.tripId))}"
+                data-liked="${likedByMe}"
+                data-count="${likeCount}">
+          <span class="like-btn__icon" data-like-icon>${likedByMe ? '♥' : '♡'}</span>
+          <span class="like-btn__count" data-like-count>${escapeHtml(String(likeCount))}</span>
+        </button>
+
+        <span class="trip-card__host" onclick="event.stopPropagation();">
+          ${hostDeleted
+        ? `<span class="hc-host-deleted">탈퇴한 사용자</span>`
+        : `<a href="#"
+                  class="hc-host-link"
+                  data-host-card-open
+                  data-host-id="${escapeHtml(String(hostUserId))}">${escapeHtml(hostName)}</a>`
+    }
+        </span>
       </div>
     `;
 
-    container.appendChild(card);
+    container.appendChild(article);
   });
 }
 
-function loadAiRecommend() {
-  const container = document.getElementById('aiRecommendList');
-  if (!container) return;
+function updateMoreLink(qs) {
+  const moreWrap = document.getElementById('mainMoreWrap');
+  const moreLink = document.getElementById('mainMoreLink');
+  if (!moreWrap || !moreLink) return;
 
-  fetch('/api/trips/recommend/weekly')
-    .then(res => res.json())
-    .then(data => {
-      container.innerHTML = '';
+  moreLink.href = qs ? `/trip/listAll?${qs}` : `/trip/listAll`;
+}
 
-      if (!data || data.length === 0) {
-        container.innerHTML =
-          `<p class="yw-muted">추천 데이터 준비 중</p>`;
-        return;
-      }
-
-      data.forEach(trip => {
-        const card = document.createElement('article');
-        card.className = 'yw-card';
-        card.onclick = () => {
-          location.href = `/trip/detail/${trip.tripId}`;
-        };
-
-        card.innerHTML = `
-          <div class="yw-card__thumb"></div>
-          <div class="yw-card__body">
-            <div class="yw-card__title">${trip.title}</div>
-            <div class="yw-card__meta">
-              <span>${trip.region}</span>
-              <span class="yw-dot">•</span>
-              <span>AI 추천</span>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    })
-    .catch(err => {
-      console.error(err);
-      container.innerHTML =
-        `<p class="yw-muted">추천 로딩 실패</p>`;
-    });
+function toggleMore(show) {
+  const moreWrap = document.getElementById('mainMoreWrap');
+  if (!moreWrap) return;
+  moreWrap.style.display = show ? 'flex' : 'none';
 }
 
 function showError(err) {
   console.error(err);
   const container = document.getElementById('tripList');
   if (container) {
-    container.innerHTML =
-      `<p style="color:red">데이터를 불러오는 중 오류가 발생했습니다.</p>`;
+    container.innerHTML = `<div class="empty">데이터를 불러오는 중 오류가 발생했습니다.</div>`;
   }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  bindFilterEvents();
-  applyFilter();
-  loadAiRecommend();
-
-  bindRecommendationButton();
-});
-
-function bindRecommendationButton() {
-  const btn =
-    document.getElementById('recBtn') ||
-    document.querySelector('a[href="/recommendations"]');
-
-  if (!btn) return;
-
-  btn.addEventListener('click', async (e) => {
-    e.preventDefault();
-
-    const overlay = openRecommendationOverlay();
-    const body = overlay.querySelector('.rec-body');
-    body.innerHTML = `<p class="yw-muted">Loading...</p>`;
-
-    try {
-      const res = await fetch('/api/recommendations', { credentials: 'include' });
-      if (!res.ok) throw new Error(`Failed (${res.status})`);
-
-      const list = await res.json();
-
-      if (!Array.isArray(list) || list.length === 0) {
-        body.innerHTML = `<p class="yw-muted">추천 데이터 준비 중</p>`;
-        return;
-      }
-
-      body.innerHTML = '';
-      list.forEach(trip => body.appendChild(buildRecCard(trip)));
-    } catch (err) {
-      console.error(err);
-      body.innerHTML = `<p class="yw-muted">추천 로딩 실패</p>`;
-    }
-  });
-}
-
-function openRecommendationOverlay() {
-  let overlay = document.getElementById('recOverlay');
-  if (overlay) {
-    overlay.classList.remove('is-hidden');
-    return overlay;
-  }
-
-  overlay = document.createElement('div');
-  overlay.id = 'recOverlay';
-  overlay.className = 'rec-overlay';
-
-  overlay.innerHTML = `
-    <div class="rec-panel" role="dialog" aria-modal="true">
-      <div class="rec-top">
-        <div class="rec-title">AI 추천</div>
-        <button class="rec-close" type="button" aria-label="Close">×</button>
-      </div>
-      <div class="rec-body"></div>
-    </div>
-  `;
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.add('is-hidden');
-  });
-  overlay.querySelector('.rec-close').addEventListener('click', () => {
-    overlay.classList.add('is-hidden');
-  });
-
-  injectRecStyleOnce();
-  document.body.appendChild(overlay);
-  return overlay;
-}
-
-function buildRecCard(trip) {
-  const card = document.createElement('article');
-  card.className = 'yw-card rec-card';
-  card.onclick = () => {
-    location.href = `/trip/detail/${trip.tripId}`;
-  };
-
-  card.innerHTML = `
-    <div class="yw-card__thumb"></div>
-    <div class="yw-card__body">
-      <div class="yw-card__title">${escapeHtml(trip.title ?? 'Untitled')}</div>
-      <div class="yw-card__meta">
-        <span>${escapeHtml(trip.region ?? '-')}</span>
-        <span class="yw-dot">•</span>
-        <span>AI 추천</span>
-      </div>
-      ${trip.theme ? `<div class="yw-card__meta muted">${escapeHtml(trip.theme)}</div>` : ``}
-    </div>
-  `;
-  return card;
+  toggleMore(false);
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (m) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  return String(s ?? "").replace(/[&<>"']/g, (m) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;"
   }[m]));
 }
 
-function injectRecStyleOnce() {
-  if (document.getElementById('recOverlayStyle')) return;
+/* =========================
+   지역(도 -> 시) 초기화
+========================= */
+function initRegionSelects() {
+  const provinceEl = document.getElementById('province');
+  const cityEl = document.getElementById('region');
+  if (!provinceEl || !cityEl) return;
 
-  const style = document.createElement('style');
-  style.id = 'recOverlayStyle';
-  style.textContent = `
-    .rec-overlay{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      display:flex; align-items:center; justify-content:center;
-      z-index:9999; padding:16px;
-    }
-    .rec-overlay.is-hidden{ display:none; }
-    .rec-panel{
-      width:min(980px,100%);
-      max-height:min(82vh,760px);
-      overflow:auto;
-      background:rgba(255,255,255,.88);
-      backdrop-filter: blur(10px);
-      border:1px solid rgba(0,0,0,.08);
-      border-radius:18px;
-      box-shadow:0 18px 60px rgba(0,0,0,.18);
-    }
-    .rec-top{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 16px;
-      border-bottom:1px solid rgba(0,0,0,.08);
-    }
-    .rec-title{ font-weight:900; }
-    .rec-close{
-      border:none; background:transparent;
-      font-size:22px; line-height:1;
-      cursor:pointer;
-      padding:6px 10px;
-      border-radius:10px;
-    }
-    .rec-close:hover{ background:rgba(0,0,0,.06); }
-    .rec-body{
-      padding:14px 16px;
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-    }
-    @media(max-width:900px){ .rec-body{ grid-template-columns:repeat(2,1fr); } }
-    @media(max-width:560px){ .rec-body{ grid-template-columns:1fr; } }
-  `;
-  document.head.appendChild(style);
+  provinceEl.innerHTML = '';
+  const allProvince = document.createElement('option');
+  allProvince.value = '';
+  allProvince.textContent = '전체(도)';
+  provinceEl.appendChild(allProvince);
+
+  Object.keys(REGION_MAP).forEach((p) => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = p;
+    provinceEl.appendChild(opt);
+  });
+
+  fillCities('');
+}
+
+function fillCities(province) {
+  const cityEl = document.getElementById('region');
+  if (!cityEl) return;
+
+  cityEl.innerHTML = '';
+  const allCity = document.createElement('option');
+  allCity.value = '';
+  allCity.textContent = '전체(시)';
+  cityEl.appendChild(allCity);
+
+  if (!province) return;
+
+  const cities = REGION_MAP[province] || [];
+  cities.forEach((c) => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    cityEl.appendChild(opt);
+  });
 }

@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initRegionSelects();
     initDateTimeRules();
+    initThemeCustom();
 
     loadSchedulePlacesFromHidden();
     renderSchedulePlaces();
@@ -50,6 +51,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function initThemeCustom() {
+    const themeEl = document.getElementById('theme');
+    const wrapEl = document.getElementById('themeCustomWrap');
+    const inputEl = document.getElementById('themeCustom');
+    if (!themeEl || !wrapEl || !inputEl) return;
+
+    const apply = () => {
+        const isOther = themeEl.value === 'OTHER';
+        wrapEl.style.display = isOther ? 'block' : 'none';
+        inputEl.required = isOther;
+
+        if (!isOther) {
+            inputEl.value = '';
+        }
+    };
+
+    themeEl.addEventListener('change', apply);
+    apply();
+}
 
 function initKakaoMap() {
     map = new kakao.maps.Map(document.getElementById('map'), {
@@ -268,24 +289,7 @@ function initDateTimeRules() {
     });
 
     endEl.addEventListener('change', function () {
-        const startDate = parseDatetimeLocal(startEl.value);
-        const endDate = parseDatetimeLocal(endEl.value);
-        const minEnd = new Date(startDate.getTime() + 30 * 60 * 1000);
-
-        if (endDate < startDate) {
-            alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
-            endEl.value = toDatetimeLocalValue(minEnd);
-            updateDuration();
-            return;
-        }
-
-        if (endDate < minEnd) {
-            alert('끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다');
-            endEl.value = toDatetimeLocalValue(minEnd);
-            updateDuration();
-            return;
-        }
-
+        applyEndMinAndFixIfNeeded(false);
         updateDuration();
     });
 
@@ -327,6 +331,21 @@ function validateOnSubmit() {
     const durEl = document.getElementById('durationMinutes');
     const provinceEl = document.getElementById('province');
     const cityEl = document.getElementById('region');
+
+    const themeEl = document.getElementById('theme');
+    const themeCustomEl = document.getElementById('themeCustom');
+
+    if (themeEl && themeEl.value === 'OTHER') {
+        const v = themeCustomEl ? String(themeCustomEl.value || '').trim() : '';
+        if (!v) {
+            alert('기타를 선택한 경우 10자 미만으로 테마를 입력해 주세요.');
+            return false;
+        }
+        if (v.length >= 10) {
+            alert('기타 테마는 10자 미만으로 입력해 주세요.');
+            return false;
+        }
+    }
 
     const nowPlus24 = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const startDate = parseDatetimeLocal(startEl.value);
@@ -418,65 +437,60 @@ function loadSchedulePlacesFromHidden() {
             placeId,
             placeName,
             address,
-            lat: Number.isFinite(lat) ? lat : null,
-            lng: Number.isFinite(lng) ? lng : null
+            lat,
+            lng
         });
     }
 }
 
 function renderSchedulePlaces() {
     const listEl = document.getElementById('scheduleList');
+    const emptyEl = document.getElementById('scheduleEmptyText');
     const hiddenEl = document.getElementById('scheduleHiddenFields');
 
     if (!listEl || !hiddenEl) return;
 
-    listEl.innerHTML = '';
+    listEl.querySelectorAll('.tw-schedule-item').forEach(n => n.remove());
     hiddenEl.innerHTML = '';
 
-    if (!schedulePlaces || schedulePlaces.length === 0) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.id = 'scheduleEmptyText';
-        emptyDiv.style.color = '#888';
-        emptyDiv.style.fontSize = '13px';
-        emptyDiv.textContent = '아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.';
-        listEl.appendChild(emptyDiv);
-        return;
+    if (emptyEl) {
+        emptyEl.style.display = schedulePlaces.length === 0 ? 'block' : 'none';
     }
 
     schedulePlaces.forEach((p, idx) => {
         const row = document.createElement('div');
+        row.className = 'tw-schedule-item';
         row.style.display = 'flex';
-        row.style.gap = '10px';
-        row.style.alignItems = 'center';
         row.style.justifyContent = 'space-between';
-        row.style.padding = '10px';
+        row.style.alignItems = 'center';
+        row.style.padding = '10px 0';
+        row.style.borderBottom = '1px solid rgba(15,23,42,0.08)';
 
         const left = document.createElement('div');
-        left.style.display = 'flex';
-        left.style.flexDirection = 'column';
-        left.style.gap = '4px';
-
-        const title = document.createElement('div');
-        title.style.fontWeight = 'bold';
-        title.textContent = `${p.placeName} | ${p.address}`;
-        left.appendChild(title);
+        left.innerHTML = `
+            <div style="font-weight:900;">${escapeHtml(p.placeName)}</div>
+            <div style="font-size:12px; color:#666; margin-top:4px;">${escapeHtml(p.address || '')}</div>
+        `;
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.textContent = '삭제';
-        btn.style.padding = '6px 10px';
+        btn.style.padding = '8px 10px';
+        btn.style.borderRadius = '10px';
+        btn.style.border = '1px solid rgba(15,23,42,0.12)';
+        btn.style.background = '#fff';
         btn.style.cursor = 'pointer';
-        btn.onclick = () => removeSchedulePlace(idx);
+        btn.addEventListener('click', () => removeSchedulePlace(idx));
 
         row.appendChild(left);
         row.appendChild(btn);
         listEl.appendChild(row);
 
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeId`, p.placeId));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeName`, p.placeName));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].address`, p.address));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lat`, p.lat == null ? '' : String(p.lat)));
-        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lng`, p.lng == null ? '' : String(p.lng)));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeId`, p.placeId || ''));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].placeName`, p.placeName || ''));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].address`, p.address || ''));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lat`, p.lat != null ? String(p.lat) : ''));
+        hiddenEl.appendChild(makeHidden(`schedulePlaces[${idx}].lng`, p.lng != null ? String(p.lng) : ''));
     });
 }
 
@@ -484,29 +498,8 @@ function makeHidden(name, value) {
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = name;
-    input.value = value ?? '';
+    input.value = value;
     return input;
-}
-
-function displayPagination(pagination) {
-    const paginationEl = document.getElementById('pagination');
-    if (!paginationEl) return;
-
-    paginationEl.innerHTML = '';
-
-    for (let i = 1; i <= pagination.last; i++) {
-        const a = document.createElement('a');
-        a.href = '#';
-        a.textContent = i;
-        a.onclick = (function (i) {
-            return function () {
-                pagination.gotoPage(i);
-                return false;
-            };
-        })(i);
-
-        paginationEl.appendChild(a);
-    }
 }
 
 function clearMarkers() {
@@ -515,15 +508,39 @@ function clearMarkers() {
 }
 
 function clearResults() {
-    clearMarkers();
     const listEl = document.getElementById('placesList');
-    const paginationEl = document.getElementById('pagination');
+    const pagEl = document.getElementById('pagination');
     if (listEl) listEl.innerHTML = '';
-    if (paginationEl) paginationEl.innerHTML = '';
+    if (pagEl) pagEl.innerHTML = '';
+    clearMarkers();
 }
 
-function escapeHtml(s) {
-    return String(s ?? '')
+function displayPagination(pagination) {
+    const pagEl = document.getElementById('pagination');
+    if (!pagEl) return;
+
+    pagEl.innerHTML = '';
+
+    for (let i = 1; i <= pagination.last; i++) {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.textContent = String(i);
+        a.style.marginRight = '8px';
+
+        if (i === pagination.current) {
+            a.style.fontWeight = '900';
+        } else {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                pagination.gotoPage(i);
+            });
+        }
+        pagEl.appendChild(a);
+    }
+}
+
+function escapeHtml(str) {
+    return String(str)
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;')

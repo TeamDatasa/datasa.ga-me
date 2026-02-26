@@ -51,6 +51,15 @@
   function notifLink(n) {
     const refId = n.refId;
     if (!refId) return "#";
+
+    const type = String(n.type || "").toUpperCase();
+
+    // 신청(APPLY) 알림은 호스트 신청관리로 이동
+    if (type === "APPLY") {
+      return `/host/trips/${refId}/applications`;
+    }
+
+    // 기존 동작 유지
     return `/trip/detail/${refId}`;
   }
 
@@ -172,8 +181,6 @@
     popoverEl.classList.remove("open");
   }
 
-  // 링크 클릭: 단건 읽음 처리 + 뱃지 감소
-  // X 클릭: 단건 삭제 + (미읽음이었다면) 뱃지 감소
   listEl.addEventListener("click", async (e) => {
     const delBtn = e.target.closest("[data-notif-delete]");
     if (delBtn) {
