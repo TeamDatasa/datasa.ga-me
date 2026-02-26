@@ -424,9 +424,83 @@ function initLanguageSelect() {
   });
 }
 
-// ============================
-// Login (optional on signup page)
-// ============================
+
+function countryNameToCode(name) {
+  if (!name) return null;
+  const n = name.trim().toLowerCase();
+
+  const map = {
+    // KR
+    "korea": "KR",
+    "대한민국": "KR",
+    "한국": "KR",
+    "south korea": "KR",
+    "republic of korea": "KR",
+
+    // JP
+    "japan": "JP",
+    "일본": "JP",
+
+    // US
+    "usa": "US",
+    "united states": "US",
+    "united states of america": "US",
+    "미국": "US",
+
+    // CN
+    "china": "CN",
+    "중국": "CN",
+  };
+
+  return map[n] || null;
+}
+
+
+const REGION_CODE_MAP = {
+    "서울특별시": "SEOUL",
+    "인천광역시": "INCHEON",
+    "부산광역시": "BUSAN",
+    "대구광역시": "DAEGU",
+    "대전광역시": "DAEJEON",
+    "광주광역시": "GWANGJU",
+    "울산광역시": "ULSAN",
+    "세종특별자치시": "SEJONG",
+    "제주특별자치도": "JEJU",
+    "경기도": "GYEONGGI",
+    "강원특별자치도": "GANGWON",
+    "충청북도": "CHUNGBUK",
+    "충청남도": "CHUNGNAM",
+    "전라북도": "JEONBUK",
+    "전라남도": "JEONNAM",
+    "경상북도": "GYEONGBUK",
+    "경상남도": "GYEONGNAM"
+};
+
+
+function regionNameToCode(input) {
+    if (!input) return null;
+
+    const value = input.trim();
+
+
+    if (REGION_CODE_MAP[value]) {
+        return REGION_CODE_MAP[value];
+    }
+
+
+    for (const province in REGION_MAP) {
+        const cities = REGION_MAP[province];
+
+        if (cities.includes(value)) {
+            return REGION_CODE_MAP[province];
+        }
+    }
+
+    return null;
+}
+
+
+
 function initLoginForm() {
   const form = document.getElementById("loginForm");
   if (!form) return;
@@ -626,6 +700,8 @@ function initSignupForm() {
         ? regionSelect.value
         : regionInput?.value
       )?.trim() || "";
+    const regionRaw = regionInput?.value?.trim() || "";
+    const regionCode = regionNameToCode(regionRaw);
 
     if (!email) return alert(t("signup.alert.emailRequired"));
     if (!password) return alert(t("signup.alert.passwordRequired"));
@@ -645,7 +721,7 @@ function initSignupForm() {
       birthDate,
       gender,
       countryCode,
-      region,
+      region: regionCode,
     };
 
     try {

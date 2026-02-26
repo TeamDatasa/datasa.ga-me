@@ -191,7 +191,12 @@
           if (!event || !event.data) return;
           if (event.data.type === "CHAT_MODAL_BACK") {
             closeChatModal();
+            return;
           }
+            if (event.data.type === "CHAT_LEFT") {
+    closeChatModal();
+    loadChatRooms();
+  }
         });
 
     });
@@ -225,6 +230,12 @@
             `;
             return;
         }
+          rooms.sort((a, b) => {
+    const at = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+    const bt = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+    return bt - at;
+  });
+
 
         rooms.forEach(room => {
             const card = document.createElement("div");

@@ -136,8 +136,6 @@ public class ChatService {
                 .findByChatRoom_RoomIdAndUser_UserId(roomId, userId)
                 .orElseThrow(() -> new IllegalStateException("채팅방 참여자가 아닙니다."));
 
-        validateNotReadOnly(member.getChatRoom().getTrip());
-        // 이미 나간 경우 방어
         if (!member.isActive()) {
             return;
         }

@@ -6,14 +6,13 @@ const roomId = window.ROOM_ID;
 const userId = window.USER_ID;
 const isReadOnly = !!window.CHAT_READ_ONLY;
 
-if (isReadOnly) {
+if (isReadOnly && typeof applyReadOnlyUI === "function") {
   applyReadOnlyUI();
 }
 
 /* ===== WebSocket ===== */
-const socket = new WebSocket(
-  "ws://localhost:8080/ws?userId=" + userId
-);
+const WS_BASE = (location.protocol === "https:" ? "wss://" : "ws://") + location.host;
+const socket = new WebSocket(`${WS_BASE}/ws?userId=${userId}`);
 
 const stompClient = Stomp.over(socket);
 stompClient.debug = null;
@@ -21,6 +20,19 @@ stompClient.debug = null;
 /* ===== 상태 ===== */
 const messageMap = new Map();
 let lastSenderId = null;
+
+
+function resetChatState() {
+  document.getElementById("chatMessages").innerHTML = ""; // 화면 비우기
+  messageMap.clear();
+  lastSenderId = null;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  resetChatState();
+  await loadHistory(0);
+});
+
 
 /* ===== STOMP 연결 ===== */
 stompClient.connect(
@@ -32,11 +44,9 @@ stompClient.connect(
       method: "POST"
     });
 
-    loadHistory(0);
 
     stompClient.subscribe("/topic/chat/" + roomId, (frame) => {
       const data = JSON.parse(frame.body);
-      console.log("WS MESSAGE =", data);
 
       appendMessage(data);
 
@@ -223,9 +233,26 @@ function formatTime(dateString) {
 }
 
 async function loadHistory(page = 0) {
-  const res = await fetch(`/chat/rooms/${roomId}/messages?page=${page}&size=20`);
-  const data = await res.json();
-  data.content.reverse().forEach(appendMessage);
+  try {
+    const res = await fetch(`/api/chat/rooms/${roomId}/messages?page=${page}&size=20`);
+    if (!res.ok) {
+      console.error("HISTORY LOAD FAIL", res.status);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (page === 0) {
+      const chatEl = document.getElementById("chatMessages");
+      if (chatEl) chatEl.innerHTML = "";
+      messageMap.clear();
+      lastSenderId = null;
+    }
+
+    (data.content ?? []).slice().reverse().forEach(appendMessage);
+  } catch (e) {
+    console.error("HISTORY LOAD ERROR", e);
+  }
 }
 
 
@@ -250,12 +277,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function leaveRoom() {
-  if (isReadOnly) {
-    alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+
+  const res = await fetch(`/api/chat/rooms/${roomId}/leave?userId=${userId}`, { method: "POST" });
+
+  if (res.status === 403) {
+    alert("나가기 권한이 없습니다. (readOnly 차단 또는 인증 불일치)");
     return;
   }
-  const res = await fetch(`/api/chat/rooms/${roomId}/leave?userId=${userId}`, { method: "POST" });
-  // ...
+  if (!res.ok) {
+    alert("나가기에 실패했습니다.");
+    return;
+  }
+
+
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "CHAT_LEFT", roomId }, "*");
+  }
+
+  // 모달이 아닌 일반 페이지라면 목록으로
+  location.href = `/chat/rooms?userId=${userId}`;
 }
 
 

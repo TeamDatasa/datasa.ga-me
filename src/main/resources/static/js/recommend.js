@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🔥 recommend.js loaded");
+  console.log(" recommend.js loaded");
 
   fetch("/api/recommendations?limit=3")
     .then(res => {
