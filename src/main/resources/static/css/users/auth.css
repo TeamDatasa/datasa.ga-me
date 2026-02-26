@@ -47,6 +47,31 @@ body{
   padding:40px 36px;
 }
 
+.yw-logo{
+  text-decoration: none;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 900;
+}
+.yw-logo__mark {
+  color: var(--blue);
+}
+
+.yw-logo:visited,
+.yw-logo:hover,
+.yw-logo:active{
+  color: #000;
+  text-decoration: none;
+}
+
+.yw-header__inner{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .auth-card{
   width:100%;
   max-width:520px;
@@ -366,6 +391,29 @@ body{
   padding:0 16px;
   margin-top:0;
   white-space:nowrap;
+}
+
+.country-select{
+  width:100%;
+  height:44px;
+  padding:0 14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+  outline:none;
+}
+
+.country-select:focus{
+  border-color:var(--blue-soft);
+}
+
+.country-select{
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
 }
 
 

@@ -3,34 +3,36 @@
 <head>
     <meta charset="UTF-8" />
     <title>My Page Details</title>
+    <link rel="stylesheet" href="/css/users/mypage.css" />
     <link rel="stylesheet" href="/css/users/mypage-user.css" />
 </head>
 
 <body>
 <div class="details-wrap">
-    <header class="details-top">
-        <div class="brand">ga-me</div>
-
-        <div class="top-actions">
-            <a class="mypage-chat-btn" href="/chat/rooms" aria-label="채팅">
-                💬
+    <header class="yw-header">
+        <div class="yw-container yw-header__inner">
+            <a class="yw-logo" href="/">
+                <span class="yw-logo__mark">●</span>
+                <span class="yw-logo__text">ga-me</span>
             </a>
-            <div class="auth-lang">
-                <select id="langSelect" class="translate-select">
-                    <option value="ko">한국어</option>
-                    <option value="ja">日本語</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
 
-            <a class="btn btn-ghost" href="/mypage" data-i18n="back">Back</a>
+            <div class="yw-auth">
+                <div class="auth-lang mypage-lang">
+                    <select id="langSelect" class="translate-select">
+                        <option value="ko">한국어</option>
+                        <option value="ja">日本語</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <a class="yw-icon-btn" href="/mypage" aria-label="뒤로">
+                    <span class="yw-icon" aria-hidden="true">✕</span>
+                </a>
+            </div>
         </div>
     </header>
 
     <section class="panel">
-        <h3 data-i18n="myInfo">내 정보</h3>
-        <p class="hint" data-i18n="myInfoHint">회원 상세 정보 페이지입니다.</p>
-
         <div class="grid">
             <a class="card card-link" th:href="@{/mypage/applications}">
                 <div class="card-title" data-i18n="applicationStatus">신청 현황</div>
@@ -52,13 +54,6 @@
                 </div>
             </a>
 
-            <a class="card card-link" th:href="@{/mypage/reviews}">
-                <div class="card-title" data-i18n="myReviews">내 후기</div>
-                <div class="card-meta" data-i18n="myReviewsMeta">작성 / 수정 / 삭제</div>
-                <p class="hint" style="margin:10px 0 0;" data-i18n="myReviewsHint">
-                    투어 종료 후 후기를 작성할 수 있습니다.
-                </p>
-            </a>
         </div>
 
         <div class="panel" style="margin-top: 18px;">
@@ -80,26 +75,33 @@
                     </div>
 
                     <div class="actions">
-                        <a class="btn"
-                           th:if="${t.canReview()}"
-                           th:href="@{/mypage/reviews(mode='new', tripId=${t.tripId()})}"
-                           data-i18n="writeReview">
+                        <!-- 작성 -->
+                        <button type="button"
+                                class="btn"
+                                th:if="${t.canReview()}"
+                                th:attr="data-trip-id=${t.tripId()}"
+                                onclick="openReviewModal('new', this)">
                             후기 작성
-                        </a>
+                        </button>
 
-                        <a class="btn"
-                           th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews(mode='edit', reviewId=${t.reviewId()})}"
-                           data-i18n="editReview">
+                        <!-- 수정 -->
+                        <button type="button"
+                                class="btn"
+                                th:if="${t.reviewId() != null}"
+                                th:attr="data-trip-id=${t.tripId()},
+                                         data-review-id=${t.reviewId()}"
+                                onclick="openReviewModal('edit', this)">
                             후기 수정
-                        </a>
+                        </button>
 
-                        <a class="btn btn-danger"
-                           th:if="${t.reviewId() != null}"
-                           th:href="@{/mypage/reviews(mode='delete', reviewId=${t.reviewId()})}"
-                           data-i18n="deleteReview">
+                        <!-- 삭제 -->
+                        <button type="button"
+                                class="btn btn-danger"
+                                th:if="${t.reviewId() != null}"
+                                th:attr="data-review-id=${t.reviewId()}"
+                                onclick="openReviewModal('delete', this)">
                             후기 삭제
-                        </a>
+                        </button>
                     </div>
                 </li>
             </ul>
@@ -125,18 +127,15 @@
                 <li th:each="t : ${myLikes}">
                     <a class="list-item card-link"
                        th:href="@{/trip/detail/{tripId}(tripId=${t.tripId()})}">
-
                         <div class="title" th:text="${t.title()}">투어</div>
                         <div class="meta">
                             <span th:text="${t.region()}">지역</span>
                             · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">시작</span>
                             ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">종료</span>
                         </div>
-
                     </a>
                 </li>
             </ul>
-
 
             <div class="empty" th:if="${myLikes == null or #lists.isEmpty(myLikes)}" data-i18n="emptyLikes">
                 좋아요한 투어가 없습니다.
@@ -146,7 +145,56 @@
     </section>
 </div>
 
-<script src="/js/mypage-user-i18n.js"></script>
-<script src="/js/mypage-details.js"></script>
+<!-- =========================
+     Review Modal (추가)
+========================= -->
+<div id="reviewModal" class="yw-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="yw-modal__card">
+        <div class="yw-modal__head">
+            <h3 id="modalTitle" class="yw-modal__title">리뷰</h3>
+            <button type="button" class="yw-icon-btn" aria-label="닫기" onclick="closeReviewModal()">
+                <span class="yw-icon" aria-hidden="true">✕</span>
+            </button>
+        </div>
+
+        <form id="reviewForm" class="yw-modal__body" onsubmit="return false;">
+            <th:block th:if="${_csrf != null}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            </th:block>
+
+            <input type="hidden" name="tripId" id="modalTripId">
+            <input type="hidden" name="reviewId" id="modalReviewId">
+
+            <div id="modalFields">
+                <div class="row">
+                    <label id="labelRating">평점</label>
+                    <select name="rating" id="modalRating" required>
+                        <option value="5">5</option><option value="4">4</option><option value="3">3</option>
+                        <option value="2">2</option><option value="1">1</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <label id="labelContent">내용</label>
+                    <textarea name="content" id="modalContent" required placeholder="투어 경험을 작성해주세요..."></textarea>
+                </div>
+            </div>
+
+            <div id="deleteBox" class="yw-modal__dangerBox" style="display:none;">
+                <p id="deleteHint" class="hint" style="margin:0;">
+                    정말 삭제할까요? 삭제하면 되돌릴 수 없어요.
+                </p>
+            </div>
+
+            <div class="yw-modal__actions">
+                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">취소</button>
+                <button id="modalSubmitBtn" type="submit" class="btn">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script src="/js/mypage-details-i18n-modal.js" defer></script>
 </body>
 </html>

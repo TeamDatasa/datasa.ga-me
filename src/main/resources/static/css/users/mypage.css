@@ -137,7 +137,7 @@ a{ text-decoration:none; color:inherit; }
   display:flex;
   align-items:center;
   justify-content:center;
-  overflow:hidden; /* 이미지 넣을 때 잘림 방지 */
+  overflow:hidden;
   background-size:cover;
   background-position:center;
 }
@@ -406,4 +406,166 @@ a{ text-decoration:none; color:inherit; }
   justify-content:flex-end;
   gap:10px;
   margin-top:14px;
+}
+
+
+/* ===== Header ===== */
+.yw-header{
+  position: static;   /* 또는 아예 position 줄 삭제 */
+  top: auto;
+  z-index: auto;
+
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
+}
+
+.yw-header__inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ===== Logo ===== */
+.yw-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 900;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.yw-logo:visited,
+.yw-logo:hover,
+.yw-logo:active {
+  color: var(--text);
+}
+
+.yw-logo__mark {
+  color: #1675F2;
+}
+
+/* ===== Navigation ===== */
+.yw-nav {
+  display: flex;
+  gap: 14px;
+}
+
+.yw-nav__link {
+  padding: 8px 10px;
+  border-radius: 12px;
+  color: var(--gray);
+  font-weight: 700;
+}
+
+.yw-nav__link:hover {
+  background: rgba(242, 233, 109, 0.35);
+  color: var(--text);
+}
+
+/* ===== Auth Area ===== */
+.yw-auth {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#userMenu {
+  gap: 14px;
+}
+
+#userMenu > * {
+  flex: 0 0 auto;
+}
+
+/* ===== Icon Button ===== */
+.yw-icon-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+
+.yw-icon-btn:hover {
+  background: rgba(86, 104, 115, 0.06);
+}
+
+.yw-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ===== Header Buttons Font Normalize ===== */
+.yw-header a.yw-btn,
+.yw-header button.yw-btn {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* 마이페이지 헤더 언어선택: 헤더 요소들과 한 줄 정렬 */
+.mypage-lang .translate-select{
+  height: 38px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.7);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  outline: none;
+}
+
+.mypage-lang .translate-select:focus{
+  border-color: rgba(48, 132, 242, 0.55);
+}
+
+/* 로그아웃 버튼: 공통헤더와 동일 */
+#logoutBtn.yw-btn.yw-btn--primary{
+  background: #F2E96D;
+  color: #1a1a1a;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 14px;
+
+  padding: 10px 14px;
+  height: 38px;          /* 헤더 라인 맞춤 */
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.close-btn{
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.yw-icon-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+.yw-icon-btn:hover {
+  background: rgba(86, 104, 115, 0.06);
+}
+
+.yw-icon {
+  font-size: 18px;
+  line-height: 1;
 }

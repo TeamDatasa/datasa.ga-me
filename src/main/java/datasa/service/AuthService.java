@@ -29,9 +29,7 @@ public class AuthService {
 		
 		String encoded = passwordEncoder.encode(req.getPassword());
 		
-		User.Role role = (req.getRole() == null) ? User.Role.USER : req.getRole();
-		
-		User user = User.create(req.getEmail(), encoded, req.getName(), role);
+		User user = User.create(req.getEmail(), encoded, req.getName(), User.Role.HOST);
 		
 		user.setBirthDate(req.getBirthDate());
 		user.setGender(req.getGender());

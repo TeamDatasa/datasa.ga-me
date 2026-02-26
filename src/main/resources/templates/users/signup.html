@@ -9,8 +9,15 @@
 
 <div class="auth-container">
 
-    <div class="auth-lang">
-        <select id="langSelect" class="translate-select"></select>
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
+
+        <div class="auth-lang">
+            <select id="langSelect" class="translate-select"></select>
+        </div>
     </div>
 
     <h1 data-i18n="signup.title">회원가입</h1>
@@ -66,26 +73,16 @@
         </div>
 
         <label data-i18n="signup.countryLabel">국가</label>
-        <input type="text" id="country"
-               data-i18n-placeholder="signup.countryPlaceholder"
-               placeholder="예: 대한민국, Korea, Japan" />
+        <select id="country" class="translate-select country-select" required></select>
 
         <label data-i18n="signup.regionLabel">지역</label>
-        <input type="text" id="region" required
-               data-i18n-placeholder="signup.regionPlaceholder"
-               placeholder="예: 부산, 도쿄, 서울" />
 
-        <label data-i18n="signup.roleLabel">회원 유형</label>
-        <div class="role-group">
-            <label class="role-option">
-                <input type="radio" name="role" value="USER" checked>
-                <span data-i18n="signup.role.user">여행자</span>
-            </label>
-            <label class="role-option">
-                <input type="radio" name="role" value="HOST">
-                <span data-i18n="signup.role.host">가이드</span>
-            </label>
-        </div>
+        <select id="regionSelect" class="translate-select country-select" style="display:none;"></select>
+
+        <input type="text" id="regionInput" required
+               data-i18n-placeholder="signup.regionPlaceholder"
+               placeholder="예: 부산, 도쿄, 서울"
+               style="display:none;" />
 
         <div id="mailModal" class="modal hidden">
             <div class="modal-card">
