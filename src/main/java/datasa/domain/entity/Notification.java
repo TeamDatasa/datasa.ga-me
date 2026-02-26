@@ -54,47 +54,6 @@ public class Notification {
 		}
 	}
 	
-	public static Notification tripLike(User owner, String actorName, String tripTitle, Long tripId) {
-		Notification n = new Notification();
-		n.user = owner;
-		n.type = Type.LIKE;
-		n.refId = tripId;
-		n.title = "좋아요";
-		
-		String safeActor = actorName == null ? "누군가" : actorName.trim();
-		String safeTitle = tripTitle == null ? "내 게시글" : tripTitle.trim();
-		
-		// ✅ 너무 길면 제목만 먼저 줄이기 (여유 있게)
-		if (safeTitle.length() > 60) {
-			safeTitle = safeTitle.substring(0, 60) + "...";
-		}
-		if (safeActor.length() > 30) {
-			safeActor = safeActor.substring(0, 30) + "...";
-		}
-		
-		String body = safeActor + "님이 \"" + safeTitle + "\" 게시글에 좋아요를 눌렀습니다.";
-		
-		// ✅ 최종적으로 body 255 초과 방지
-		if (body.length() > 255) {
-			body = body.substring(0, 252) + "...";
-		}
-		
-		n.body = body;
-		n.isRead = false;
-		return n;
-	}
-	
-	public static Notification tripComment(User owner, Long actorUserId, Long tripId, Long commentId) {
-		Notification n = new Notification();
-		n.user = owner;
-		n.type = Type.COMMENT;
-		n.refId = tripId; // refId는 tripId로 통일
-		n.title = "댓글";
-		n.body = "내 게시글에 댓글이 달렸습니다. (commentId=" + commentId + ", userId=" + actorUserId + ")";
-		n.isRead = false;
-		return n;
-	}
-	
 	public enum Type {
 		APPLY,        // 신청
 		APPROVED,     // 승인
@@ -116,24 +75,21 @@ public class Notification {
 		n.type = Type.APPLY;
 		n.refId = tripId;
 		n.title = "여정 신청";
-
+		
 		String safeActor = (actorName == null || actorName.isBlank()) ? "누군가" : actorName.trim();
 		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
-
+		
 		if (safeActor.length() > 30) safeActor = safeActor.substring(0, 30) + "...";
 		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
-
+		
 		String body = safeActor + "님이 [" + safeTitle + "] 여정에 참여신청을 했습니다.";
-
-		if (body.length() > 255) {
-			body = body.substring(0, 252) + "...";
-		}
-
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+		
 		n.body = body;
 		n.isRead = false;
 		return n;
 	}
-
+	
 	// 신청 결과(승인) 알림
 	public static Notification tripApplicationApproved(User owner, String tripTitle, Long tripId) {
 		Notification n = new Notification();
@@ -141,18 +97,18 @@ public class Notification {
 		n.type = Type.APPROVED;
 		n.refId = tripId;
 		n.title = "여정 신청 결과";
-
+		
 		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
 		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
-
+		
 		String body = "[" + safeTitle + "]여정 신청 결과 : 수락되었습니다.";
 		if (body.length() > 255) body = body.substring(0, 252) + "...";
-
+		
 		n.body = body;
 		n.isRead = false;
 		return n;
 	}
-
+	
 	// 신청 결과(거절) 알림
 	public static Notification tripApplicationRejected(User owner, String tripTitle, Long tripId) {
 		Notification n = new Notification();
@@ -160,34 +116,86 @@ public class Notification {
 		n.type = Type.REJECTED;
 		n.refId = tripId;
 		n.title = "여정 신청 결과";
-
+		
 		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
 		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
-
+		
 		String body = "[" + safeTitle + "]여정 신청 결과 : 거절되었습니다.";
 		if (body.length() > 255) body = body.substring(0, 252) + "...";
-
+		
 		n.body = body;
 		n.isRead = false;
 		return n;
 	}
-
+	
+	// 댓글 알림(프로젝트에서 쓰는 다른 팩토리들)
+	public static Notification tripComment(User owner, Long actorUserId, Long tripId, Long commentId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.COMMENT;
+		n.refId = tripId;
+		n.title = "댓글";
+		n.body = "내 게시글에 댓글이 달렸습니다. (commentId=" + commentId + ", userId=" + actorUserId + ")";
+		n.isRead = false;
+		return n;
+	}
+	
+	public static Notification tripLike(User owner, String actorName, String tripTitle, Long tripId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.LIKE;
+		n.refId = tripId;
+		n.title = "좋아요";
+		
+		String safeActor = actorName == null ? "누군가" : actorName.trim();
+		String safeTitle = tripTitle == null ? "내 게시글" : tripTitle.trim();
+		
+		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
+		if (safeActor.length() > 30) safeActor = safeActor.substring(0, 30) + "...";
+		
+		String body = safeActor + "님이 \"" + safeTitle + "\" 게시글에 좋아요를 눌렀습니다.";
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+		
+		n.body = body;
+		n.isRead = false;
+		return n;
+	}
+	
 	public static Notification tripCommentCreated(User owner, String actorName, String tripTitle, Long tripId, Long commentId) {
 		Notification n = new Notification();
 		n.user = owner;
 		n.type = Type.COMMENT;
 		n.refId = tripId;
 		n.title = "댓글";
-
+		
 		String safeActor = (actorName == null || actorName.isBlank()) ? "누군가" : actorName.trim();
 		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "내 게시글" : tripTitle.trim();
-
+		
 		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
 		if (safeActor.length() > 30) safeActor = safeActor.substring(0, 30) + "...";
-
+		
 		String body = safeActor + "님이 \"" + safeTitle + "\" 여정에 댓글을 달았습니다.";
 		if (body.length() > 255) body = body.substring(0, 252) + "...";
-
+		
+		n.body = body;
+		n.isRead = false;
+		return n;
+	}
+	
+	// 채팅방 개설 알림
+	public static Notification tripChatRoomCreated(User owner, String tripTitle, Long tripId) {
+		Notification n = new Notification();
+		n.user = owner;
+		n.type = Type.CHAT;
+		n.refId = tripId;
+		n.title = "채팅";
+		
+		String safeTitle = (tripTitle == null || tripTitle.isBlank()) ? "여정" : tripTitle.trim();
+		if (safeTitle.length() > 60) safeTitle = safeTitle.substring(0, 60) + "...";
+		
+		String body = "[" + safeTitle + "]여정의 채팅방이 개설되었습니다.";
+		if (body.length() > 255) body = body.substring(0, 252) + "...";
+		
 		n.body = body;
 		n.isRead = false;
 		return n;

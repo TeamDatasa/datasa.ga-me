@@ -59,6 +59,11 @@
       return `/host/trips/${refId}/applications`;
     }
 
+    // 채팅(CHAT) 알림은 채팅방으로 이동
+    if (type === "CHAT") {
+      return `/chat/room/${refId}`;
+    }
+
     // 기존 동작 유지
     return `/trip/detail/${refId}`;
   }

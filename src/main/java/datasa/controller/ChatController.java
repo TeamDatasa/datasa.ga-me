@@ -4,6 +4,8 @@ import datasa.domain.dto.ChatMessageRequestDto;
 import datasa.domain.dto.ChatMessageResponseDto;
 import datasa.domain.dto.ChatRoomListDto;
 import datasa.domain.dto.ChatRoomResponseDto;
+import datasa.service.ChatRoomNotificationService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import datasa.domain.entity.ChatMember;
 import datasa.domain.entity.ChatRoom;
 import datasa.domain.entity.Trip;
@@ -12,6 +14,7 @@ import datasa.repository.ChatMemberRepository;
 import datasa.repository.ChatRoomRepository;
 import datasa.repository.TripRepository;
 import datasa.repository.UserRepository;
+import datasa.service.ChatRoomNotificationService;
 import datasa.service.ChatRoomService;
 import datasa.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,7 @@ public class ChatController {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMemberRepository chatMemberRepository;
     private final TripRepository tripRepository;
+    private final ChatRoomNotificationService chatRoomNotificationService;
 
     @MessageMapping("/chat.send/{roomId}")
     public void sendMessage(
@@ -76,7 +80,7 @@ public class ChatController {
         }
         return (Long) userIdObj;
     }
-
+    
     @GetMapping("/chat/room/{tripId}")
     public String chatRoom(
             @PathVariable Long tripId,
@@ -86,56 +90,127 @@ public class ChatController {
         if (userDetails == null) {
             return "redirect:/login";
         }
-
+        
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
-
+        
         String email = userDetails.getUsername();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-
+        
         Long userId = user.getUserId();
-
+        
+        AtomicBoolean createdNow = new AtomicBoolean(false);
+        
         ChatRoom room = chatRoomRepository
                 .findByTrip_TripId(tripId)
                 .orElseGet(() -> {
+                    createdNow.set(true);
                     ChatRoom newRoom = new ChatRoom();
                     newRoom.setTrip(trip);
                     newRoom.setCreatedAt(LocalDateTime.now());
                     return chatRoomRepository.save(newRoom);
                 });
-
-
+        
+        if (createdNow.get()) {
+            chatRoomNotificationService.notifyAllApprovedMembersWhenRoomCreated(trip);
+        }
+        
         Long roomId = room.getRoomId();
-
+        
+        AtomicBoolean memberCreatedNow = new AtomicBoolean(false);
+        
         ChatMember member = chatMemberRepository
                 .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), user.getUserId())
                 .orElseGet(() -> {
+                    memberCreatedNow.set(true);
                     ChatMember m = new ChatMember();
                     m.setChatRoom(room);
                     m.setUser(user);
                     m.setJoinedAt(LocalDateTime.now());
                     return chatMemberRepository.save(m);
                 });
-
-
+        
+        if (memberCreatedNow.get()) {
+            chatRoomNotificationService.ensureChatRoomCreatedNotification(user, trip);
+        }
+        
         if (!member.isActive()) {
             throw new AccessDeniedException("채팅방에서 나간 사용자");
         }
-
-
+        
         System.out.println("======================================");
         System.out.println("[CHAT ROOM ENTER]");
         System.out.println("tripId = " + tripId);
         System.out.println("email  = " + email);
         System.out.println("userId = " + userId);
-
+        
         model.addAttribute("roomId", roomId);
         model.addAttribute("userId", userId);
         model.addAttribute("readOnly", chatService.isReadOnly(trip));
-
+        
         return "chat/chat-room";
     }
+    
+//    @GetMapping("/chat/room/{tripId}")
+//    public String chatRoom(
+//            @PathVariable Long tripId,
+//            @AuthenticationPrincipal UserDetails userDetails,
+//            Model model
+//    ) {
+//        if (userDetails == null) {
+//            return "redirect:/login";
+//        }
+//
+//        Trip trip = tripRepository.findById(tripId)
+//                .orElseThrow(() -> new IllegalArgumentException("여행 없음"));
+//
+//        String email = userDetails.getUsername();
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+//
+//        Long userId = user.getUserId();
+//
+//        ChatRoom room = chatRoomRepository
+//                .findByTrip_TripId(tripId)
+//                .orElseGet(() -> {
+//                    ChatRoom newRoom = new ChatRoom();
+//                    newRoom.setTrip(trip);
+//                    newRoom.setCreatedAt(LocalDateTime.now());
+//                    return chatRoomRepository.save(newRoom);
+//                });
+//
+//
+//        Long roomId = room.getRoomId();
+//
+//        ChatMember member = chatMemberRepository
+//                .findByChatRoom_RoomIdAndUser_UserId(room.getRoomId(), user.getUserId())
+//                .orElseGet(() -> {
+//                    ChatMember m = new ChatMember();
+//                    m.setChatRoom(room);
+//                    m.setUser(user);
+//                    m.setJoinedAt(LocalDateTime.now());
+//                    return chatMemberRepository.save(m);
+//                });
+//
+//
+//        if (!member.isActive()) {
+//            throw new AccessDeniedException("채팅방에서 나간 사용자");
+//        }
+//
+//
+//        System.out.println("======================================");
+//        System.out.println("[CHAT ROOM ENTER]");
+//        System.out.println("tripId = " + tripId);
+//        System.out.println("email  = " + email);
+//        System.out.println("userId = " + userId);
+//
+//        model.addAttribute("roomId", roomId);
+//        model.addAttribute("userId", userId);
+//        model.addAttribute("readOnly", chatService.isReadOnly(trip));
+//
+//        return "chat/chat-room";
+//    }
 
 
 
