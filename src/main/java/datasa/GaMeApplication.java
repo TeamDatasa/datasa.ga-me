@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties({ NaverMapsProperties.class, NaverSearchProperties.class, KakaoMapsProperties.class}) // naver map, search api
-public class GaMeApplication {
+public class    GaMeApplication {
 	
 	public static void main(String[] args) {
 		SpringApplication.run(GaMeApplication.class, args);

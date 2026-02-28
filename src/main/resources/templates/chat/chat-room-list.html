@@ -11,11 +11,7 @@
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
 }
 
-.chat-list-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: white;
-}
+
 
 /* 채팅방 카드 */
 .chat-room-card {
@@ -151,18 +147,66 @@
   height: 100%;
   border: 0;
 }
+
+
+.yw-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+
+
+.mypage-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+
+.chat-list-container {
+  width: 100%;
+  margin: 0;
+  background: transparent;
+}
+
+
+
 </style>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>채팅방 목록</title>
+    <link rel="stylesheet" href="/css/users/mypage.css" />
+    <link rel="stylesheet" href="/css/users/mypage-user.css" />
 </head>
 
 <body>
+<header class="yw-header">
+    <div class="yw-container yw-header__inner">
+        <a class="yw-logo" href="/">
+            <span class="yw-logo__mark">●</span>
+            <span class="yw-logo__text">ga-me</span>
+        </a>
 
-<div class="chat-list-container" id="chatRoomList">
+        <div class="yw-auth">
 
+            <a class="yw-icon-btn" href="/" aria-label="메인화면">
+                <span class="yw-icon" aria-hidden="true">✕</span>
+            </a>
+        </div>
+    </div>
+</header>
+<div class="mypage-container">
+    <div class="panel">
+        <div class="chat-list-container" id="chatRoomList"></div>
+    </div>
 </div>
 <div id="chatModalOverlay" class="chat-modal-overlay">
     <div class="chat-modal" role="dialog" aria-modal="true">
@@ -218,6 +262,52 @@
             });
     }
 
+const THEME_PROFILE_IMG = {
+  FOOD: "/images/theme/food.png",
+  CITY: "/images/theme/city.png",
+  NATURE: "/images/theme/nature.png",
+  HEALING: "/images/theme/healing.png",
+  SHOPPING: "/images/theme/shopping.png",
+  HISTORY: "/images/theme/history.png",
+  ACTIVITY: "/images/theme/activity.png",
+  NIGHTVIEW: "/images/theme/nightview.png",
+  PHOTO: "/images/theme/photo.png",
+  TRADITION: "/images/theme/tradition.png",
+  DEFAULT: "/images/theme/default.png",
+
+};
+
+
+function normalizeTheme(theme) {
+  const t = String(theme ?? "").trim();
+  if (!t) return "DEFAULT";
+  const upper = t.toUpperCase();
+
+  const koMap = {
+    "맛집": "FOOD",
+    "자연": "NATURE",
+    "도시": "CITY",
+    "쇼핑": "SHOPPING",
+    "사진": "PHOTO",
+    "액티비티": "ACTIVITY",
+    "야경": "NIGHTVIEW",
+    "힐링": "HEALING",
+    "문화": "CULTURE",
+    "전통": "TRADITION",
+    "역사": "HISTORY",
+    "기타": "DEFAULT",
+  };
+
+  return koMap[t] || upper;
+}
+
+function themeProfileSrc(theme) {
+  const key = normalizeTheme(theme);
+  return THEME_PROFILE_IMG[key] || THEME_PROFILE_IMG.DEFAULT;
+}
+
+
+
     function renderChatRooms(rooms) {
         const list = document.getElementById("chatRoomList");
         list.innerHTML = "";
@@ -249,10 +339,10 @@
                 ? formatTime(room.lastMessageAt)
                 : "";
 
+            const imgSrc = themeProfileSrc(room.theme);
             card.innerHTML = `
-                <div class="profile">
-                    <img src="/images/default_profile.png" alt="profile">
-                </div>
+            <div class="profile"><img src="${imgSrc}" alt="profile"></div>
+
 
                 <div class="chat-info">
                     <div class="top">

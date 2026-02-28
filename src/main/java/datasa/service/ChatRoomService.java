@@ -79,6 +79,7 @@ public class ChatRoomService {
                     room.getRoomId(),
                     trip.getTripId(),
                     trip.getTitle(),
+                    trip.getTheme(),
                     lastMessage,
                     lastAt,
                     unreadCount

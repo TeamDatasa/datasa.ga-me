@@ -20,7 +20,7 @@ public class ChatMessageResponseDto {
 
     private Long senderId;
     private String senderNickname;
-
+    private String senderProfileImageUrl;
     private String originalText;
     private String translatedText;
     private String targetLanguage;
@@ -33,6 +33,7 @@ public class ChatMessageResponseDto {
                 message.getChatRoom().getRoomId(),
                 message.getSender().getUserId(),
                 message.getSender().getName(),
+                message.getSender().getProfileImageUrl(),
                 message.getOriginalText(),
                 message.getTranslatedText(),
                 message.getTargetLanguage(),
