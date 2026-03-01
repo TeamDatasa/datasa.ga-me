@@ -62,7 +62,27 @@
                     <h3 data-i18n="myTours">내가 참여한 투어</h3>
                     <p class="hint" data-i18n="myToursHint">승인된 투어 목록입니다. 종료된 투어는 후기 작성이 가능합니다.</p>
                 </div>
-                <a class="btn btn-ghost" th:href="@{/mypage/tours}" data-i18n="viewAll">전체 보기</a>
+                <nav class="pagination"
+                     th:if="${tourTotalPages != null and tourTotalPages > 1}">
+                    <a class="page-btn"
+                       th:classappend="${!tourHasPrev} ? 'is-disabled' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${tourPage - 1}, likePage=${likePage})}">
+                        이전
+                    </a>
+
+                    <a class="page-btn"
+                       th:each="p : ${tourPageNumbers}"
+                       th:text="${p + 1}"
+                       th:classappend="${p == tourPage} ? 'is-active' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${p}, likePage=${likePage})}">
+                    </a>
+
+                    <a class="page-btn"
+                       th:classappend="${!tourHasNext} ? 'is-disabled' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${tourPage + 1}, likePage=${likePage})}">
+                        다음
+                    </a>
+                </nav>
             </div>
 
             <ul class="list" th:if="${myTours != null and !#lists.isEmpty(myTours)}">
@@ -117,10 +137,28 @@
                     <h3 data-i18n="myLikes">내가 좋아요한 투어</h3>
                     <p class="hint" data-i18n="myLikesHint">최근 좋아요한 투어 목록입니다.</p>
                 </div>
-                <a class="btn btn-ghost"
-                   th:if="${myLikesHasMore}"
-                   th:href="@{/mypage/likes}"
-                   data-i18n="viewAll">전체 보기</a>
+                <nav class="pagination"
+                     th:if="${likeTotalPages != null and likeTotalPages > 1}">
+
+                    <a class="page-btn"
+                       th:classappend="${!likeHasPrev} ? 'is-disabled' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${tourPage}, likePage=${likePage - 1})}">
+                        이전
+                    </a>
+
+                    <a class="page-btn"
+                       th:each="p : ${likePageNumbers}"
+                       th:text="${p + 1}"
+                       th:classappend="${p == likePage} ? 'is-active' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${tourPage}, likePage=${p})}">
+                    </a>
+
+                    <a class="page-btn"
+                       th:classappend="${!likeHasNext} ? 'is-disabled' : ''"
+                       th:href="@{/mypage/details/user(tourPage=${tourPage}, likePage=${likePage + 1})}">
+                        다음
+                    </a>
+                </nav>
             </div>
 
             <ul class="list" th:if="${myLikes != null and !#lists.isEmpty(myLikes)}">

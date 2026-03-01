@@ -411,3 +411,86 @@ a{ color:inherit; text-decoration:none; }
   border-color: rgba(239,68,68,0.42);
   background: rgba(239,68,68,0.14);
 }
+
+.pagination{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-top:14px;
+}
+.page-btn{
+  padding:8px 12px;
+  border:1px solid var(--border, #e5e7eb);
+  border-radius:12px;
+  background:#fff;
+  font-weight:700;
+}
+.page-btn.is-active{
+  background: var(--lemon, #F2E96D);
+  border-color: transparent;
+}
+.page-btn.is-disabled{
+  opacity:.4;
+  pointer-events:none;
+}
+
+/* ===== Pagination: panel 아래 중앙 정렬 + 살짝 작게 ===== */
+
+/* panel-head는 제목/힌트만 위에 남기고, pagination은 아래로 내려가게 */
+.panel-head{
+  flex-wrap: wrap;            /* 줄바꿈 허용 */
+}
+
+/* panel-head 안에 있는 pagination만 타겟 */
+.panel-head > .pagination{
+  width: 100%;
+  justify-content: center;    /* 중앙 */
+  margin-top: 12px;          /* 제목 아래 간격 */
+}
+
+/* 크기 조금 줄이기 */
+.pagination{
+  gap: 6px;                   /* 간격 살짝 축소 */
+  margin-top: 12px;           /* 기존 14px보다 살짝 줄임 */
+}
+
+.page-btn{
+  padding: 6px 10px;          /* 8x12 -> 6x10 */
+  border-radius: 10px;        /* 12 -> 10 */
+  font-size: 12px;            /* 작게 */
+  font-weight: 700;
+  line-height: 1;
+}
+
+.page-btn{
+  min-width: auto;
+}
+
+/* ✅ pagination을 "패널 맨 아래 중앙"으로 고정 (CSS only) */
+.panel{
+  position: relative;          /* pagination absolute 기준 */
+  padding-bottom: 72px;        /* 아래 공간 확보 (겹침 방지) */
+}
+
+/* panel-head 안 pagination을 패널 바닥으로 내리기 */
+.panel-head > .pagination{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+
+  margin: 0;                  /* 기존 margin-top 제거 */
+}
+
+/* 버튼 크기 살짝 축소 */
+.panel-head > .pagination .page-btn{
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1;
+}
