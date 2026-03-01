@@ -70,27 +70,81 @@ public class PageController {
 	@GetMapping("/mypage/details/user")
 	public String detailsUser(
 			@AuthenticationPrincipal UserDetails userDetails,
+			@RequestParam(defaultValue = "0") int tourPage,
+			@RequestParam(defaultValue = "0") int likePage,
 			Model model
 	) {
 		String email = userDetails.getUsername();
 		
 		MyPageUserDetailsResponse dto = myPageUserService.getUserDetails(email);
-		
 		model.addAttribute("counts", dto.counts());
 		
-		List<MyTourItem> allMyTours = dto.myTours() != null ? dto.myTours() : Collections.emptyList();
-		model.addAttribute("myTours", allMyTours.subList(0, Math.min(3, allMyTours.size())));
-		model.addAttribute("myToursHasMore", allMyTours.size() > 3);
+		int pageSize = 5;
 		
+		// =====================
+		// 내가 참여한 투어 (tourPage)
+		// =====================
+		List<MyTourItem> allMyTours = dto.myTours() != null ? dto.myTours() : Collections.emptyList();
+		int tourTotal = allMyTours.size();
+		int tourTotalPages = (int) Math.ceil((double) tourTotal / pageSize);
+		
+		if (tourTotalPages == 0) tourPage = 0;
+		else tourPage = Math.max(0, Math.min(tourPage, tourTotalPages - 1));
+		
+		int tourFrom = tourPage * pageSize;
+		int tourTo = Math.min(tourFrom + pageSize, tourTotal);
+		
+		List<MyTourItem> tourContent =
+				(tourFrom >= tourTotal) ? Collections.emptyList() : allMyTours.subList(tourFrom, tourTo);
+		
+		model.addAttribute("myTours", tourContent);
+		model.addAttribute("tourPage", tourPage);
+		model.addAttribute("tourTotalPages", tourTotalPages);
+		model.addAttribute("tourHasPrev", tourPage > 0);
+		model.addAttribute("tourHasNext", tourPage < tourTotalPages - 1);
+		
+		List<Integer> tourPageNumbers = new java.util.ArrayList<>();
+		if (tourTotalPages > 0) {
+			int start = Math.max(0, tourPage - 2);
+			int end = Math.min(tourTotalPages - 1, tourPage + 2);
+			for (int i = start; i <= end; i++) tourPageNumbers.add(i);
+		}
+		model.addAttribute("tourPageNumbers", tourPageNumbers);
+		
+		// =====================
+		// 내가 좋아요한 투어 (likePage)
+		// =====================
 		List<MyTourItem> allMyLikes = myPageUserService.getLikedTours(email);
 		if (allMyLikes == null) allMyLikes = Collections.emptyList();
 		
-		model.addAttribute("myLikes", allMyLikes.subList(0, Math.min(3, allMyLikes.size())));
-		model.addAttribute("myLikesHasMore", allMyLikes.size() > 3);
+		int likeTotal = allMyLikes.size();
+		int likeTotalPages = (int) Math.ceil((double) likeTotal / pageSize);
+		
+		if (likeTotalPages == 0) likePage = 0;
+		else likePage = Math.max(0, Math.min(likePage, likeTotalPages - 1));
+		
+		int likeFrom = likePage * pageSize;
+		int likeTo = Math.min(likeFrom + pageSize, likeTotal);
+		
+		List<MyTourItem> likeContent =
+				(likeFrom >= likeTotal) ? Collections.emptyList() : allMyLikes.subList(likeFrom, likeTo);
+		
+		model.addAttribute("myLikes", likeContent);
+		model.addAttribute("likePage", likePage);
+		model.addAttribute("likeTotalPages", likeTotalPages);
+		model.addAttribute("likeHasPrev", likePage > 0);
+		model.addAttribute("likeHasNext", likePage < likeTotalPages - 1);
+		
+		List<Integer> likePageNumbers = new java.util.ArrayList<>();
+		if (likeTotalPages > 0) {
+			int start = Math.max(0, likePage - 2);
+			int end = Math.min(likeTotalPages - 1, likePage + 2);
+			for (int i = start; i <= end; i++) likePageNumbers.add(i);
+		}
+		model.addAttribute("likePageNumbers", likePageNumbers);
 		
 		return "users/MyPageDetailsUser";
 	}
-	
 	
 	@GetMapping("/mypage/details/host")
 	public String detailsHost(
