@@ -692,9 +692,7 @@ function initSignupForm() {
     const gender = document.querySelector('input[name="gender"]:checked')?.value ?? null;
 
     const countryCode = document.getElementById("country")?.value || "";
-
-    const regionSelect = document.getElementById("regionSelect");
-    const regionInput = document.getElementById("regionInput");
+    
     const region =
       (regionSelect && regionSelect.style.display !== "none"
         ? regionSelect.value
@@ -721,7 +719,7 @@ function initSignupForm() {
       birthDate,
       gender,
       countryCode,
-      region: regionCode,
+      region,
     };
 
     try {
