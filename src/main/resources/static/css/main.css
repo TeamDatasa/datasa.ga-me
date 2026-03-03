@@ -315,6 +315,8 @@ a {
           rgba(242, 233, 109, 0.9),
           rgba(22, 117, 242, 0.35)
   );
+
+  position: relative;
 }
 .yw-card__body {
   padding: 14px;
@@ -574,4 +576,24 @@ a {
   font-size: 15px;      /* 로그아웃 기준 */
   font-weight: 800;
   line-height: 1;
+}
+
+
+
+.ai-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  background-color: #eaf3ff;
+  border: 1.5px solid #4f8cff;
+  color: #2a6ef0;
+
+  letter-spacing: -0.2px;
 }

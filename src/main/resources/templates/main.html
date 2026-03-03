@@ -100,11 +100,12 @@
                         <article class="yw-card"
                                  th:each="course : ${recommendCourses}"
                                  th:onclick="|location.href='/trip/detail/' + ${course.tripId}|">
-                            <div class="yw-card__thumb"></div>
+                            <div class="yw-card__thumb">
+                                <div class="ai-badge-group">
+                                    <span class="ai-badge">AI 추천</span>
+                            </div>
+                            </div>
                             <div class="yw-card__body">
-                                <div class="recommend-badges">
-                                    <span class="badge badge--left">AI 추천</span>
-                                </div>
                                 <div class="yw-card__title" th:text="${course.title}">코스 제목</div>
                                 <div class="yw-card__meta">
                                     <span th:text="${course.region}">지역</span>
@@ -215,6 +216,7 @@
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
+
 
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>

@@ -11,6 +11,7 @@ public class TripRecommendationDto {
     private Long tripId;
     private String title;
     private String region;
+    private String theme;
     private Double score;
     private String source; // AI / RULE / DEFAULT
 //    // 신청 인원
@@ -24,6 +25,7 @@ public class TripRecommendationDto {
                 trip.getTripId(),
                 trip.getTitle(),
                 trip.getRegion(),
+                trip.getTheme(),
                 score,
                 source
         );
