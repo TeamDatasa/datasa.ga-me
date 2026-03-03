@@ -77,7 +77,7 @@ def load_data():
 def build_lightfm_matrices(users, trips, interactions, user_lang, trip_lang):
     dataset = Dataset()
 
-    # ---- feature key 사전 수집 (🔥 핵심 수정) ----
+    # ---- feature key 사전 수집  ----
     user_feature_keys = set()
     item_feature_keys = set()
 
@@ -208,13 +208,18 @@ def save_results(results):
     execute("DELETE FROM recommendation_result")
 
     now = datetime.now()
+
     sql = """
         INSERT INTO recommendation_result
-        (user_id, trip_id, score, model_version, generated_at)
-        VALUES (:user_id, :trip_id, :score, :model_version, :generated_at)  
+        (user_id, trip_id, score, model_type, model_version, generated_at)
+        VALUES (:user_id, :trip_id, :score, :model_type, :model_version, :generated_at)
     """
 
-    rows = [(u, t, s, MODEL_VERSION, now) for (u, t, s) in results]
+    rows = [
+        (u, t, s, "LIGHTFM", MODEL_VERSION, now)
+        for (u, t, s) in results
+    ]
+
     execute_many(sql, rows)
 
 

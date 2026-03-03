@@ -1,4 +1,4 @@
-lightfm==1.17
+#lightfm==1.17
 pandas
 numpy
 sqlalchemy
