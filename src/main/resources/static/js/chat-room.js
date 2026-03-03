@@ -6,6 +6,7 @@ const roomId = window.ROOM_ID;
 const userId = window.USER_ID;
 const isReadOnly = !!window.CHAT_READ_ONLY;
 
+
 if (isReadOnly && typeof applyReadOnlyUI === "function") {
   applyReadOnlyUI();
 }
@@ -93,13 +94,17 @@ function appendMessage(message) {
   const wrapper = document.createElement("div");
   wrapper.className = `chat-message ${isMe ? "me" : "other"} ${isContinued ? "continued" : ""}`;
 
-  if (!isMe) {
-    const profile = document.createElement("div");
-    profile.className = "profile";
-    profile.innerHTML = `<img src="/images/default_profile.png" />`;
-    if (isContinued) profile.style.visibility = "hidden";
-    wrapper.appendChild(profile);
-  }
+if (!isMe) {
+  const profile = document.createElement("div");
+  profile.className = "profile";
+
+  const imageUrl = message.senderProfileImageUrl || "/images/default_profile.png";
+
+  profile.innerHTML = `<img src="${imageUrl}" />`;
+
+  if (isContinued) profile.style.visibility = "hidden";
+  wrapper.appendChild(profile);
+}
 
   const messageArea = document.createElement("div");
   messageArea.className = "message-area";

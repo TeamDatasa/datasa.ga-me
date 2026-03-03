@@ -12,7 +12,7 @@ public class ChatRoomListDto {
     private Long roomId;
     private Long tripId;
     private String title;
-
+    private String theme;
     private String lastMessage;
     private LocalDateTime lastMessageAt;
     private long unreadCount;
