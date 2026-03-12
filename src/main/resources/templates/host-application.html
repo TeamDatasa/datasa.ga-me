@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>신청자 관리</title>
+    <title>申請者管理</title>
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
     <style>
-/* ===== 전체 레이아웃 ===== */
+/* ===== すべて 레이아웃 ===== */
 body {
   margin: 0;
   background: #FCFCFB;
@@ -82,7 +82,7 @@ body {
   font-weight: 600;
 }
 
-/* ===== 상태 배지 ===== */
+/* ===== 状態 배지 ===== */
 .host-status {
   padding: 6px 12px;
   border-radius: 999px;
@@ -90,7 +90,7 @@ body {
   font-weight: 600;
 }
 
-/* 상태별 */
+/* 状態별 */
 .host-status.PENDING {
   background: rgba(242, 233, 109, 0.45); /* #F2E96D */
   color: #6a5d00;
@@ -126,7 +126,7 @@ body {
   transition: all .15s ease;
 }
 
-/* 승인 버튼 */
+/* 承認 버튼 */
 .yw-btn--primary {
   border-color: #3084F2;
   color: #3084F2;
@@ -136,7 +136,7 @@ body {
   background: rgba(48,132,242,0.08);
 }
 
-/* 거절 버튼 */
+/* 拒否 버튼 */
 .yw-btn--ghost {
   border-color: #566873;
   color: #566873;
@@ -146,7 +146,7 @@ body {
   background: rgba(86,104,115,0.08);
 }
 
-/* 처리 완료 텍스트 */
+/* 処理完了 텍스트 */
 .host-muted {
   font-size: 13px;
   color: #566873;
@@ -160,7 +160,7 @@ body {
 <div class="yw-container">
     <div class="yw-section">
         <div class="yw-section__head">
-            <h2 class="yw-section__title">신청자 관리</h2>
+            <h2 class="yw-section__title">申請者管理</h2>
             <p class="yw-section__desc">
                 Trip ID: <span th:text="${tripId}"></span>
             </p>
@@ -175,10 +175,10 @@ body {
     const tripId = [[${tripId}]];
 
     function statusLabel(status) {
-      if (status === "PENDING") return "대기";
-      if (status === "APPROVED") return "승인";
-      if (status === "REJECTED") return "거절";
-      if (status === "CANCELED") return "취소";
+      if (status === "PENDING") return "保留";
+      if (status === "APPROVED") return "承認";
+      if (status === "REJECTED") return "拒否";
+      if (status === "CANCELED") return "キャンセル";
       return status || "-";
     }
 
@@ -187,11 +187,11 @@ function renderRow(app) {
 
   if (app.status === "PENDING") {
     actions = `
-      <button class="yw-btn yw-btn--primary" onclick="approve(${app.applicationId})">승인</button>
-      <button class="yw-btn yw-btn--ghost" onclick="reject(${app.applicationId})">거절</button>
+      <button class="yw-btn yw-btn--primary" onclick="approve(${app.applicationId})">承認</button>
+      <button class="yw-btn yw-btn--ghost" onclick="reject(${app.applicationId})">拒否</button>
     `;
   } else {
-    actions = `<span class="host-muted">처리 완료</span>`;
+    actions = `<span class="host-muted">処理完了</span>`;
   }
 
   return `
@@ -208,13 +208,13 @@ function renderRow(app) {
 }
 
     function load() {
-      //  hostUserId 없이: 서버가 로그인한 host 기준으로 검증/조회
+      //  hostUserId 없이: 서버가 ログイン한 host 기준으로 검증/조회
       fetch(`/api/host/trips/${tripId}/applications`, {
         method: "GET",
         credentials: "same-origin"
       })
         .then(res => {
-          if (!res.ok) throw new Error("신청 목록을 불러오지 못했습니다.");
+          if (!res.ok) throw new Error("申請一覧を読み込めませんでした。");
           return res.json();
         })
         .then(data => {
@@ -222,11 +222,11 @@ function renderRow(app) {
           tbody.innerHTML = (data || []).map(renderRow).join("");
 
           if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="muted">아직 신청이 없습니다.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" class="muted">まだ申請がありません。</td></tr>`;
           }
         })
         .catch(err => {
-          alert(err.message || "오류가 발생했습니다.");
+          alert(err.message || "エラーが発生しました。");
         });
     }
 
@@ -236,7 +236,7 @@ function renderRow(app) {
         credentials: "same-origin"
       })
         .then(res => {
-          if (!res.ok) throw new Error("승인 처리에 실패했습니다.");
+          if (!res.ok) throw new Error("承認処理に失敗しました。");
           return res.text().catch(() => "");
         })
         .then(() => load());
@@ -248,7 +248,7 @@ function renderRow(app) {
         credentials: "same-origin"
       })
         .then(res => {
-          if (!res.ok) throw new Error("거절 처리에 실패했습니다.");
+          if (!res.ok) throw new Error("拒否処理に失敗しました。");
           return res.text().catch(() => "");
         })
         .then(() => load());

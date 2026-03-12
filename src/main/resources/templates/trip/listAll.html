@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
-    <title>여행 목록</title>
+    <title>旅行一覧</title>
 </head>
 <body>
 
@@ -21,11 +21,11 @@
     <div class="container">
 
         <div class="trip-list-head">
-            <h2>여행 목록</h2>
-            <a class="tl-write-btn" href="/trip/write">여정 작성</a>
+            <h2>旅行一覧</h2>
+            <a class="tl-write-btn" href="/trip/write">ツアー作成</a>
         </div>
 
-        <!-- 메인과 동일한 필터/정렬 -->
+        <!-- 메인과 동일한 필터/並び替え -->
         <form id="listFilterForm" class="yw-filter" method="get" action="/trip/listAll"
               th:attr="data-selected-province=${selectedProvince},
                        data-selected-region=${selectedRegion},
@@ -34,61 +34,61 @@
             <input type="hidden" name="order" id="orderInput" th:value="${selectedOrder} ?: 'latest'"/>
 
             <div class="yw-filter__box">
-                <strong>언어</strong>
-                <span class="yw-muted">(복수 선택)</span>
+                <strong>言語</strong>
+                <span class="yw-muted">(複数選択)</span>
                 <label>
                     <input type="checkbox" class="lang" name="languages" value="KOREAN"
-                           th:checked="${selectedLanguages != null and selectedLanguages.contains('KOREAN')}"> 한국어
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('KOREAN')}"> 韓国語
                 </label>
                 <label>
                     <input type="checkbox" class="lang" name="languages" value="ENGLISH"
-                           th:checked="${selectedLanguages != null and selectedLanguages.contains('ENGLISH')}"> 영어
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('ENGLISH')}"> 英語
                 </label>
                 <label>
                     <input type="checkbox" class="lang" name="languages" value="JAPANESE"
-                           th:checked="${selectedLanguages != null and selectedLanguages.contains('JAPANESE')}"> 일본어
+                           th:checked="${selectedLanguages != null and selectedLanguages.contains('JAPANESE')}"> 日本語
                 </label>
             </div>
 
             <div class="yw-filter__box">
-                <strong>지역</strong>
+                <strong>地域</strong>
                 <select id="province" name="province">
-                    <option value="">전체(도)</option>
+                    <option value="">すべて（道・広域）</option>
                 </select>
                 <select id="region" name="region">
-                    <option value="">전체(시)</option>
+                    <option value="">すべて（市）</option>
                 </select>
             </div>
 
             <div class="yw-filter__box">
-                <strong>테마</strong>
+                <strong>テーマ</strong>
                 <select id="theme" name="theme">
-                    <option value="">전체</option>
-                    <option value="FOOD" th:selected="${selectedTheme} == 'FOOD'">맛집</option>
-                    <option value="NATURE" th:selected="${selectedTheme} == 'NATURE'">자연</option>
-                    <option value="CITY" th:selected="${selectedTheme} == 'CITY'">도시</option>
-                    <option value="CULTURE" th:selected="${selectedTheme} == 'CULTURE'">문화</option>
-                    <option value="NIGHT" th:selected="${selectedTheme} == 'NIGHT'">야경</option>
+                    <option value="">すべて</option>
+                    <option value="FOOD" th:selected="${selectedTheme} == 'FOOD'">グルメ</option>
+                    <option value="NATURE" th:selected="${selectedTheme} == 'NATURE'">自然</option>
+                    <option value="CITY" th:selected="${selectedTheme} == 'CITY'">都市</option>
+                    <option value="CULTURE" th:selected="${selectedTheme} == 'CULTURE'">文化</option>
+                    <option value="NIGHT" th:selected="${selectedTheme} == 'NIGHT'">夜景</option>
 
-                    <!-- 추가 6개 -->
-                    <option value="HEALING" th:selected="${selectedTheme} == 'HEALING'">힐링</option>
-                    <option value="ACTIVITY" th:selected="${selectedTheme} == 'ACTIVITY'">액티비티</option>
-                    <option value="SHOPPING" th:selected="${selectedTheme} == 'SHOPPING'">쇼핑</option>
-                    <option value="HISTORY" th:selected="${selectedTheme} == 'HISTORY'">역사</option>
-                    <option value="PHOTO" th:selected="${selectedTheme} == 'PHOTO'">사진</option>
-                    <option value="FAMILY" th:selected="${selectedTheme} == 'FAMILY'">가족</option>
+                    <!-- 추가 6件 -->
+                    <option value="HEALING" th:selected="${selectedTheme} == 'HEALING'">癒やし</option>
+                    <option value="ACTIVITY" th:selected="${selectedTheme} == 'ACTIVITY'">アクティビティ</option>
+                    <option value="SHOPPING" th:selected="${selectedTheme} == 'SHOPPING'">ショッピング</option>
+                    <option value="HISTORY" th:selected="${selectedTheme} == 'HISTORY'">歴史</option>
+                    <option value="PHOTO" th:selected="${selectedTheme} == 'PHOTO'">写真</option>
+                    <option value="FAMILY" th:selected="${selectedTheme} == 'FAMILY'">家族</option>
                 </select>
             </div>
 
             <div class="yw-filter__box">
-                <strong>정렬</strong>
+                <strong>並び替え</strong>
                 <button id="latestBtn" type="button"
                         th:classappend="${selectedOrder} == null or ${selectedOrder} == 'latest' ? 'active' : ''">
-                    최신순
+                    新着順
                 </button>
                 <button id="popularBtn" type="button"
                         th:classappend="${selectedOrder} == 'popular' ? 'active' : ''">
-                    인기순
+                    人気順
                 </button>
             </div>
         </form>
@@ -99,7 +99,7 @@
 
                 <div class="trip-card__body">
                     <div class="trip-card__title-row">
-                        <div class="trip-card__title" th:text="${trip.title}">제목</div>
+                        <div class="trip-card__title" th:text="${trip.title}">タイトル</div>
 
                         <div class="trip-card__status" th:with="st=${trip.status != null ? trip.status.name() : ''}">
                             <span class="tl-pill"
@@ -109,11 +109,11 @@
                                                   (${st} == 'FINISHED' ? ' tl-pill--finished' :
                                                   (${st} == 'DRAFT' ? ' tl-pill--draft' : ' tl-pill--draft'))))">
                                 <span th:switch="${st}">
-                                    <span th:case="'DRAFT'">임시저장</span>
-                                    <span th:case="'OPEN'">모집중</span>
-                                    <span th:case="'CLOSED'">모집마감</span>
-                                    <span th:case="'IN_PROGRESS'">진행중</span>
-                                    <span th:case="'FINISHED'">종료됨</span>
+                                    <span th:case="'DRAFT'">下書き</span>
+                                    <span th:case="'OPEN'">募集中</span>
+                                    <span th:case="'CLOSED'">募集終了</span>
+                                    <span th:case="'IN_PROGRESS'">進行中</span>
+                                    <span th:case="'FINISHED'">終了</span>
                                     <span th:case="*">-</span>
                                 </span>
                             </span>
@@ -121,35 +121,35 @@
                     </div>
 
                     <div class="trip-card__meta">
-                        <span class="tl-chip" th:text="${trip.region} ?: '지역 미정'">지역</span>
+                        <span class="tl-chip" th:text="${trip.region} ?: '地域未定'">地域</span>
 
                         <th:block th:if="${trip.languageCodes != null} and ${!trip.languageCodes.isEmpty()}">
                             <th:block th:each="code : ${trip.languageCodes}">
                                 <span class="tl-chip" th:switch="${code}">
-                                    <span th:case="'KOREAN'">한국어</span>
-                                    <span th:case="'ENGLISH'">영어</span>
-                                    <span th:case="'JAPANESE'">일본어</span>
+                                    <span th:case="'KOREAN'">韓国語</span>
+                                    <span th:case="'ENGLISH'">英語</span>
+                                    <span th:case="'JAPANESE'">日本語</span>
                                     <span th:case="*" th:text="${code}">-</span>
                                 </span>
                             </th:block>
                         </th:block>
 
                         <span class="tl-chip" th:switch="${trip.theme}">
-                            <span th:case="'FOOD'">맛집</span>
-                            <span th:case="'NATURE'">자연</span>
-                            <span th:case="'CITY'">도시</span>
-                            <span th:case="'CULTURE'">문화</span>
-                            <span th:case="'NIGHT'">야경</span>
+                            <span th:case="'FOOD'">グルメ</span>
+                            <span th:case="'NATURE'">自然</span>
+                            <span th:case="'CITY'">都市</span>
+                            <span th:case="'CULTURE'">文化</span>
+                            <span th:case="'NIGHT'">夜景</span>
 
-                            <!-- 추가 6개 -->
-                            <span th:case="'HEALING'">힐링</span>
-                            <span th:case="'ACTIVITY'">액티비티</span>
-                            <span th:case="'SHOPPING'">쇼핑</span>
-                            <span th:case="'HISTORY'">역사</span>
-                            <span th:case="'PHOTO'">사진</span>
-                            <span th:case="'FAMILY'">가족</span>
+                            <!-- 추가 6件 -->
+                            <span th:case="'HEALING'">癒やし</span>
+                            <span th:case="'ACTIVITY'">アクティビティ</span>
+                            <span th:case="'SHOPPING'">ショッピング</span>
+                            <span th:case="'HISTORY'">歴史</span>
+                            <span th:case="'PHOTO'">写真</span>
+                            <span th:case="'FAMILY'">家族</span>
 
-                            <!-- 커스텀/기타 등은 그대로 출력 -->
+                            <!-- 커스텀/その他 등은 그대로 출력 -->
                             <span th:case="*" th:text="${trip.theme} ?: '-'">-</span>
                         </span>
 
@@ -158,7 +158,7 @@
                               th:text="${trip.currentParticipants + '/' + trip.maxParticipants}">1/3</span>
                     </div>
 
-                    <div class="trip-card__desc" th:text="${trip.description}">설명</div>
+                    <div class="trip-card__desc" th:text="${trip.description}">説明</div>
                 </div>
 
                 <div class="trip-card__footer" onclick="event.stopPropagation();">
@@ -176,7 +176,7 @@
 
                     <span class="trip-card__host" onclick="event.stopPropagation();">
                         <span class="hc-host-deleted" th:if="${trip.hostDeleted}">
-                            탈퇴한 사용자
+                            退会したユーザー
                         </span>
 
                         <a href="#"
@@ -185,14 +185,14 @@
                            th:if="${!trip.hostDeleted}"
                            th:attr="data-host-id=${trip.hostUserId}"
                            th:text="${trip.hostName}">
-                            호스트
+                            ホスト
                         </a>
                     </span>
                 </div>
             </article>
 
             <div class="empty" th:if="${boardList == null || #lists.isEmpty(boardList)}">
-                등록된 여정이 없습니다.
+                登録されたツアーがありません。
             </div>
         </section>
 
@@ -202,13 +202,13 @@
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
-            <div id="hcTitle" class="hc-title">호스트 프로필</div>
-            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+            <div id="hcTitle" class="hc-title">ホストプロフィール</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">閉じる</button>
         </div>
 
         <div class="hc-body">
             <div class="hc-profile">
-                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <img id="hcAvatar" class="hc-avatar" alt="ホストプロフィール画像"/>
                 <div class="hc-profile__main">
                     <h3 id="hcName" class="hc-name">-</h3>
                     <div id="hcMeta" class="hc-meta"></div>

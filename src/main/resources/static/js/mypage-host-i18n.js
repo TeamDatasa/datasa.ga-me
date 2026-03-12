@@ -4,24 +4,24 @@ const LANG_KEY = "uiLang";
 
 const HOST_T = {
   ko: {
-    back: "뒤로",
-    tourCreate: "투어 등록",
-    tourCreateMeta: "새로운 투어를 등록해요",
-    tourCreateHint: "투어를 작성하고 공개할 수 있어요.",
-    tourManage: "투어 관리",
-    tourManageMeta: "수정 / 삭제",
-    tourManageHint: "내가 올린 투어를 관리할 수 있어요.",
-    myTours: "내가 등록한 투어",
-    myToursHint: "내가 만든 투어의 일정과 신청자를 관리할 수 있어요.",
-    applicants: "신청자 확인",
-    emptyTours: "아직 등록한 투어가 없어요.",
-    reviews: "후기",
-    reviewsHint: "투어 종료 후 작성된 리뷰가 표시돼요.",
-    emptyReviews: "아직 리뷰가 없어요.",
+    back: "戻る",
+    tourCreate: "ツアー登録",
+    tourCreateMeta: "新しいツアーを登録します",
+    tourCreateHint: "ツアーを作成して公開できます。",
+    tourManage: "ツアー管理",
+    tourManageMeta: "修正 / 削除",
+    tourManageHint: "自分が登録したツアーを管理できます。",
+    myTours: "登録したツアー",
+    myToursHint: "自分が作成したツアーの日程と申請者を管理できます。",
+    applicants: "申請者確認",
+    emptyTours: "まだ登録したツアーがありません。",
+    reviews: "レビュー",
+    reviewsHint: "ツアー終了後に作成されたレビューが表示されます。",
+    emptyReviews: "まだレビューがありません。",
 
-    reviewTripLabel: "투어",
-    reviewDateLabel: "작성일",
-    reviewRatingLabel: "평점"
+    reviewTripLabel: "ツアー",
+    reviewDateLabel: "作成일",
+    reviewRatingLabel: "評価"
   },
   ja: {
     back: "戻る",

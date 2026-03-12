@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = params.get("token") || "";
 
   if (!token) {
-    if (msg) msg.innerText = "유효하지 않은 링크입니다. (token 없음)";
+    if (msg) msg.innerText = "無効なリンクです。（token がありません）";
     return;
   }
 
@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const p1 = document.getElementById("p1")?.value ?? "";
     const p2 = document.getElementById("p2")?.value ?? "";
 
-    if (p1.length < 8) return alert("비밀번호는 8자 이상이어야 합니다.");
-    if (p1 !== p2) return alert("비밀번호가 일치하지 않습니다.");
+    if (p1.length < 8) return alert("パスワードは8文字以上である必要があります。");
+    if (p1 !== p2) return alert("パスワードが一致しません。");
 
     try {
       const res = await fetch("/api/auth/password/reset", {
@@ -31,10 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const raw = await res.text();
 
       if (!res.ok) {
-        throw new Error(raw || `비밀번호 변경 실패 (${res.status})`);
+        throw new Error(raw || `パスワードの変更に失敗しました。 (${res.status})`);
       }
 
-      if (msg) msg.innerText = "비밀번호 변경 완료! 다시 로그인해 주세요.";
+      if (msg) msg.innerText = "パスワード 변경 완료! 다市 ログイン해 ください.";
 
       document.cookie = "access_token=; Path=/; Max-Age=0; SameSite=Lax";
       document.cookie = "JSESSIONID=; Path=/; Max-Age=0;";
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 500);
 
     } catch (err) {
-      alert(err?.message || "비밀번호 변경 실패");
+      alert(err?.message || "パスワードの変更に失敗しました。");
     }
   });
 });

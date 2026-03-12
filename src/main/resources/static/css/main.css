@@ -74,7 +74,7 @@ a {
   color: var(--text);
 }
 
-/* ===== Header Auth Spacing (추가/수정) ===== */
+/* ===== Header Auth Spacing (추가/修正) ===== */
 .yw-auth {
   display: flex;
   align-items: center;
@@ -537,7 +537,7 @@ a {
   transform: translateY(-50%) scale(1.05);
 }
 
-/* 도트 */
+/* 道트 */
 .yw-heroDots{
   position: absolute;
   left: 0; right: 0;
@@ -573,7 +573,7 @@ a {
 /* 헤더 오른쪽 버튼 폰트 완전 통일 */
 .yw-header a.yw-btn,
 .yw-header button.yw-btn {
-  font-size: 15px;      /* 로그아웃 기준 */
+  font-size: 15px;      /* ログアウト 기준 */
   font-weight: 800;
   line-height: 1;
 }

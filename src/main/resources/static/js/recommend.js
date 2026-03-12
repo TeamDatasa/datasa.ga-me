@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const titleEl = document.getElementById("recommendTitle");
       const listEl = document.getElementById("recommendList");
 
-      if (!titleEl || !listEl) {
+      if (!listEl) {
         console.error("❌ recommendTitle / recommendList 없음");
         return;
       }
@@ -26,13 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // ✅ 핵심: data 자체가 배열
       if (!Array.isArray(data) || data.length === 0) {
-        titleEl.innerText = "추천 코스";
+        if(titleEl)titleEl.innerText = "おすすめコース";
         listEl.innerHTML = emptyCard();
         return;
       }
 
       // 타이틀
-      titleEl.innerText = "추천 코스";
+      if(!titleEl)titleEl.innerText = "おすすめコース";
 
       // 카드 렌더링
       data.forEach(trip => {
@@ -40,12 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     })
     .catch(err => {
-      console.error("❌ 추천 로딩 실패:", err);
+      console.error("❌ おすすめの読み込みに失敗:", err);
 
       const titleEl = document.getElementById("recommendTitle");
       const listEl = document.getElementById("recommendList");
 
-      if (titleEl) titleEl.innerText = "추천 코스";
+      if (titleEl) titleEl.innerText = "おすすめコース";
       if (listEl) listEl.innerHTML = emptyCard();
     });
 });
@@ -57,23 +57,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function tripCard(trip) {
   return `
     <article class="yw-card">
-      <div class="yw-card__thumb"></div>
+      <div class="yw-card__thumb">
+       <span class="yw-badge ai">AIおすすめ</span>
+       </div>
 
       <div class="yw-card__body">
-        <!-- 여행 제목 -->
+        <!-- 旅行 タイトル -->
         <div class="yw-card__title">
           ${trip.title}
         </div>
 
-        <!-- 작성자 -->
-        <div class="yw-card__author">
-          👤 ${trip.hostName}
-        </div>
-
         <!-- 메타 정보 -->
         <div class="yw-card__meta">
-          <span> ${trip.region}</span>
-         <span> ${trip.currentApplicants} / ${trip.maxParticipants}</span>
+          <span>${REGION_KR_MAP[trip.region] || trip.region}</span>
         </div>
       </div>
     </article>
@@ -86,9 +82,47 @@ function emptyCard() {
     <article class="yw-card">
       <div class="yw-card__thumb"></div>
       <div class="yw-card__body">
-        <div class="yw-card__title">추천 코스 준비 중</div>
-        <div class="yw-card__meta">곧 AI 추천이 제공됩니다</div>
+        <div class="yw-card__title">おすすめコース準備中</div>
+        <div class="yw-card__meta">まもなくAIおすすめが提供されます</div>
       </div>
     </article>
   `;
 }
+
+const REGION_KR_MAP = {
+  SEOUL: "ソウル",
+  BUSAN: "釜山",
+  JEJU: "済州",
+  DAEGU: "大邱",
+  INCHEON: "仁川",
+  GYEONGJU: "경주",
+  GANGWON: "강원",
+  JEONJU: "전주",
+  YEOSU: "여수",
+  SUWON: "수원",
+  DAEJEON: "大田",
+  POHANG: "포항",
+  GWANGJU: "光州",
+  CHUNCHEON: "춘천",
+  ANDONG: "안동",
+  SEJONG: "世宗",
+  ULSAN: "蔚山",
+  GEOJE: "거제",
+  TONGYEONG: "통영",
+  CHANGWON: "창원",
+  MOKPO: "목포",
+  SUNCHEON: "순천",
+  GIMHAE: "김해",
+  YANGSAN: "양산",
+  CHEONAN: "천안",
+  CHUNGJU: "충주",
+  JECHEON: "제천",
+  WONJU: "원주",
+  NAJU: "나주",
+  GUNSAN: "군산",
+  IKSAN: "익산",
+  GUMI: "구미",
+  PAJU: "파주",
+  GAPYEONG: "가평"
+};
+

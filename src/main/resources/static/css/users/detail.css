@@ -31,7 +31,7 @@ body{
 
 a{ color:inherit; text-decoration:none; }
 
-/* 전체 폭/여백 */
+/* すべて 폭/여백 */
 .page{
   padding: 36px 18px 80px;
 }

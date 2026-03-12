@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>My Page Details</title>
@@ -19,13 +19,13 @@
             <div class="yw-auth">
                 <div class="auth-lang mypage-lang">
                     <select id="langSelect" class="translate-select">
-                        <option value="ko">한국어</option>
+                        <option value="ko">韓国語</option>
                         <option value="ja">日本語</option>
                         <option value="en">English</option>
                     </select>
                 </div>
 
-                <a class="yw-icon-btn" href="/mypage" aria-label="뒤로">
+                <a class="yw-icon-btn" href="/mypage" aria-label="戻る">
                     <span class="yw-icon" aria-hidden="true">✕</span>
                 </a>
             </div>
@@ -35,21 +35,21 @@
     <section class="panel">
         <div class="grid grid--2">
             <a class="card" href="/host/trips/new">
-                <div class="card-title" data-i18n="tourCreate">투어 등록</div>
-                <div class="card-meta" data-i18n="tourCreateMeta">새로운 투어를 등록해요</div>
-                <p class="hint" style="margin:10px 0 0;" data-i18n="tourCreateHint">투어를 작성하고 공개할 수 있어요.</p>
+                <div class="card-title" data-i18n="tourCreate">ツアー登録</div>
+                <div class="card-meta" data-i18n="tourCreateMeta">新しいツアーを登録します</div>
+                <p class="hint" style="margin:10px 0 0;" data-i18n="tourCreateHint">ツアーを作成して公開できます。</p>
             </a>
 
             <a class="card" href="/host/trips">
-                <div class="card-title" data-i18n="tourManage">투어 관리</div>
-                <div class="card-meta" data-i18n="tourManageMeta">수정 / 삭제</div>
-                <p class="hint" style="margin:10px 0 0;" data-i18n="tourManageHint">내가 올린 투어를 관리할 수 있어요.</p>
+                <div class="card-title" data-i18n="tourManage">ツアー管理</div>
+                <div class="card-meta" data-i18n="tourManageMeta">修正 / 削除</div>
+                <p class="hint" style="margin:10px 0 0;" data-i18n="tourManageHint">自分が登録したツアーを管理できます。</p>
             </a>
         </div>
 
         <div class="panel" style="margin-top: 18px;">
-            <h3 data-i18n="myTours">내가 등록한 투어</h3>
-            <p class="hint" data-i18n="myToursHint">내가 만든 투어의 일정과 신청자를 관리할 수 있어요.</p>
+            <h3 data-i18n="myTours">登録したツアー</h3>
+            <p class="hint" data-i18n="myToursHint">自分が作成したツアーの日程と申請者を管理できます。</p>
 
             <div th:if="${!#lists.isEmpty(hostedTours)}">
                 <div class="tour-card" th:each="t : ${hostedTours}" th:attr="data-trip-id=${t.tripId}">
@@ -68,7 +68,7 @@
                             <a class="btn btn-primary"
                                data-i18n="applicants"
                                th:href="@{/host/trips/{tripId}/applications(tripId=${t.tripId})}">
-                                신청자 확인
+                                申請者確認
                             </a>
                         </div>
                     </div>
@@ -76,17 +76,17 @@
             </div>
 
             <div class="empty" th:if="${#lists.isEmpty(hostedTours)}" data-i18n="emptyTours">
-                아직 등록한 투어가 없어요.
+                まだ登録したツアーがありません。
             </div>
         </div>
 
         <div class="panel">
-            <h3 data-i18n="reviews">후기</h3>
-            <p class="hint" data-i18n="reviewsHint">투어 종료 후 작성된 리뷰가 표시돼요.</p>
+            <h3 data-i18n="reviews">レビュー</h3>
+            <p class="hint" data-i18n="reviewsHint">ツアー終了後に作成されたレビューが表示されます。</p>
                 <div id="reviewList"></div>
 
                 <div id="reviewEmpty" class="empty" data-i18n="emptyReviews" style="display:none;">
-                    아직 리뷰가 없어요.
+                    まだレビューがありません。
                 </div>
 
 

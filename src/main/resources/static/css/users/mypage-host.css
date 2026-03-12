@@ -39,7 +39,7 @@ body{
 
 a{ color:inherit; text-decoration:none; }
 
-/* ✅ 화면 꽉차게 X: 사진처럼 중앙 980~1040 폭 */
+/* ✅ 화면 꽉차게 X: 写真처럼 중앙 980~1040 폭 */
 .details-wrap{
   width: min(980px, calc(100% - 56px));
   margin: 0 auto;
@@ -206,7 +206,7 @@ a.card:hover{
   gap: 10px;
 }
 
-/* 기존 review-card 개선 */
+/* 기존 review-card 件선 */
 .review-card{
   margin-top: 0;                 /* #reviewList가 gap 관리 */
   border: 1px solid var(--border);
@@ -216,7 +216,7 @@ a.card:hover{
   padding: 14px 14px 12px;
 }
 
-/* 상단 라인(좌: 제목, 우: 평점) */
+/* 상단 라인(좌: タイトル, 우: 評価) */
 .review-top{
   display:flex;
   align-items:flex-start;
@@ -224,7 +224,7 @@ a.card:hover{
   gap:12px;
 }
 
-/* 좌측 제목 영역 */
+/* 좌측 タイトル 영역 */
 .review-title{
   display:flex;
   flex-wrap:wrap;
@@ -245,7 +245,7 @@ a.card:hover{
   letter-spacing: 0;
 }
 
-/* 평점 pill */
+/* 評価 pill */
 .review-badge{
   flex: 0 0 auto;
   display:inline-flex;
@@ -262,7 +262,7 @@ a.card:hover{
   white-space: nowrap;
 }
 
-/* 메타(작성일 등) */
+/* 메타(作成일 등) */
 .review-meta{
   margin-top: 6px;
   color: var(--muted);
@@ -334,7 +334,7 @@ a.card:hover{
   background: rgba(22,117,242,0.10);
 }
 
-/* ✅ (선택) 투어 목록이 너무 길어지면 카드 간격 줄이기 */
+/* ✅ (選択) 투어 목록이 너무 길어지면 카드 간격 줄이기 */
 .tour-card + .tour-card{
   margin-top: 10px;
 }

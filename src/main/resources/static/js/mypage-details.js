@@ -50,7 +50,7 @@ async function submitReview(e){
   const content = document.getElementById("reviewContent").value;
 
   console.log("submit", {reviewId, tripId, rating, content});
-  document.getElementById("reviewHint").innerText = "Saved (stub). Connect API next.";
+  document.getElementById("reviewHint").innerText = "保存d (stub). Connect API next.";
 
   return false;
 }

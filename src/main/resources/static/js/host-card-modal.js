@@ -16,9 +16,9 @@
 
   function genderKo(g) {
     if (!g) return null;
-    if (g === "MALE") return "남성";
-    if (g === "FEMALE") return "여성";
-    if (g === "OTHER") return "기타";
+    if (g === "MALE") return "男性";
+    if (g === "FEMALE") return "女性";
+    if (g === "OTHER") return "その他";
     return g;
   }
 
@@ -74,9 +74,9 @@
     const nameEl = $("#hcName");
     const metaEl = $("#hcMeta");
     const bioEl = $("#hcBio");
-    if (nameEl) nameEl.textContent = "불러오는 중...";
+    if (nameEl) nameEl.textContent = "読み込み中...";
     if (metaEl) metaEl.innerHTML = "";
-    if (bioEl) bioEl.innerHTML = `<div class="hc-muted">프로필을 불러오는 중입니다.</div>`;
+    if (bioEl) bioEl.innerHTML = `<div class="hc-muted">プロフィールを読み込み中です。</div>`;
     setAvatar(null);
   }
 
@@ -84,7 +84,7 @@
     const nameEl = $("#hcName");
     const metaEl = $("#hcMeta");
     const bioEl = $("#hcBio");
-    if (nameEl) nameEl.textContent = "호스트 프로필";
+    if (nameEl) nameEl.textContent = "ホストプロフィール";
     if (metaEl) metaEl.innerHTML = "";
     if (bioEl) bioEl.innerHTML = `<div class="hc-muted">${escapeHtml(message)}</div>`;
     setAvatar(null);
@@ -106,7 +106,7 @@
 
     const chips = [];
 
-    const age = typeof card?.age === "number" && card.age > 0 ? `${card.age}세` : null;
+    const age = typeof card?.age === "number" && card.age > 0 ? `${card.age}歳` : null;
     if (age) chips.push(chip(age, ""));
 
     const g = card?.gender ? String(card.gender) : null;
@@ -123,10 +123,10 @@
     if (mbti) chips.push(chip(mbti, ""));
 
     if (typeof card?.smoking === "boolean") {
-      chips.push(chip(card.smoking ? "흡연" : "비흡연", card.smoking ? "hc-chip--warn" : "hc-chip--off"));
+      chips.push(chip(card.smoking ? "喫煙" : "非喫煙", card.smoking ? "hc-chip--warn" : "hc-chip--off"));
     }
     if (typeof card?.drinking === "boolean") {
-      chips.push(chip(card.drinking ? "음주" : "비음주", card.drinking ? "hc-chip--warn" : "hc-chip--off"));
+      chips.push(chip(card.drinking ? "飲酒" : "非飲酒", card.drinking ? "hc-chip--warn" : "hc-chip--off"));
     }
 
     if (metaEl) metaEl.innerHTML = chips.join("");
@@ -156,10 +156,10 @@
       return;
     }
     if (res.status === 404) {
-      renderError("호스트 정보를 찾을 수 없습니다.");
+      renderError("ホスト情報が見つかりません。");
       return;
     }
-    renderError("프로필을 불러오지 못했습니다.");
+    renderError("プロフィールを読み込めませんでした。");
   }
 
   function bind() {

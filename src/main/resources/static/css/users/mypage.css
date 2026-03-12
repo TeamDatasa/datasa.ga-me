@@ -72,7 +72,7 @@ a{ text-decoration:none; color:inherit; }
 
 .btn-danger{ background:#E85B5B; }
 
-/* 작은 버튼(프로필 변경) */
+/* 작은 버튼(プロフィール変更) */
 .btn-sm{
   padding:6px 10px;
   border-radius:999px;
@@ -97,7 +97,7 @@ a{ text-decoration:none; color:inherit; }
   font-size:13px;
 }
 
-/* 로그아웃 버튼 = 셀렉트와 동일 */
+/* ログアウト 버튼 = 셀렉트와 동일 */
 #logoutBtn.btn.btn-ghost{
   padding:10px 12px;
   height:44px;
@@ -162,7 +162,7 @@ a{ text-decoration:none; color:inherit; }
   color:#444;
 }
 
-/* 이름 + 프로필 변경 버튼 한 줄 */
+/* 이름 + プロフィール変更 버튼 한 줄 */
 .name-row{
   display:flex;
   align-items:center;
@@ -411,7 +411,7 @@ a{ text-decoration:none; color:inherit; }
 
 /* ===== Header ===== */
 .yw-header{
-  position: static;   /* 또는 아예 position 줄 삭제 */
+  position: static;   /* 또는 아はい position 줄 削除 */
   top: auto;
   z-index: auto;
 
@@ -511,7 +511,7 @@ a{ text-decoration:none; color:inherit; }
   line-height: 1;
 }
 
-/* 마이페이지 헤더 언어선택: 헤더 요소들과 한 줄 정렬 */
+/* マイページ 헤더 言語選択: 헤더 요소들과 한 줄 並び替え */
 .mypage-lang .translate-select{
   height: 38px;
   padding: 8px 10px;
@@ -528,7 +528,7 @@ a{ text-decoration:none; color:inherit; }
   border-color: rgba(48, 132, 242, 0.55);
 }
 
-/* 로그아웃 버튼: 공통헤더와 동일 */
+/* ログアウト 버튼: 공통헤더와 동일 */
 #logoutBtn.yw-btn.yw-btn--primary{
   background: #F2E96D;
   color: #1a1a1a;

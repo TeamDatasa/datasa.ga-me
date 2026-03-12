@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>채팅</title>
+    <title>チャット</title>
 </head>
 <style>
     body {
@@ -13,7 +13,7 @@
 
 
 
-/* 채팅방 카드 */
+/* チャット방 카드 */
 .chat-room-card {
   display: flex;
   padding: 14px 16px;
@@ -37,7 +37,7 @@
   border-radius: 50%;
 }
 
-/* 채팅 정보 */
+/* チャット 정보 */
 .chat-info {
   flex: 1;
   display: flex;
@@ -80,7 +80,7 @@
   text-overflow: ellipsis;
 }
 
-/* 안 읽은 메시지 수 */
+/* 안 읽은 메市지 수 */
 .unread-count {
   background: #ff3b30;
   color: white;
@@ -181,7 +181,7 @@
 
 </style>
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ja">
 <head>
     <link rel="stylesheet" href="/css/users/mypage.css" />
     <link rel="stylesheet" href="/css/users/mypage-user.css" />
@@ -197,7 +197,7 @@
 
         <div class="yw-auth">
 
-            <a class="yw-icon-btn" href="/" aria-label="메인화면">
+            <a class="yw-icon-btn" href="/" aria-label="メイン画面">
                 <span class="yw-icon" aria-hidden="true">✕</span>
             </a>
         </div>
@@ -211,8 +211,8 @@
 <div id="chatModalOverlay" class="chat-modal-overlay">
     <div class="chat-modal" role="dialog" aria-modal="true">
         <div class="chat-modal-header">
-            <div class="chat-modal-title" id="chatModalTitle">채팅</div>
-            <button class="chat-modal-close" id="chatModalCloseBtn" aria-label="닫기">×</button>
+            <div class="chat-modal-title" id="chatModalTitle">チャット</div>
+            <button class="chat-modal-close" id="chatModalCloseBtn" aria-label="閉じる">×</button>
         </div>
         <div class="chat-modal-body">
             <iframe id="chatRoomFrame" src="about:blank"></iframe>
@@ -226,7 +226,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         loadChatRooms();
 
-            // 뒤로가기/재진입 시에도 다시 로드
+            // 戻る가기/재진입 市에道 다市 로드
     window.addEventListener("focus", () => {
         loadChatRooms();
     });
@@ -249,7 +249,7 @@
         fetch(`/api/chat/rooms?userId=${userId}`)
             .then(res => {
                 if (!res.ok) {
-                    throw new Error("채팅방 목록 조회 실패");
+                    throw new Error("チャットルーム一覧の取得に失敗しました");
                 }
                 return res.json();
             })
@@ -258,7 +258,7 @@
             })
             .catch(err => {
                 console.error(err);
-                alert("채팅방 목록을 불러오지 못했습니다.");
+                alert("チャットルーム一覧を読み込めませんでした。");
             });
     }
 
@@ -268,7 +268,7 @@ const THEME_PROFILE_IMG = {
   NATURE: "/images/theme/nature.png",
   HEALING: "/images/theme/healing.png",
   SHOPPING: "/images/theme/shopping.png",
-  HISTORY: "/images/theme/history.png",
+  CULTURE: "/images/theme/history.png",
   ACTIVITY: "/images/theme/activity.png",
   NIGHT: "/images/theme/night.png",
   PHOTO: "/images/theme/photo.png",
@@ -284,18 +284,18 @@ function normalizeTheme(theme) {
   const upper = t.toUpperCase();
 
   const koMap = {
-    "맛집": "FOOD",
-    "자연": "NATURE",
-    "도시": "CITY",
-    "쇼핑": "SHOPPING",
-    "사진": "PHOTO",
-    "액티비티": "ACTIVITY",
-    "야경": "NIGHT",
-    "힐링": "HEALING",
-    "문화": "CULTURE",
-    "전통": "TRADITION",
-    "역사": "HISTORY",
-    "기타": "DEFAULT",
+    "グルメ": "FOOD",
+    "自然": "NATURE",
+    "都市": "CITY",
+    "ショッピング": "SHOPPING",
+    "写真": "PHOTO",
+    "アクティビティ": "ACTIVITY",
+    "夜景": "NIGHT",
+    "癒やし": "HEALING",
+    "文化": "CULTURE",
+    "伝統": "TRADITION",
+    "歴史": "HISTORY",
+    "その他": "DEFAULT",
   };
 
   return koMap[t] || upper;
@@ -315,7 +315,7 @@ function themeProfileSrc(theme) {
         if (rooms.length === 0) {
             list.innerHTML = `
                 <div class="empty">
-                    참여 중인 채팅방이 없습니다.
+                    参加中のチャットルームがありません。
                 </div>
             `;
             return;
@@ -352,7 +352,7 @@ function themeProfileSrc(theme) {
 
                     <div class="bottom">
                         <span class="last-message">
-                            ${room.lastMessage ?? "대화가 없습니다"}
+                            ${room.lastMessage ?? "会話がありません"}
                         </span>
 
                         ${
@@ -374,7 +374,7 @@ function themeProfileSrc(theme) {
         const minutes = date.getMinutes().toString().padStart(2, "0");
 
         const isPM = hours >= 12;
-        const period = isPM ? "오후" : "오전";
+        const period = isPM ? "午後" : "午前";
 
         hours = hours % 12;
         if (hours === 0) hours = 12;
@@ -403,9 +403,9 @@ function themeProfileSrc(theme) {
     const titleEl = document.getElementById("chatModalTitle");
 
     function openChatModal(tripId, title) {
-      titleEl.textContent = title || "채팅";
+      titleEl.textContent = title || "チャット";
       overlay.style.display = "flex";
-      // embed=1 추가 (채팅 화면을 모달에 맞게 표시하기 위해)
+      // embed=1 추가 (チャット 화면을 모달에 맞게 표市하기 위해)
       frame.src = `/chat/room/${tripId}?userId=${userId}&embed=1`;
       document.body.style.overflow = "hidden";
     }
@@ -418,12 +418,12 @@ function themeProfileSrc(theme) {
 
     closeBtn.addEventListener("click", closeChatModal);
 
-    // 모달 밖 클릭 시 닫기
+    // 모달 밖 클릭 市 閉じる
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeChatModal();
     });
 
-    // ESC 닫기
+    // ESC 閉じる
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && overlay.style.display === "flex") {
         closeChatModal();

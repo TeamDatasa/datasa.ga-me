@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>Sign In</title>
@@ -20,11 +20,11 @@
         </div>
     </div>
 
-    <h1 data-i18n="login.title">로그인</h1>
-    <p data-i18n="login.subtitle">다시 만나서 반가워요. 로그인해주세요.</p>
+    <h1 data-i18n="login.title">ログイン</h1>
+    <p data-i18n="login.subtitle">お帰りなさい。ログインしてください。</p>
 
     <form id="loginForm" class="auth-form">
-        <label data-i18n="login.emailLabel">이메일 주소</label>
+        <label data-i18n="login.emailLabel">メールアドレス</label>
         <input
                 type="email"
                 id="email"
@@ -33,7 +33,7 @@
                 required
         />
 
-        <label data-i18n="login.passwordLabel">비밀번호</label>
+        <label data-i18n="login.passwordLabel">パスワード</label>
         <input
                 type="password"
                 id="password"
@@ -42,17 +42,17 @@
                 required
         />
 
-        <button type="submit" class="auth-btn" data-i18n="login.submit">로그인</button>
+        <button type="submit" class="auth-btn" data-i18n="login.submit">ログイン</button>
     </form>
 
     <div class="auth-footer">
         <a th:href="@{/auth/forgot-password}" class="forgot-link" data-i18n="login.forgot">
-            비밀번호를 잊으셨나요?
+            パスワードをお忘れですか？
         </a>
     </div>
 
     <div class="auth-footer">
-        <a href="/auth/signup" data-i18n="login.signup">회원가입</a>
+        <a href="/auth/signup" data-i18n="login.signup">会員登録</a>
     </div>
 </div>
 

@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>내 리뷰</title>
+    <title>マイレビュー</title>
     <link rel="stylesheet" href="/css/users/mypage.css" />
     <link rel="stylesheet" href="/css/users/mypage-user.css" />
 </head>
@@ -19,13 +19,13 @@
             <div class="yw-auth">
                 <div class="auth-lang mypage-lang">
                     <select id="langSelect" class="translate-select">
-                        <option value="ko">한국어</option>
+                        <option value="ko">韓国語</option>
                         <option value="ja">日本語</option>
                         <option value="en">English</option>
                     </select>
                 </div>
 
-                <a class="yw-icon-btn" href="/mypage" aria-label="닫기">
+                <a class="yw-icon-btn" href="/mypage" aria-label="閉じる">
                     <span class="yw-icon" aria-hidden="true">✕</span>
                 </a>
             </div>
@@ -35,42 +35,42 @@
     <section class="panel">
         <div class="panel-head">
             <div>
-                <h3>내 리뷰</h3>
-                <p class="hint">투어 종료 후 작성할 수 있습니다. 투어당 1개의 리뷰만 작성 가능합니다.</p>
+                <h3>マイレビュー</h3>
+                <p class="hint">ツアー終了後に作成できます。ツアーごとにレビューは1件まで作成可能です。</p>
             </div>
-            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">초기화</a>
+            <a class="btn btn-ghost" th:href="@{/mypage/reviews}">リセット</a>
         </div>
 
         <!-- ✅ 기존 우측 mode 패널 제거: 목록만 사용 (모달로 처리) -->
         <div class="grid" style="grid-template-columns: 1fr; margin-top:14px;">
             <div class="panel" style="box-shadow:none; border:1px solid var(--border);">
-                <h3 style="margin:0 0 6px 0;">참여한 투어</h3>
-                <p class="hint">승인되어 참여한 투어 목록입니다.</p>
+                <h3 style="margin:0 0 6px 0;">参加したツアー</h3>
+                <p class="hint">承認済みの参加ツアー一覧です。</p>
 
                 <div class="empty" th:if="${items == null or #lists.isEmpty(items)}" style="height:90px;">
-                    승인된 투어가 아직 없습니다.
+                    承認されたツアーはまだありません。
                 </div>
 
                 <ul class="list" th:if="${items != null and !#lists.isEmpty(items)}">
                     <li class="list-item" th:each="t : ${items}">
-                        <div class="title" th:text="${t.title()}">투어 제목</div>
+                        <div class="title" th:text="${t.title()}">ツアータイトル</div>
                         <div class="meta">
-                            <span th:text="${t.region()}">지역</span>
-                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">시작일</span>
-                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">종료일</span>
+                            <span th:text="${t.region()}">地域</span>
+                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">開始日</span>
+                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">終了日</span>
                         </div>
 
                         <div class="actions">
-                            <!-- 작성 -->
+                            <!-- 作成 -->
                             <button type="button"
                                     class="btn"
                                     th:if="${t.canWrite()}"
                                     th:attr="data-trip-id=${t.tripId()}"
                                     onclick="openReviewModal('new', this)">
-                                작성
+                                作成
                             </button>
 
-                            <!-- 수정 -->
+                            <!-- 修正 -->
                             <button type="button"
                                     class="btn"
                                     th:if="${t.hasReview()}"
@@ -79,20 +79,20 @@
                                              data-rating=${t.rating()},
                                              data-content=${t.content()}"
                                     onclick="openReviewModal('edit', this)">
-                                수정
+                                修正
                             </button>
 
-                            <!-- 삭제 -->
+                            <!-- 削除 -->
                             <button type="button"
                                     class="btn btn-danger"
                                     th:if="${t.hasReview()}"
                                     th:attr="data-review-id=${t.reviewId()}"
                                     onclick="openReviewModal('delete', this)">
-                                삭제
+                                削除
                             </button>
 
                             <span class="hint" th:if="${!t.ended()}" style="margin-left:6px;">
-                종료 후 작성 가능
+                終了後に作成可能
               </span>
                         </div>
                     </li>
@@ -108,8 +108,8 @@
 <div id="reviewModal" class="yw-modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="yw-modal__card">
         <div class="yw-modal__head">
-            <h3 id="modalTitle" class="yw-modal__title">리뷰</h3>
-            <button type="button" class="yw-icon-btn" aria-label="닫기" onclick="closeReviewModal()">
+            <h3 id="modalTitle" class="yw-modal__title">レビュー</h3>
+            <button type="button" class="yw-icon-btn" aria-label="閉じる" onclick="closeReviewModal()">
                 <span class="yw-icon" aria-hidden="true">✕</span>
             </button>
         </div>
@@ -118,10 +118,10 @@
             <input type="hidden" name="tripId" id="modalTripId">
             <input type="hidden" name="reviewId" id="modalReviewId">
 
-            <!-- 작성/수정 필드 -->
+            <!-- 作成/修正 필드 -->
             <div id="modalFields">
                 <div class="row">
-                    <label id="labelRating">평점</label>
+                    <label id="labelRating">評価</label>
                     <select name="rating" id="modalRating">
                         <option value="5">5</option>
                         <option value="4">4</option>
@@ -132,21 +132,21 @@
                 </div>
 
                 <div class="row">
-                    <label id="labelContent">내용</label>
-                    <textarea name="content" id="modalContent" placeholder="투어 경험을 작성해주세요..."></textarea>
+                    <label id="labelContent">内容</label>
+                    <textarea name="content" id="modalContent" placeholder="ツアー体験を入力してください..."></textarea>
                 </div>
             </div>
 
-            <!-- 삭제 안내 -->
+            <!-- 削除 안내 -->
             <div id="deleteBox" class="yw-modal__dangerBox" style="display:none;">
                 <p id="deleteHint" class="hint" style="margin:0;">
-                    정말 삭제할까요? 삭제하면 되돌릴 수 없어요.
+                    本当に削除しますか？削除すると元に戻せません。
                 </p>
             </div>
 
             <div class="yw-modal__actions">
-                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">취소</button>
-                <button id="modalSubmitBtn" type="submit" class="btn">저장</button>
+                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">キャンセル</button>
+                <button id="modalSubmitBtn" type="submit" class="btn">保存</button>
             </div>
         </form>
     </div>

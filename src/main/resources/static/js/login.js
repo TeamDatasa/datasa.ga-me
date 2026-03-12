@@ -1,25 +1,25 @@
 
 const AVAILABLE_LANGUAGES = [
-  { code: "ko", label: "한국어" },
+  { code: "ko", label: "韓国語" },
   { code: "ja", label: "日本語" },
   { code: "en", label: "English" }
 ];
 
 const I18N = {
   ko: {
-    "login.title": "로그인",
-    "login.subtitle": "다시 만나서 반가워요. 로그인해주세요.",
-    "login.emailLabel": "이메일 주소",
+    "login.title": "ログイン",
+    "login.subtitle": "お帰りなさい。ログインしてください。",
+    "login.emailLabel": "メールアドレス",
     "login.emailPlaceholder": "email@example.com",
-    "login.passwordLabel": "비밀번호",
-    "login.passwordPlaceholder": "비밀번호",
-    "login.submit": "로그인",
-    "login.forgot": "비밀번호를 잊으셨나요?",
-    "login.signup": "회원가입",
+    "login.passwordLabel": "パスワード",
+    "login.passwordPlaceholder": "パスワード",
+    "login.submit": "ログイン",
+    "login.forgot": "パスワードをお忘れですか？",
+    "login.signup": "会員登録",
 
-    "login.alert.emailRequired": "이메일을 입력해주세요.",
-    "login.alert.passwordRequired": "비밀번호를 입력해주세요.",
-    "login.alert.failed": "로그인에 실패했습니다."
+    "login.alert.emailRequired": "メールアドレスを入力してください。",
+    "login.alert.passwordRequired": "パスワードを入力してください。",
+    "login.alert.failed": "ログインに失敗しました。"
   },
   ja: {
     "login.title": "ログイン",
@@ -54,7 +54,7 @@ const I18N = {
 };
 
 function getCurrentLang() {
-  return localStorage.getItem("lang") || "ko";
+  return localStorage.getItem("lang") || "ja";
 }
 
 function t(key) {

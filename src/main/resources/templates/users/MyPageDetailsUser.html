@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>My Page Details</title>
@@ -19,13 +19,13 @@
             <div class="yw-auth">
                 <div class="auth-lang mypage-lang">
                     <select id="langSelect" class="translate-select">
-                        <option value="ko">한국어</option>
+                        <option value="ko">韓国語</option>
                         <option value="ja">日本語</option>
                         <option value="en">English</option>
                     </select>
                 </div>
 
-                <a class="yw-icon-btn" href="/mypage" aria-label="뒤로">
+                <a class="yw-icon-btn" href="/mypage" aria-label="戻る">
                     <span class="yw-icon" aria-hidden="true">✕</span>
                 </a>
             </div>
@@ -35,20 +35,20 @@
     <section class="panel">
         <div class="grid">
             <a class="card card-link" th:href="@{/mypage/applications}">
-                <div class="card-title" data-i18n="applicationStatus">신청 현황</div>
-                <div class="card-meta" data-i18n="applicationStatusMeta">대기 / 승인 / 거절</div>
+                <div class="card-title" data-i18n="applicationStatus">申請状況</div>
+                <div class="card-meta" data-i18n="applicationStatusMeta">保留 / 承認 / 拒否</div>
 
                 <div class="status-badges">
           <span class="status pending">
-            <span data-i18n="pending">대기</span>
+            <span data-i18n="pending">保留</span>
             <b th:text="${counts != null ? counts.pending() : 0}">0</b>
           </span>
                     <span class="status approved">
-            <span data-i18n="approved">승인</span>
+            <span data-i18n="approved">承認</span>
             <b th:text="${counts != null ? counts.approved() : 0}">0</b>
           </span>
                     <span class="status rejected">
-            <span data-i18n="rejected">거절</span>
+            <span data-i18n="rejected">拒否</span>
             <b th:text="${counts != null ? counts.rejected() : 0}">0</b>
           </span>
                 </div>
@@ -59,15 +59,15 @@
         <div class="panel" style="margin-top: 18px;">
             <div class="panel-head">
                 <div>
-                    <h3 data-i18n="myTours">내가 참여한 투어</h3>
-                    <p class="hint" data-i18n="myToursHint">승인된 투어 목록입니다. 종료된 투어는 후기 작성이 가능합니다.</p>
+                    <h3 data-i18n="myTours">参加したツアー</h3>
+                    <p class="hint" data-i18n="myToursHint">承認済みのツアー一覧です。終了したツアーはレビューを作成できます。</p>
                 </div>
                 <nav class="pagination"
                      th:if="${tourTotalPages != null and tourTotalPages > 1}">
                     <a class="page-btn"
                        th:classappend="${!tourHasPrev} ? 'is-disabled' : ''"
                        th:href="@{/mypage/details/user(tourPage=${tourPage - 1}, likePage=${likePage})}">
-                        이전
+                        前へ
                     </a>
 
                     <a class="page-btn"
@@ -80,62 +80,62 @@
                     <a class="page-btn"
                        th:classappend="${!tourHasNext} ? 'is-disabled' : ''"
                        th:href="@{/mypage/details/user(tourPage=${tourPage + 1}, likePage=${likePage})}">
-                        다음
+                        次へ
                     </a>
                 </nav>
             </div>
 
             <ul class="list" th:if="${myTours != null and !#lists.isEmpty(myTours)}">
                 <li class="list-item" th:each="t : ${myTours}">
-                    <div class="title" th:text="${t.title()}">투어 제목</div>
+                    <div class="title" th:text="${t.title()}">ツアータイトル</div>
 
                     <div class="meta">
-                        <span th:text="${t.region()}">지역</span>
-                        · <span th:text="${t.startAt()}">시작</span> ~ <span th:text="${t.endAt()}">종료</span>
+                        <span th:text="${t.region()}">地域</span>
+                        · <span th:text="${t.startAt()}">開始</span> ~ <span th:text="${t.endAt()}">終了</span>
                     </div>
 
                     <div class="actions">
-                        <!-- 작성 -->
+                        <!-- 作成 -->
                         <button type="button"
                                 class="btn"
                                 th:if="${t.canReview()}"
                                 th:attr="data-trip-id=${t.tripId()}"
                                 onclick="openReviewModal('new', this)">
-                            후기 작성
+                            レビュー作成
                         </button>
 
-                        <!-- 수정 -->
+                        <!-- 修正 -->
                         <button type="button"
                                 class="btn"
                                 th:if="${t.reviewId() != null}"
                                 th:attr="data-trip-id=${t.tripId()},
                                          data-review-id=${t.reviewId()}"
                                 onclick="openReviewModal('edit', this)">
-                            후기 수정
+                            レビュー修正
                         </button>
 
-                        <!-- 삭제 -->
+                        <!-- 削除 -->
                         <button type="button"
                                 class="btn btn-danger"
                                 th:if="${t.reviewId() != null}"
                                 th:attr="data-review-id=${t.reviewId()}"
                                 onclick="openReviewModal('delete', this)">
-                            후기 삭제
+                            レビュー削除
                         </button>
                     </div>
                 </li>
             </ul>
 
             <div class="empty" th:if="${myTours == null or #lists.isEmpty(myTours)}" data-i18n="emptyTours">
-                아직 승인된 투어가 없습니다.
+                まだ承認されたツアーがありません。
             </div>
         </div>
 
         <div class="panel">
             <div class="panel-head">
                 <div>
-                    <h3 data-i18n="myLikes">내가 좋아요한 투어</h3>
-                    <p class="hint" data-i18n="myLikesHint">최근 좋아요한 투어 목록입니다.</p>
+                    <h3 data-i18n="myLikes">いいねしたツアー</h3>
+                    <p class="hint" data-i18n="myLikesHint">最近いいねしたツアー一覧です。</p>
                 </div>
                 <nav class="pagination"
                      th:if="${likeTotalPages != null and likeTotalPages > 1}">
@@ -143,7 +143,7 @@
                     <a class="page-btn"
                        th:classappend="${!likeHasPrev} ? 'is-disabled' : ''"
                        th:href="@{/mypage/details/user(tourPage=${tourPage}, likePage=${likePage - 1})}">
-                        이전
+                        前へ
                     </a>
 
                     <a class="page-btn"
@@ -156,7 +156,7 @@
                     <a class="page-btn"
                        th:classappend="${!likeHasNext} ? 'is-disabled' : ''"
                        th:href="@{/mypage/details/user(tourPage=${tourPage}, likePage=${likePage + 1})}">
-                        다음
+                        次へ
                     </a>
                 </nav>
             </div>
@@ -165,18 +165,18 @@
                 <li th:each="t : ${myLikes}">
                     <a class="list-item card-link"
                        th:href="@{/trip/detail/{tripId}(tripId=${t.tripId()})}">
-                        <div class="title" th:text="${t.title()}">투어</div>
+                        <div class="title" th:text="${t.title()}">ツアー</div>
                         <div class="meta">
-                            <span th:text="${t.region()}">지역</span>
-                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">시작</span>
-                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">종료</span>
+                            <span th:text="${t.region()}">地域</span>
+                            · <span th:text="${#temporals.format(t.startAt(), 'yyyy-MM-dd HH:mm')}">開始</span>
+                            ~ <span th:text="${#temporals.format(t.endAt(), 'yyyy-MM-dd HH:mm')}">終了</span>
                         </div>
                     </a>
                 </li>
             </ul>
 
             <div class="empty" th:if="${myLikes == null or #lists.isEmpty(myLikes)}" data-i18n="emptyLikes">
-                좋아요한 투어가 없습니다.
+                いいねしたツアーがありません。
             </div>
         </div>
 
@@ -189,8 +189,8 @@
 <div id="reviewModal" class="yw-modal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="yw-modal__card">
         <div class="yw-modal__head">
-            <h3 id="modalTitle" class="yw-modal__title">리뷰</h3>
-            <button type="button" class="yw-icon-btn" aria-label="닫기" onclick="closeReviewModal()">
+            <h3 id="modalTitle" class="yw-modal__title">レビュー</h3>
+            <button type="button" class="yw-icon-btn" aria-label="閉じる" onclick="closeReviewModal()">
                 <span class="yw-icon" aria-hidden="true">✕</span>
             </button>
         </div>
@@ -205,7 +205,7 @@
 
             <div id="modalFields">
                 <div class="row">
-                    <label id="labelRating">평점</label>
+                    <label id="labelRating">評価</label>
                     <select name="rating" id="modalRating" required>
                         <option value="5">5</option><option value="4">4</option><option value="3">3</option>
                         <option value="2">2</option><option value="1">1</option>
@@ -213,20 +213,20 @@
                 </div>
 
                 <div class="row">
-                    <label id="labelContent">내용</label>
-                    <textarea name="content" id="modalContent" required placeholder="투어 경험을 작성해주세요..."></textarea>
+                    <label id="labelContent">内容</label>
+                    <textarea name="content" id="modalContent" required placeholder="ツアー体験を入力してください..."></textarea>
                 </div>
             </div>
 
             <div id="deleteBox" class="yw-modal__dangerBox" style="display:none;">
                 <p id="deleteHint" class="hint" style="margin:0;">
-                    정말 삭제할까요? 삭제하면 되돌릴 수 없어요.
+                    本当に削除しますか？削除すると元に戻せません。
                 </p>
             </div>
 
             <div class="yw-modal__actions">
-                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">취소</button>
-                <button id="modalSubmitBtn" type="submit" class="btn">저장</button>
+                <button type="button" class="btn btn-ghost" onclick="closeReviewModal()">キャンセル</button>
+                <button id="modalSubmitBtn" type="submit" class="btn">保存</button>
             </div>
         </form>
     </div>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,12 +9,12 @@
     <link rel="stylesheet" th:href="@{/css/trip-apply.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-like.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/trip-detail.css(v=${#dates.createNow().time})}">
-    <!-- 추가: 지도 전용 CSS (기존 UI 영향 최소) -->
+    <!-- 추가: 지道 전용 CSS (기존 UI 영향 최소) -->
     <link rel="stylesheet" th:href="@{/css/trip-detail-map.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/host-card-modal.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
-    <title>여정 상세</title>
+    <title>ツアー詳細</title>
 
     <!-- 추가: Kakao Maps SDK (autoload=false) -->
     <script th:if="${jsKey != null}"
@@ -31,49 +31,49 @@
 
             <section class="dt-card dt-main">
                 <div class="dt-breadcrumb">
-                    <a href="/trip/listAll" class="dt-link">여행</a>
+                    <a href="/trip/listAll" class="dt-link">旅行</a>
                     <span class="dt-sep">/</span>
-                    <span class="dt-muted">여정 상세</span>
+                    <span class="dt-muted">ツアー詳細</span>
                 </div>
 
                 <header class="dt-head">
                     <div class="dt-title-wrap">
-                        <h1 class="dt-title" th:text="${trip.title}">여정 제목</h1>
+                        <h1 class="dt-title" th:text="${trip.title}">ツアータイトル</h1>
 
                         <div class="dt-meta">
-                            <span class="dt-chip" th:text="${trip.region} ?: '지역 미정'">지역</span>
+                            <span class="dt-chip" th:text="${trip.region} ?: '地域未定'">地域</span>
 
                             <th:block th:if="${trip.languageCodes != null} and ${!trip.languageCodes.isEmpty()}">
                                 <th:block th:each="code : ${trip.languageCodes}">
                                     <span class="dt-chip" th:switch="${code}">
-                                        <span th:case="'KOREAN'">한국어</span>
-                                        <span th:case="'ENGLISH'">영어</span>
-                                        <span th:case="'JAPANESE'">일본어</span>
+                                        <span th:case="'KOREAN'">韓国語</span>
+                                        <span th:case="'ENGLISH'">英語</span>
+                                        <span th:case="'JAPANESE'">日本語</span>
                                         <span th:case="*" th:text="${code}">-</span>
                                     </span>
                                 </th:block>
                             </th:block>
 
                             <span class="dt-chip" th:switch="${trip.theme}">
-                                <span th:case="'FOOD'">맛집</span>
-                                <span th:case="'NATURE'">자연</span>
-                                <span th:case="'CITY'">도시</span>
-                                <span th:case="'CULTURE'">문화</span>
-                                <span th:case="'NIGHT'">야경</span>
+                                <span th:case="'FOOD'">グルメ</span>
+                                <span th:case="'NATURE'">自然</span>
+                                <span th:case="'CITY'">都市</span>
+                                <span th:case="'CULTURE'">文化</span>
+                                <span th:case="'NIGHT'">夜景</span>
                                 <span th:case="*" th:text="${trip.theme} ?: '-'">-</span>
                             </span>
 
                             <span class="dt-dot">•</span>
-                            <span class="dt-muted">참가 인원</span>
+                            <span class="dt-muted">参加人数</span>
                             <span class="dt-strong"
                                   th:text="${trip.currentParticipants} + '/' + ${trip.maxParticipants}">1/3</span>
 
                             <span class="dt-dot">•</span>
-                            <span class="dt-muted">호스트</span>
+                            <span class="dt-muted">ホスト</span>
 
                             <span class="dt-strong dt-host-deleted"
                                   th:if="${trip.hostDeleted}">
-                                탈퇴한 사용자
+                                退会したユーザー
                             </span>
 
                             <a href="#"
@@ -102,14 +102,14 @@
                                th:classappend="${!canEditDelete} ? ' dt-disabled' : ''"
                                th:attr="aria-disabled=${!canEditDelete}"
                                th:onclick="${!canEditDelete} ? 'return false;' : null">
-                                수정
+                                修正
                             </a>
 
                             <form id="deleteTripFormTop" th:action="@{|/trip/delete/${trip.tripId}|}" method="post">
                                 <button type="submit"
                                         class="dt-btn dt-btn--danger"
                                         th:disabled="${!canEditDelete}">
-                                    삭제
+                                    削除
                                 </button>
                             </form>
                         </div>
@@ -117,60 +117,60 @@
                 </header>
 
                 <p class="dt-hint dt-hint--top" th:if="${isOwner} and ${!canEditDelete}">
-                    일정 시작 7일 전이기 때문에 일정을 수정/삭제 할 수 없습니다
+                    日程開始7日前のため、日程を修正・削除できません。
                 </p>
 
                 <div class="dt-divider"></div>
 
                 <section class="dt-section">
-                    <h2 class="dt-section-title">여정 소개</h2>
-                    <p class="dt-desc" th:text="${trip.description}">설명</p>
+                    <h2 class="dt-section-title">ツアー紹介</h2>
+                    <p class="dt-desc" th:text="${trip.description}">説明</p>
                 </section>
 
                 <section class="dt-section dt-schedule">
-                    <h2 class="dt-section-title">일정</h2>
+                    <h2 class="dt-section-title">日程</h2>
 
                     <div class="dt-schedule-empty" th:if="${trip.locations == null} or ${trip.locations.isEmpty()}">
-                        등록된 일정이 없습니다.
+                        登録された日程がありません。
                     </div>
 
                     <ol class="dt-schedule-list" th:if="${trip.locations != null} and ${!trip.locations.isEmpty()}">
                         <li class="dt-schedule-item" th:each="p : ${trip.locations}">
                             <div class="dt-schedule-no" th:text="${p.orderNo}">1</div>
                             <div class="dt-schedule-body">
-                                <div class="dt-schedule-name" th:text="${p.placeName}">장소명</div>
-                                <div class="dt-schedule-addr" th:text="${p.address} ?: '-'">주소</div>
+                                <div class="dt-schedule-name" th:text="${p.placeName}">場所名</div>
+                                <div class="dt-schedule-addr" th:text="${p.address} ?: '-'">住所</div>
                             </div>
                         </li>
                     </ol>
 
-                    <!-- 추가: 일정 아래에 지도만 삽입 (기존 UI 구조 유지) -->
+                    <!-- 추가: 日程 아래에 지道만 삽입 (기존 UI 구조 유지) -->
                     <div class="dt-map-wrap" th:if="${trip.locations != null} and ${!trip.locations.isEmpty()}">
                         <div class="dt-map-head">
-                            <div class="dt-map-title">지도에서 보기</div>
-                            <div class="dt-map-sub">여정 순서대로 번호 마커가 표시됩니다.</div>
+                            <div class="dt-map-title">地図で見る</div>
+                            <div class="dt-map-sub">ツアー順に番号マーカーが表示されます。</div>
                         </div>
                         <div id="tripMap" class="dt-map"></div>
                     </div>
                 </section>
 
                 <section class="dt-section">
-                    <h2 class="dt-section-title">댓글</h2>
+                    <h2 class="dt-section-title">コメント</h2>
 
                     <div class="dt-comment-head">
-                        <span class="dt-muted">총</span>
+                        <span class="dt-muted">合計</span>
                         <span id="commentCount" class="dt-strong">0</span>
-                        <span class="dt-muted">개</span>
+                        <span class="dt-muted">件</span>
                     </div>
 
                     <form id="commentForm" class="dt-comment-form">
                         <textarea id="commentContent"
                                   class="dt-textarea"
                                   rows="3"
-                                  placeholder="댓글을 입력하세요"></textarea>
+                                  placeholder="コメントを入力してください"></textarea>
 
                         <div class="dt-comment-actions">
-                            <button type="submit" class="dt-btn dt-btn--primary">등록</button>
+                            <button type="submit" class="dt-btn dt-btn--primary">登録</button>
                         </div>
                     </form>
 
@@ -181,8 +181,8 @@
             <aside class="dt-side">
                 <div class="dt-card dt-side-card">
                     <div class="dt-side-top">
-                        <div class="dt-side-title">여정 참여</div>
-                        <div class="dt-side-sub dt-muted">신청 후 호스트 승인 시 확정됩니다.</div>
+                        <div class="dt-side-title">ツアー参加</div>
+                        <div class="dt-side-sub dt-muted">申請後、ホストの承認で確定します。</div>
                     </div>
 
                     <button type="button"
@@ -190,11 +190,11 @@
                             class="dt-btn dt-btn--primary dt-btn--block"
                             th:attr="data-apply-extra-disabled=${applyExtraDisabled},
                                      data-apply-extra-reason=${applyDisabledReason}">
-                        여정 신청하기
+                        ツアーに申請する
                     </button>
 
                     <div class="dt-kv" th:with="st=${trip.status != null ? trip.status.name() : ''}">
-                        <span class="dt-k">상태</span>
+                        <span class="dt-k">状態</span>
                         <span class="dt-v">
                             <span class="dt-pill"
                                   th:classappend="${st} == 'OPEN' ? ' dt-pill--open' :
@@ -203,11 +203,11 @@
                                                   (${st} == 'FINISHED' ? ' dt-pill--finished' :
                                                   (${st} == 'DRAFT' ? ' dt-pill--draft' : ' dt-pill--draft'))))">
                                 <span th:switch="${st}">
-                                    <span th:case="'DRAFT'">임시저장</span>
-                                    <span th:case="'OPEN'">모집중</span>
-                                    <span th:case="'CLOSED'">모집마감</span>
-                                    <span th:case="'IN_PROGRESS'">진행중</span>
-                                    <span th:case="'FINISHED'">종료됨</span>
+                                    <span th:case="'DRAFT'">下書き</span>
+                                    <span th:case="'OPEN'">募集中</span>
+                                    <span th:case="'CLOSED'">募集終了</span>
+                                    <span th:case="'IN_PROGRESS'">進行中</span>
+                                    <span th:case="'FINISHED'">終了</span>
                                     <span th:case="*">-</span>
                                 </span>
                             </span>
@@ -215,25 +215,25 @@
                     </div>
 
                     <div class="dt-kv">
-                        <span class="dt-k">예상 비용</span>
+                        <span class="dt-k">予想費用</span>
                         <span class="dt-v"
-                              th:text="${trip.estimatedCost != null} ? ${#numbers.formatInteger(trip.estimatedCost, 0, 'COMMA')} + '원' : '-'">-</span>
+                              th:text="${trip.estimatedCost != null} ? ${#numbers.formatInteger(trip.estimatedCost, 0, 'COMMA')} + 'ウォン' : '-'">-</span>
                     </div>
 
                     <div class="dt-kv">
-                        <span class="dt-k">소요 시간(분)</span>
+                        <span class="dt-k">所要時間（分）</span>
                         <span class="dt-v"
                               th:text="${trip.durationMinutes != null} ? ${trip.durationMinutes} : '-'">-</span>
                     </div>
 
                     <div class="dt-kv">
-                        <span class="dt-k">시작일</span>
+                        <span class="dt-k">開始日</span>
                         <span class="dt-v"
                               th:text="${trip.startAt != null} ? ${#temporals.format(trip.startAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                     </div>
 
                     <div class="dt-kv">
-                        <span class="dt-k">종료일</span>
+                        <span class="dt-k">終了日</span>
                         <span class="dt-v"
                               th:text="${trip.endAt != null} ? ${#temporals.format(trip.endAt, 'yyyy-MM-dd HH:mm')} : '-'">-</span>
                     </div>
@@ -247,13 +247,13 @@
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
-            <div id="hcTitle" class="hc-title">호스트 프로필</div>
-            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+            <div id="hcTitle" class="hc-title">ホストプロフィール</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">閉じる</button>
         </div>
 
         <div class="hc-body">
             <div class="hc-profile">
-                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <img id="hcAvatar" class="hc-avatar" alt="ホストプロフィール画像"/>
                 <div class="hc-profile__main">
                     <h3 id="hcName" class="hc-name">-</h3>
                     <div id="hcMeta" class="hc-meta"></div>
@@ -270,7 +270,7 @@
     const hostUserId = /*[[${trip.hostUserId}]]*/ 0;
     const currentUserId = /*[[${currentUserId}]]*/ null;
 
-    // 추가: 지도 표시용 locations (orderNo/lat/lng/placeName/address 포함)
+    // 추가: 지道 표市용 locations (orderNo/lat/lng/placeName/address 포함)
     const tripLocations = /*[[${trip.locations}]]*/ [];
 </script>
 
@@ -283,7 +283,7 @@
 <script th:src="@{/js/trip-delete.js(v=${#dates.createNow().time})}"></script>
 <script th:src="@{/js/host-card-modal.js(v=${#dates.createNow().time})}"></script>
 
-<!-- 추가: 지도 렌더링 -->
+<!-- 추가: 지道 렌더링 -->
 <script th:src="@{/js/trip-detail-map.js(v=${#dates.createNow().time})}"></script>
 
 <div th:replace="~{fragments/footer :: siteFooter}"></div>

@@ -202,7 +202,7 @@ input[readonly]{
   box-shadow: var(--shadowSoft);
 }
 
-/* 2열: 지도 + 검색결과 */
+/* 2열: 지道 + 検索결과 */
 .tw-map-grid{
   display:flex;
   gap:12px;
@@ -290,7 +290,7 @@ input[readonly]{
   border-color: rgba(48,132,242,0.35);
 }
 
-/* 아래 1열: 일정(가로로 길게) */
+/* 아래 1열: 日程(가로로 길게) */
 .tw-schedule-wide{
   margin-top: 12px;
   border:1px solid rgba(15,23,42,0.10);

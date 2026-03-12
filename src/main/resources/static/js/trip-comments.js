@@ -11,7 +11,7 @@
   async function fetchComments() {
     const res = await fetch(`/api/trips/${tripId}/comments`, { credentials: "include" });
     if (!res.ok) {
-      console.error("댓글 목록 조회 실패", res.status);
+      console.error("コメント一覧の取得に失敗", res.status);
       return [];
     }
     return res.json();
@@ -42,10 +42,10 @@
     const userNameRaw = c.userName ?? "";
     const userName = escapeHtml(userNameRaw);
 
-    const isDeletedUser = userId == null || userNameRaw === "탈퇴한 사용자";
+    const isDeletedUser = userId == null || userNameRaw === "退会したユーザー";
 
     if (isDeletedUser) {
-      return `<strong class="comment-author-deleted">탈퇴한 사용자</strong>`;
+      return `<strong class="comment-author-deleted">退会したユーザー</strong>`;
     }
 
     if (c.hostCardOpenable && userId != null) {
@@ -74,8 +74,8 @@
               <button type="button" class="btn-like" data-like>♥ ${c.likeCount}</button>
               ${
               mine
-                  ? `<button type="button" class="btn-edit" data-edit>수정</button>
-                     <button type="button" class="btn-del" data-del>삭제</button>`
+                  ? `<button type="button" class="btn-edit" data-edit>修正</button>
+                     <button type="button" class="btn-del" data-del>削除</button>`
                   : ``
           }
             </div>
@@ -103,7 +103,7 @@
 
     if (!res.ok) {
       const msg = await res.text().catch(() => "");
-      alert(`댓글 작성 실패 (${res.status})\n${msg}`);
+      alert(`コメントの作成に失敗 (${res.status})\n${msg}`);
       return;
     }
 
@@ -126,12 +126,12 @@
     }
 
     if (e.target.matches("[data-del]")) {
-      if (!confirm("댓글을 삭제하시겠습니까?")) return;
+      if (!confirm("コメントを削除しますか？")) return;
 
       const res = await authFetch(`/api/comments/${commentId}`, { method: "DELETE" });
       if (!res.ok) {
         const msg = await res.text().catch(() => "");
-        alert(`삭제 실패 (${res.status})\n${msg}`);
+        alert(`削除失敗 (${res.status})\n${msg}`);
         return;
       }
       await refresh();
@@ -141,7 +141,7 @@
     if (e.target.matches("[data-edit]")) {
       const contentDiv = li.querySelector("[data-content]");
       const old = contentDiv ? contentDiv.textContent : "";
-      const next = prompt("수정할 내용을 입력하세요.", old);
+      const next = prompt("修正内容を入力してください。", old);
       if (next == null) return;
 
       const content = next.trim();
@@ -154,7 +154,7 @@
 
       if (!res.ok) {
         const msg = await res.text().catch(() => "");
-        alert(`수정 실패 (${res.status})\n${msg}`);
+        alert(`修正失敗 (${res.status})\n${msg}`);
         return;
       }
 

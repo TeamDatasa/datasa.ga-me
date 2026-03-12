@@ -68,7 +68,7 @@
     const textEl = $(IDS.previewText);
     if (!imgEl || !textEl) return;
 
-    const label = isCurrent ? "현재 프로필" : "선택한 이미지";
+    const label = isCurrent ? "現在のプロフィール" : "選択한 이미지";
 
     if (url) {
       imgEl.style.display = "block";
@@ -79,7 +79,7 @@
 
     imgEl.style.display = "none";
     imgEl.removeAttribute("src");
-    textEl.textContent = "현재 프로필: 기본(이니셜)";
+    textEl.textContent = "現在のプロフィール：基本（イニシャル）";
   }
 
   async function fetchProfile() {
@@ -172,12 +172,12 @@
 
     saveBtn.addEventListener("click", async () => {
       if (!selectedUrl) {
-        hint.textContent = "이미지를 선택해 주세요.";
+        hint.textContent = "画像を選択してください。";
         return;
       }
 
       saveBtn.disabled = true;
-      hint.textContent = "저장 중입니다...";
+      hint.textContent = "保存中です...";
 
       try {
         const updated = await savePresetProfile(selectedUrl);
@@ -190,11 +190,11 @@
           await window.loadProfile();
         }
 
-        hint.textContent = "저장되었습니다.";
+        hint.textContent = "保存されました。";
         setTimeout(close, 200);
       } catch (err) {
         console.error(err);
-        hint.textContent = "저장에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+        hint.textContent = "保存に失敗しました。しばらくしてからもう一度お試しください。";
       } finally {
         saveBtn.disabled = false;
       }

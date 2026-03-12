@@ -1,10 +1,10 @@
 <!-- 파일: src/main/resources/templates/map/naverMap.html -->
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>장소 선택</title>
+    <title>場所選択</title>
 
     <!-- Naver Maps JS: 한 번만 로드 (geocoder 포함) -->
     <script th:src="'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + ${naverMapsClientId} + '&submodules=geocoder'"></script>
@@ -95,11 +95,11 @@
 
 <body>
 <div class="wrap">
-    <h1>장소 선택</h1>
+    <h1>場所選択</h1>
 
     <div class="search-bar">
-        <input id="q" type="text" placeholder="주소/지역/장소/시설을 입력하세요 (예: 서울, 김해공항, 스타벅스 광화문)"/>
-        <button id="btnSearch" type="button">검색</button>
+        <input id="q" type="text" placeholder="住所・地域・場所・施設を入力してください（例：ソウル、金海空港、スターバックス光化門）"/>
+        <button id="btnSearch" type="button">検索</button>
     </div>
 
     <div id="searchResult" class="muted"></div>
@@ -108,18 +108,18 @@
         <div id="map"></div>
 
         <aside class="side">
-            <h2>장소 후보</h2>
+            <h2>場所候補</h2>
             <div class="muted" id="placeHint">
-                검색하면 오른쪽에 장소/시설 후보가 표시됩니다. 항목을 클릭하면 지도에서 해당 위치로 이동합니다.
+                検索すると右側に場所・施設の候補が表示されます。項目をクリックすると地図上の該当位置に移動します。
             </div>
 
             <ul id="placeList" class="list" style="margin-top:10px;"></ul>
 
             <div class="picked">
-                <div class="muted">선택된 위치</div>
+                <div class="muted">選択した位置</div>
                 <div id="pickedText" class="muted" style="margin-top:6px;">-</div>
 
-                <!-- 필요 시 폼 전송용 hidden -->
+                <!-- 필요 市 폼 전송용 hidden -->
                 <input type="hidden" id="pickedLat" name="lat"/>
                 <input type="hidden" id="pickedLng" name="lng"/>
                 <input type="hidden" id="pickedAddr" name="address"/>
@@ -129,8 +129,8 @@
                 <input type="hidden" id="pickedLink" name="link"/>
 
                 <div class="actions">
-                    <button class="btn" type="button" id="btnReverse">좌표→주소 갱신</button>
-                    <button class="btn" type="button" id="btnClearList">장소 후보 지우기</button>
+                    <button class="btn" type="button" id="btnReverse">座標→住所更新</button>
+                    <button class="btn" type="button" id="btnClearList">候補をクリア</button>
                 </div>
 
                 <div class="kv">
@@ -146,7 +146,7 @@
 
 <script>
     // =========================
-    // 0) 기본 설정 / 상태
+    // 0) 기본 설정 / 状態
     // =========================
     const initLat = 37.5665;
     const initLng = 126.9780;
@@ -162,7 +162,7 @@
     };
 
     // =========================
-    // 1) 지도 초기화
+    // 1) 지道 リセット
     // =========================
     const map = new naver.maps.Map('map', {
       center: new naver.maps.LatLng(initLat, initLng),
@@ -174,7 +174,7 @@
       map: map
     });
 
-    // ===== InfoWindow(선택한 장소 간략 정보) =====
+    // ===== InfoWindow(選択한 장소 간략 정보) =====
     const infoWindow = new naver.maps.InfoWindow({
       content: '',
       backgroundColor: '#fff',
@@ -185,7 +185,7 @@
     });
 
     function buildInfoHtml() {
-      const title = picked.placeName || '선택한 위치';
+      const title = picked.placeName || '選択한 위치';
       const addr = picked.addr || '';
       const phone = picked.phone || '';
       const category = picked.category || '';
@@ -199,7 +199,7 @@
           ${category ? `<div style="font-size:12px;color:#555;margin-bottom:6px;">${escapeHtml(category)}</div>` : ''}
           ${addr ? `<div style="font-size:12px;color:#333;margin-bottom:6px;">${escapeHtml(addr)}</div>` : ''}
           ${phone ? `<div style="font-size:12px;color:#333;margin-bottom:6px;">☎ ${escapeHtml(phone)}</div>` : ''}
-          ${link ? `<div style="font-size:12px;"><a href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">링크</a></div>` : ''}
+          ${link ? `<div style="font-size:12px;"><a href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">リンク</a></div>` : ''}
         </div>
       `;
     }
@@ -209,14 +209,14 @@
       infoWindow.open(map, marker);
     }
 
-    // 마커 클릭 시 토글
+    // 마커 클릭 市 토글
     naver.maps.Event.addListener(marker, 'click', () => {
       if (infoWindow.getMap()) infoWindow.close();
       else openInfoWindow();
     });
 
     // =========================
-    // 2) 선택 상태 반영
+    // 2) 選択 状態 반영
     // =========================
     function setPicked(lat, lng, addr, placeName, phone, category, link) {
       picked.lat = lat;
@@ -250,7 +250,7 @@
 
     setPicked(initLat, initLng, '', '', '', '', '');
 
-    // 지도 클릭 → 마커 이동 + reverse geocode로 주소 갱신 (장소명은 초기화)
+    // 지道 클릭 → 마커 이동 + reverse geocode로 住所 갱신 (場所名은 リセット)
     naver.maps.Event.addListener(map, 'click', function(e) {
       const lat = e.coord.y;
       const lng = e.coord.x;
@@ -266,7 +266,7 @@
     });
 
     // =========================
-    // 3) Reverse Geocode (좌표 → 주소)
+    // 3) Reverse Geocode (좌표 → 住所)
     // =========================
     function loadAddressByCoord(lat, lng) {
       if (!naver.maps.Service || !naver.maps.Service.reverseGeocode) return;
@@ -287,7 +287,7 @@
         const addr = buildAddrText(road) || buildAddrText(jibun) || '';
         setPicked(lat, lng, addr, picked.placeName, picked.phone, picked.category, picked.link);
 
-        // 주소만 갱신해도 내용이 바뀌므로 열려있으면 업데이트
+        // 住所만 갱신해道 内容이 바뀌므로 열려있으면 업데이트
         if (infoWindow.getMap()) openInfoWindow();
       });
     }
@@ -307,7 +307,7 @@
     });
 
     // =========================
-    // 4) 검색: 장소/시설(지역검색) + 주소(지오코딩)
+    // 4) 検索: 장소/市설(地域検索) + 住所(지오코딩)
     // =========================
     document.getElementById('btnSearch').addEventListener('click', onSearch);
     document.getElementById('q').addEventListener('keydown', (e) => {
@@ -320,24 +320,24 @@
 
       const place = await loadPlacesFromServer(query);
 
-      // 장소 후보가 있고 첫 결과로 이동했으면 종료
+      // 場所候補가 있고 첫 결과로 이동했으면 終了
       if (place.count > 0 && place.firstMoved) {
         document.getElementById('searchResult').textContent =
-          `장소/시설 검색 결과 ${place.count}건 (첫 결과로 이동)`;
+          `場所・施設検索結果 ${place.count}件（最初の結果へ移動）`;
         return;
       }
 
-      // 장소 후보가 없거나(또는 이동 실패) 주소/지역 지오코딩 시도
+      // 場所候補가 없거나(또는 이동 실패) 住所/地域 지오코딩 市道
       const moved = await tryGeocodeMove(query);
 
       if (place.count > 0) {
         document.getElementById('searchResult').textContent =
-          `장소/시설 후보 ${place.count}건 (클릭하여 선택)`;
+          `場所・施設候補 ${place.count}件（クリックして選択）`;
         return;
       }
 
       document.getElementById('searchResult').textContent =
-        moved ? '주소/지역 검색으로 지도 이동 성공' : '검색 결과가 없습니다(주소/장소 모두 실패)';
+        moved ? '住所/地域 検索으로 지道 이동 성공' : '検索結果가 없습니다(住所/장소 모두 실패)';
     }
 
     function tryGeocodeMove(query) {
@@ -358,11 +358,11 @@
           marker.setPosition(coord);
           map.setCenter(coord);
 
-          // 주소 검색 성공 시: place 정보는 초기화
+          // 住所 検索 성공 市: place 정보는 リセット
           setPicked(lat, lng, addr, '', '', '', '');
           loadAddressByCoord(lat, lng);
 
-          // 주소 기반 이동이면 인포윈도우는 닫아둠(원하면 openInfoWindow로 변경)
+          // 住所 기반 이동이면 인포윈道우는 닫아둠(원하면 openInfoWindow로 변경)
           if (infoWindow.getMap()) infoWindow.close();
 
           resolve(true);
@@ -371,13 +371,13 @@
     }
 
     // =========================
-    // 5) 장소/시설 후보 리스트 (서버 프록시)
+    // 5) 場所・施設候補 리스트 (서버 프록市)
     //    GET /api/map/places?query=...&display=5
     // =========================
     async function loadPlacesFromServer(query) {
       const listEl = document.getElementById('placeList');
       listEl.innerHTML = '';
-      document.getElementById('placeHint').textContent = '장소 후보를 불러오는 중입니다...';
+      document.getElementById('placeHint').textContent = '場所候補を読み込んでいます...';
 
       try {
         const res = await fetch(`/api/map/places?query=${encodeURIComponent(query)}&display=5`, {
@@ -387,7 +387,7 @@
         if (!res.ok) {
           const text = await res.text();
           console.log("[PLACES] http error", res.status, text);
-          document.getElementById('placeHint').textContent = `장소 후보 조회 실패 (HTTP ${res.status})`;
+          document.getElementById('placeHint').textContent = `場所候補の取得に失敗しました（HTTP ${res.status})`;
           return { count: 0, firstMoved: false };
         }
 
@@ -395,11 +395,11 @@
         const items = json.items || [];
 
         if (!items.length) {
-          document.getElementById('placeHint').textContent = '장소 후보가 없습니다.';
+          document.getElementById('placeHint').textContent = '場所候補がありません。';
           return { count: 0, firstMoved: false };
         }
 
-        document.getElementById('placeHint').textContent = `장소 후보 ${items.length}건`;
+        document.getElementById('placeHint').textContent = `場所候補 ${items.length}件`;
 
         items.forEach((it, idx) => {
           const title = stripHtml(it.title || '');
@@ -416,15 +416,15 @@
               ${category ? `<span class="badge">${escapeHtml(category)}</span>` : ''}
               ${tel ? `<span class="badge">${escapeHtml(tel)}</span>` : ''}
               <div style="margin-top:6px;">${escapeHtml(addr)}</div>
-              ${link ? `<div style="margin-top:6px;"><a class="smalllink" href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">링크</a></div>` : ''}
-              <div style="margin-top:8px;" class="muted">클릭하면 해당 장소로 이동합니다.</div>
+              ${link ? `<div style="margin-top:6px;"><a class="smalllink" href="${escapeHtmlAttr(link)}" target="_blank" rel="noopener">リンク</a></div>` : ''}
+              <div style="margin-top:8px;" class="muted">クリックするとその場所へ移動します。</div>
             </div>
           `;
 
           li.addEventListener('click', () => {
             const moved = moveToPlaceItem(it);
             document.getElementById('searchResult').textContent =
-              moved ? `선택됨: ${title}` : `좌표 변환 실패: ${title}`;
+              moved ? `選択済み: ${title}` : `座標変換失敗: ${title}`;
           });
 
           listEl.appendChild(li);
@@ -437,7 +437,7 @@
 
       } catch (e) {
         console.log("[PLACES] exception", e);
-        document.getElementById('placeHint').textContent = '장소 후보 조회 중 예외가 발생했습니다.';
+        document.getElementById('placeHint').textContent = '場所候補の取得中にエラーが発生しました。';
         return { count: 0, firstMoved: false };
       }
     }
@@ -468,10 +468,10 @@
         item.link || ''
       );
 
-      // 주소 보정(선택)
+      // 住所 보정(選択)
       loadAddressByCoord(latLng.lat(), latLng.lng());
 
-      // 장소 선택 직후 인포윈도우 표시
+      // 場所選択 직후 인포윈道우 표市
       openInfoWindow();
 
       return true;
@@ -479,7 +479,7 @@
 
     document.getElementById('btnClearList').addEventListener('click', () => {
       document.getElementById('placeList').innerHTML = '';
-      document.getElementById('placeHint').textContent = '장소 후보를 지웠습니다.';
+      document.getElementById('placeHint').textContent = '場所候補をクリアしました。';
     });
 
     // =========================

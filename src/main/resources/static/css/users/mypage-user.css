@@ -162,7 +162,7 @@ a{ color:inherit; text-decoration:none; }
   font-weight: var(--fw-r);
 }
 
-/* ✅ 카드가 링크일 때 */
+/* ✅ 카드가 リンク일 때 */
 .card-link{
   display:block;
 }
@@ -434,9 +434,9 @@ a{ color:inherit; text-decoration:none; }
   pointer-events:none;
 }
 
-/* ===== Pagination: panel 아래 중앙 정렬 + 살짝 작게 ===== */
+/* ===== Pagination: panel 아래 중앙 並び替え + 살짝 작게 ===== */
 
-/* panel-head는 제목/힌트만 위에 남기고, pagination은 아래로 내려가게 */
+/* panel-head는 タイトル/힌트만 위에 남기고, pagination은 아래로 내려가게 */
 .panel-head{
   flex-wrap: wrap;            /* 줄바꿈 허용 */
 }
@@ -445,7 +445,7 @@ a{ color:inherit; text-decoration:none; }
 .panel-head > .pagination{
   width: 100%;
   justify-content: center;    /* 중앙 */
-  margin-top: 12px;          /* 제목 아래 간격 */
+  margin-top: 12px;          /* タイトル 아래 간격 */
 }
 
 /* 크기 조금 줄이기 */

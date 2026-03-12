@@ -12,7 +12,7 @@ body.embed {
   background: #FCFCFB; /* 기존 톤 유지 */
 }
 /* =========================
-   채팅 컨테이너
+   チャット 컨테이너
 ========================= */
 .chat-container {
   max-width: 600px;
@@ -27,7 +27,7 @@ body.embed {
   border: 1px solid #eee;
 }
 
-/* 메시지 스크롤 영역 */
+/* 메市지 스크롤 영역 */
 #chatMessages {
   flex: 1;
   overflow-y: auto;
@@ -35,20 +35,20 @@ body.embed {
 }
 
 /* =========================
-   메시지 공통
+   메市지 공통
 ========================= */
 .chat-message {
   display: flex;
   margin-bottom: 14px;
 }
 
-/* 연속 메시지일 경우 위 여백 줄이기 */
+/* 연속 메市지일 경우 위 여백 줄이기 */
 .chat-message.continued {
   margin-top: 2px;
 }
 
 /* =========================
-   상대 메시지 (왼쪽)
+   상대 메市지 (왼쪽)
 ========================= */
 .chat-message.other {
   align-items: flex-start;
@@ -63,14 +63,14 @@ body.embed {
 }
 
 /* =========================
-   내 메시지 (오른쪽)
+   내 메市지 (오른쪽)
 ========================= */
 .chat-message.me {
   justify-content: flex-end;
 }
 
 /* =========================
-   메시지 영역
+   메市지 영역
 ========================= */
 .message-area {
   display: flex;
@@ -86,7 +86,7 @@ body.embed {
 }
 
 /* =========================
-   말풍선 + 시간
+   말풍선 + 市간
 ========================= */
 
 
@@ -95,7 +95,7 @@ body.embed {
   align-items: flex-end;
   gap: 6px;
 }
-/* 상대 메시지 이름 정렬 */
+/* 상대 메市지 이름 並び替え */
 .chat-message.other .sender {
   margin-left: 2px;   /* ← 말풍선과 동일 */
 }
@@ -104,7 +104,7 @@ body.embed {
 .chat-message.other .bubble-row {
   margin-left: 2px; /* ← 말풍선을 살짝 오른쪽으로 밀어서 간격 확보 */
 }
-/* 내 메시지일 때 */
+/* 내 메市지일 때 */
 .bubble-row.me {
   justify-content: flex-end;
 }
@@ -136,7 +136,7 @@ body.embed {
 }
 
 /* =========================
-   시간
+   市간
 ========================= */
 .time {
   font-size: 12px;
@@ -223,7 +223,7 @@ body.embed {
   border: 1px solid #eee;
 }
 
-/* 연속 메시지일 경우: 프로필 숨김 (공간은 유지) */
+/* 연속 메市지일 경우: 프로필 숨김 (공간은 유지) */
 .chat-message.other.continued .profile {
   visibility: hidden;
 
@@ -263,9 +263,9 @@ body.embed {
   border-color: #F2E96D;
   color: #222;
 }
-/* 언어 선택 셀렉트 (아이콘 없음) */
+/* 言語 選択 셀렉트 (아이콘 없음) */
 .translate-select {
-  height: 36px;                    /* 채팅 버튼과 통일 */
+  height: 36px;                    /* チャット 버튼과 통일 */
   padding: 0 32px 0 12px;          /* 오른쪽 화살표 공간 */
 
   border-radius: 8px;

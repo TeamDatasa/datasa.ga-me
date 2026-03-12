@@ -18,7 +18,7 @@ const socket = new WebSocket(`${WS_BASE}/ws?userId=${userId}`);
 const stompClient = Stomp.over(socket);
 stompClient.debug = null;
 
-/* ===== 상태 ===== */
+/* ===== 状態 ===== */
 const messageMap = new Map();
 let lastSenderId = null;
 
@@ -63,14 +63,14 @@ stompClient.connect(
   }
 );
 
-/* ===== 메시지 전송 ===== */
+/* ===== 메市지 전송 ===== */
 function sendMessage() {
   const input = document.getElementById("messageInput");
   const text = input.value.trim();
 
 
   if (isReadOnly) {
-    alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+    alert("旅行終了後1週間を過ぎたため、チャットは閲覧のみ可能です。");
     return;
   }
   if (!text) return;
@@ -84,7 +84,7 @@ function sendMessage() {
   input.value = "";
 }
 
-/* ===== 메시지 렌더링 ===== */
+/* ===== 메市지 렌더링 ===== */
 function appendMessage(message) {
   const chat = document.getElementById("chatMessages");
 
@@ -142,7 +142,7 @@ if (!isMe) {
 
   const translateBtn = document.createElement("button");
   translateBtn.className = "translate-btn";
-  translateBtn.innerText = "번역";
+  translateBtn.innerText = "翻訳";
   translateBtn.dataset.messageId = message.messageId;
 
   translateArea.appendChild(translateBtn);
@@ -155,9 +155,9 @@ if (!isMe) {
   messageMap.set(message.messageId, wrapper);
 }
 
-/* ===== 번역 ===== */
+/* ===== 翻訳 ===== */
 const AVAILABLE_LANGUAGES = [
-  { code: "ko", label: "한국어" },
+  { code: "ko", label: "韓国語" },
   { code: "ja", label: "日本語" },
   { code: "en", label: "English" }
 ];
@@ -171,7 +171,7 @@ document.getElementById("chatMessages").addEventListener("click", (e) => {
 
 
     if (isReadOnly) {
-      alert("여행 종료 후 1주일이 지나 채팅은 열람만 가능합니다.");
+      alert("旅行終了後1週間を過ぎたため、チャットは閲覧のみ可能です。");
       return;
     }
   showLanguageSelect(wrapper, messageId);
@@ -183,7 +183,7 @@ function showLanguageSelect(wrapper, messageId) {
 
   const select = document.createElement("select");
   select.className = "translate-select";
-  select.innerHTML = `<option disabled selected>언어 선택</option>`;
+  select.innerHTML = `<option disabled selected>言語 選択</option>`;
 
   AVAILABLE_LANGUAGES.forEach(lang => {
     const option = document.createElement("option");
@@ -194,7 +194,7 @@ function showLanguageSelect(wrapper, messageId) {
 
   select.onchange = () => {
     translateMessage(messageId, select.value);
-    select.innerHTML = `<option>번역중...</option>`;
+    select.innerHTML = `<option>翻訳中...</option>`;
     select.disabled = true;
   };
 
@@ -221,18 +221,18 @@ function updateTranslatedMessage(message) {
 
   const btn = document.createElement("button");
   btn.className = "translate-btn";
-  btn.innerText = "번역";
+  btn.innerText = "翻訳";
   btn.dataset.messageId = message.messageId;
 
   translateArea.appendChild(btn);
 }
 
-/* ===== 기타 ===== */
+/* ===== その他 ===== */
 function formatTime(dateString) {
   const date = new Date(dateString);
   let h = date.getHours();
   const m = date.getMinutes().toString().padStart(2, "0");
-  const period = h >= 12 ? "오후" : "오전";
+  const period = h >= 12 ? "午後" : "午前";
   h = h % 12 || 12;
   return `${period} ${h}:${m}`;
 }
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!input) return;
 
   input.addEventListener("keydown", (e) => {
-    // IME(한글/일본어) 조합 중 Enter는 전송하면 안 됨
+    // IME(한글/日本語) 조합 중 Enter는 전송하면 안 됨
     if (e.isComposing || e.keyCode === 229) return;
 
     if (e.key === "Enter") {
@@ -286,11 +286,11 @@ async function leaveRoom() {
   const res = await fetch(`/api/chat/rooms/${roomId}/leave?userId=${userId}`, { method: "POST" });
 
   if (res.status === 403) {
-    alert("나가기 권한이 없습니다. (readOnly 차단 또는 인증 불일치)");
+    alert("退出する権限がありません。（読み取り専用または認証不一致）");
     return;
   }
   if (!res.ok) {
-    alert("나가기에 실패했습니다.");
+    alert("退出に失敗しました。");
     return;
   }
 
@@ -299,7 +299,7 @@ async function leaveRoom() {
     window.parent.postMessage({ type: "CHAT_LEFT", roomId }, "*");
   }
 
-  // 모달이 아닌 일반 페이지라면 목록으로
+  // 모달이 아닌 일반 페이지라면 一覧へ
   location.href = `/chat/rooms?userId=${userId}`;
 }
 

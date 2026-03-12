@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <title>My Applications</title>
@@ -17,7 +17,7 @@
         <h3>My Applications</h3>
         <p class="hint">Your recent tour applications.</p>
 
-        <!-- 상태 필터 -->
+        <!-- 状態 필터 -->
         <div class="status-badges" style="margin-top:14px;">
             <a class="status"
                th:classappend="${status == null} ? ' approved'"
@@ -62,7 +62,7 @@
                         View Trip
                     </a>
 
-                    <!-- 승인된 경우 -->
+                    <!-- 承認된 경우 -->
                     <a class="btn"
                        th:if="${a.status() == T(datasa.domain.entity.Application.Status).APPROVED}"
                        th:href="@{/mypage/tours}">

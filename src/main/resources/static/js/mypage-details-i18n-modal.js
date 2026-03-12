@@ -2,17 +2,17 @@
   const LANG_KEY = "uiLang";
 
   const T = {
-    ko: { modalWrite:"후기 작성", modalEdit:"후기 수정", modalDelete:"후기 삭제",
-          rating:"평점", content:"내용", placeholder:"투어 경험을 작성해주세요...",
-          cancel:"취소", save:"저장", update:"수정", del:"삭제",
-          deleteHint:"정말 삭제할까요? 삭제하면 되돌릴 수 없어요." },
+    ko: { modalWrite:"レビュー作成", modalEdit:"レビュー修正", modalDelete:"レビュー削除",
+          rating:"評価", content:"内容", placeholder:"ツアー体験を入力してください...",
+          cancel:"キャンセル", save:"保存", update:"修正", del:"削除",
+          deleteHint:"本当に削除しますか？削除すると元に戻せません。" },
     ja: { modalWrite:"レビュー作成", modalEdit:"レビュー編集", modalDelete:"レビュー削除",
           rating:"評価", content:"内容", placeholder:"ツアーの体験を書いてください…",
           cancel:"キャンセル", save:"保存", update:"更新", del:"削除",
           deleteHint:"本当に削除しますか？削除すると元に戻せません。" },
     en: { modalWrite:"Write Review", modalEdit:"Edit Review", modalDelete:"Delete Review",
           rating:"Rating", content:"Content", placeholder:"Write your experience...",
-          cancel:"Cancel", save:"Save", update:"Update", del:"Delete",
+          cancel:"Cancel", save:"保存", update:"Update", del:"Delete",
           deleteHint:"Delete this review? This action cannot be undone." }
   };
 
@@ -93,7 +93,7 @@
     ratingEl.value = "5";
     contentEl.value = "";
 
-    // 기본: 작성/수정 enabled + required
+    // 기본: 作成/修正 enabled + required
     ratingEl.disabled = false;
     contentEl.disabled = false;
     ratingEl.required = true;
@@ -105,7 +105,7 @@
     submitBtn.classList.add("btn");
     submitBtn.classList.remove("btn-danger");
 
-    // 안전: action 무시(우린 API만 씀)
+    // 안전: action 무市(우린 API만 씀)
     form.removeAttribute("action");
 
     if (mode === "new") {
@@ -121,7 +121,7 @@
       const tripId = el.dataset.tripId || "";
       tripIdEl.value = tripId;
 
-      // ✅ 기존 내용 프리필: 내 리뷰 조회
+      // ✅ 기존 内容 프리필: マイレビュー 조회
       if (tripId) {
         const me = await apiFetch(`/api/reviews/trips/${tripId}/me`, { method: "GET" });
         if (me?.reviewId != null) reviewIdEl.value = String(me.reviewId);
@@ -137,7 +137,7 @@
 
       reviewIdEl.value = el.dataset.reviewId || "";
 
-      // ✅ 삭제는 required 검사 막기
+      // ✅ 削除는 required 검사 막기
       ratingEl.disabled = true;
       contentEl.disabled = true;
       ratingEl.required = false;
@@ -229,7 +229,7 @@
         await submitModal();
       } catch (err) {
         console.error(err);
-        alert("처리 중 오류가 발생했습니다. 콘솔/서버로그 확인해줘.");
+        alert("処理中にエラーが発生しました。コンソールとサーバーログを確認してください。");
         submitBtn.disabled = false;
       }
     });

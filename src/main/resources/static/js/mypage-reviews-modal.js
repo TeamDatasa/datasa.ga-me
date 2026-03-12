@@ -3,27 +3,27 @@
 // =========================
 const I18N = {
   ko: {
-    pageTitle: "내 리뷰",
-    pageHint: "투어 종료 후 작성할 수 있습니다. 투어당 1개의 리뷰만 작성 가능합니다.",
-    joined: "참여한 투어",
-    joinedHint: "승인되어 참여한 투어 목록입니다.",
-    empty: "승인된 투어가 아직 없습니다.",
-    reset: "초기화",
+    pageTitle: "マイレビュー",
+    pageHint: "ツアー終了後に作成できます。ツアーごとにレビューは1件まで作成可能です。",
+    joined: "参加したツアー",
+    joinedHint: "承認済みの参加ツアー一覧です。",
+    empty: "承認されたツアーはまだありません。",
+    reset: "リセット",
 
-    write: "리뷰 작성",
-    edit: "리뷰 수정",
-    del: "리뷰 삭제",
+    write: "レビュー 作成",
+    edit: "レビュー 修正",
+    del: "レビュー 削除",
 
-    rating: "평점",
-    content: "내용",
-    placeholder: "투어 경험을 작성해주세요...",
+    rating: "評価",
+    content: "内容",
+    placeholder: "ツアー体験を入力してください...",
 
-    cancel: "취소",
-    save: "저장",
-    update: "수정",
-    delete: "삭제",
+    cancel: "キャンセル",
+    save: "保存",
+    update: "修正",
+    delete: "削除",
 
-    deleteHint: "정말 삭제할까요? 삭제하면 되돌릴 수 없어요."
+    deleteHint: "本当に削除しますか？削除すると元に戻せません。"
   },
   ja: {
     pageTitle: "私のレビュー",
@@ -65,7 +65,7 @@ const I18N = {
     placeholder: "Write your experience...",
 
     cancel: "Cancel",
-    save: "Save",
+    save: "保存",
     update: "Update",
     delete: "Delete",
 
@@ -80,7 +80,7 @@ function $(id) {
 function applyLang(lang) {
   const t = I18N[lang] || I18N.ko;
 
-  // 탭 제목
+  // 탭 タイトル
   document.title = t.pageTitle;
 
   // 페이지 헤더 텍스트
@@ -99,7 +99,7 @@ function applyLang(lang) {
   if (joinedHint) joinedHint.textContent = t.joinedHint;
   if (empty) empty.textContent = t.empty;
 
-  // 모달 라벨/placeholder/삭제문구
+  // 모달 라벨/placeholder/削除문구
   const labelRating = $("labelRating");
   const labelContent = $("labelContent");
   const textarea = $("modalContent");
@@ -109,7 +109,7 @@ function applyLang(lang) {
   if (textarea) textarea.placeholder = t.placeholder;
   if (deleteHint) deleteHint.textContent = t.deleteHint;
 
-  // 모달 취소 버튼
+  // 모달 キャンセル 버튼
   const cancelBtn = document.querySelector("#reviewModal .yw-modal__actions .btn-ghost");
   if (cancelBtn) cancelBtn.textContent = t.cancel;
 
@@ -124,7 +124,7 @@ let tripIdEl, reviewIdEl, ratingEl, contentEl;
 let fieldsWrap, deleteBox;
 
 function openReviewModal(mode, el) {
-  // 언어 적용된 텍스트로 타이틀/버튼 표시
+  // 言語 적용된 텍스트로 타이틀/버튼 표市
   const lang = $("langSelect")?.value || "ko";
   const t = I18N[lang] || I18N.ko;
 

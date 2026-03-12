@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="siteHeader">
     <header class="yw-header">
         <div id="loginToast" class="yw-toast" aria-live="polite" aria-atomic="true">
-            로그인 완료!
+            ログイン 완료!
         </div>
 
         <div class="yw-container yw-header__inner">
@@ -14,28 +14,28 @@
             </a>
 
             <nav class="yw-nav">
-                <a class="yw-nav__link" href="/">홈</a>
-                <a class="yw-nav__link" href="/trip/listAll">여행</a>
-                <a class="yw-nav__link" href="/community">고객센터</a>
+                <a class="yw-nav__link" href="/">ホーム</a>
+                <a class="yw-nav__link" href="/trip/listAll">旅行</a>
+                <a class="yw-nav__link" href="/community">サポート</a>
             </nav>
 
             <div class="yw-auth">
                 <div id="guestMenu">
-                    <a class="yw-btn yw-btn--ghost" th:href="@{/login}">로그인</a>
-                    <a class="yw-btn yw-btn--primary" th:href="@{/signup}">회원가입</a>
+                    <a class="yw-btn yw-btn--ghost" th:href="@{/login}">ログイン</a>
+                    <a class="yw-btn yw-btn--primary" th:href="@{/signup}">会員登録</a>
                 </div>
 
                 <div id="userMenu" style="display:none;">
-                    <!-- 채팅 아이콘(통일된 아이콘 버튼) -->
-                    <a class="yw-icon-btn" href="/chat/rooms" aria-label="채팅">
+                    <!-- チャット 아이콘(통일된 아이콘 버튼) -->
+                    <a class="yw-icon-btn" href="/chat/rooms" aria-label="チャット">
                         <span class="yw-icon" aria-hidden="true">💬</span>
                     </a>
 
-                    <!-- 알림(Topbar fragment) -->
+                    <!-- 通知(Topbar fragment) -->
                     <div th:replace="~{fragments/topbar :: notifTopbar}"></div>
 
-                    <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">마이페이지</a>
-                    <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">로그아웃</button>
+                    <a class="yw-btn yw-btn--ghost" th:href="@{/mypage}">マイページ</a>
+                    <button class="yw-btn yw-btn--primary" id="logoutBtn" type="button">ログアウト</button>
                 </div>
             </div>
         </div>

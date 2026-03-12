@@ -3,12 +3,12 @@ function authHeaders() {
 }
 
 function countryCodeToKorean(code) {
-  const map = { KR: "대한민국", JP: "일본", CN: "중국", US: "미국" };
+  const map = { KR: "韓国", JP: "日本", CN: "中国", US: "アメリカ" };
   return map[code] || code || "-";
 }
 
 function genderToKorean(gender) {
-  const map = { FEMALE: "여성", MALE: "남성", OTHER: "기타" };
+  const map = { FEMALE: "女性", MALE: "男性", OTHER: "その他" };
   return map[gender] || "-";
 }
 
@@ -71,7 +71,7 @@ async function updateHostCardPublic(isPublic) {
   });
 
   if (!res || !res.ok) {
-    alert("카드프로필 공개 설정 변경에 실패했습니다.");
+    alert("カードプロフィールの公開設定の変更に失敗しました。");
     await loadHostCardPublicStatus();
   }
 }
@@ -81,7 +81,7 @@ async function loadProfile() {
   if (!res) return;
 
   if (!res.ok) {
-    alert("프로필 정보를 불러오지 못했습니다.");
+    alert("プロフィール情報を読み込めませんでした。");
     return;
   }
 
@@ -93,7 +93,7 @@ async function loadProfile() {
 
   if (displayNameEl) displayNameEl.textContent = data.name ?? "-";
 
-  const meta = `${data.region ?? "-"} · ${data.age ?? "-"}세 · ${countryCodeToKorean(data.countryCode)}`;
+  const meta = `${data.region ?? "-"} · ${data.age ?? "-"}歳 · ${countryCodeToKorean(data.countryCode)}`;
   if (displayMetaEl) displayMetaEl.textContent = meta;
 
   if (avatarEl) {
@@ -151,7 +151,7 @@ async function loadProfile() {
 }
 
 // =============================
-function bindProfileSave() {
+function bindProfile保存() {
   const form = document.getElementById("profileForm");
   if (!form) return;
 
@@ -164,7 +164,7 @@ function bindProfileSave() {
     const mbti = mbtiTrim === "" ? null : mbtiTrim;
 
     if (mbti && !/^[EI][SN][TF][JP]$/i.test(mbti)) {
-          setHint("MBTI를 제대로 입력해 주세요.");
+          setHint("MBTIを正しく入力してください。");
           document.getElementById("mbti")?.focus();
           return;
         }
@@ -192,11 +192,11 @@ function bindProfileSave() {
     if (!res) return;
 
     if (res.ok) {
-      setHint("저장되었습니다.");
+      setHint("保存されました。");
      return;
     } else {
           const text = await res.text().catch(() => "");
-          setHint(text || "저장에 실패했습니다. 입력값을 확인해 주세요.");
+          setHint(text || "保存に失敗しました。入力内容をご確認ください。");
         }
     });
 }
@@ -213,12 +213,12 @@ async function setRole(role) {
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    alert(text || "역할 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    alert(text || "役割の変更に失敗しました。しばらくしてからもう一度お試しください。");
     await loadProfile();
     return;
   }
 
-  setHint("역할이 변경되었습니다.");
+  setHint("役割が変更されました。");
   await loadProfile();
 }
 
@@ -245,7 +245,7 @@ function bindAccountActions() {
   });
 
   document.getElementById("deactivateBtn")?.addEventListener("click", async () => {
-    const ok = confirm("정말로 회원 탈퇴하시겠습니까?\n탈퇴 후에는 로그인이 불가능합니다.");
+    const ok = confirm("정말로 退会하市겠습니까?\n탈퇴 후에는 ログイン이 불가능합니다.");
     if (!ok) return;
 
     const res = await authFetch("/api/auth/withdraw", { method: "DELETE" });
@@ -253,7 +253,7 @@ function bindAccountActions() {
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      alert(text || "회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      alert(text || "退会処理に失敗しました。しばらくしてからもう一度お試しください。");
       return;
     }
 
@@ -266,7 +266,7 @@ function bindAccountActions() {
       console.warn("[logout after deactivate] request failed:", e);
     }
 
-    alert("회원 탈퇴가 완료되었습니다.");
+    alert("退会が完了しました。");
     window.location.href = "/";
   });
 
@@ -277,7 +277,7 @@ function bindAccountActions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   bindMyPageLanguageSelect();
-  bindProfileSave();
+  bindProfile保存();
   bindAccountActions();
 
   setRoleUI(document.getElementById("currentRole")?.value || "USER");
@@ -302,41 +302,41 @@ const MY_LANG_KEY = "mypageLang";
 
 const I18N = {
   ko: {
-    "basic.title": "기본 정보",
-    "basic.nickname": "닉네임",
-    "basic.nicknameHint": "닉네임은 회원가입 후 변경할 수 없습니다.",
-    "basic.birth": "생년월일",
-    "basic.birthHint": "생년월일은 회원가입 후 변경할 수 없습니다.",
-    "basic.gender": "성별",
-    "basic.genderHint": "성별은 회원가입 후 변경할 수 없습니다.",
-    "basic.country": "국가",
-    "basic.countryHint": "국가는 회원가입 후 변경할 수 없습니다.",
-    "basic.region": "지역",
-    "basic.regionHint": "지역은 회원가입 후 변경할 수 없습니다.",
-    "basic.role": "회원 유형",
-    "basic.roleHint": "Guide로 전환 시 투어 등록 및 관리 기능이 활성화됩니다.",
+    "basic.title": "基本情報",
+    "basic.nickname": "ニックネーム",
+    "basic.nicknameHint": "ニックネームは会員登録後に変更できません。",
+    "basic.birth": "生年月日",
+    "basic.birthHint": "生年月日は会員登録後に変更できません。",
+    "basic.gender": "性別",
+    "basic.genderHint": "性別は会員登録後に変更できません。",
+    "basic.country": "国",
+    "basic.countryHint": "国は会員登録後に変更できません。",
+    "basic.region": "地域",
+    "basic.regionHint": "地域は会員登録後に変更できません。",
+    "basic.role": "会員タイプ",
+    "basic.roleHint": "ガイドに切り替えるとツアー登録・管理機能が有効になります。",
 
-    "role.traveler": "여행자",
-    "role.guide": "가이드",
+    "role.traveler": "旅行者",
+    "role.guide": "ガイド",
 
     "edit.mbti": "MBTI",
-    "edit.smoking": "흡연",
-    "edit.drinking": "음주",
-    "edit.bio": "자기소개",
+    "edit.smoking": "喫煙",
+    "edit.drinking": "飲酒",
+    "edit.bio": "自己紹介",
 
-    "actions.save": "저장",
+    "actions.save": "保存",
 
-    "hostCard.title": "가이드 카드 프로필",
-    "hostCard.public": "카드 프로필 공개",
+    "hostCard.title": "ガイドカードプロフィール",
+    "hostCard.public": "カードプロフィール公開",
     "hostCard.hint":
-      "카드프로필을 공개해야 게시글을 작성할 수 있으며, 다른 사용자에게 최소 정보(이름, 나이, 성별, MBTI, 자기소개)가 표시됩니다.",
+      "カードプロフィールを公開すると投稿を作成でき、他のユーザーには最小限の情報（名前、年齢、性別、MBTI、自己紹介）が表示されます。",
 
-    "account.title": "계정 설정",
-    "account.deactivate": "회원 탈퇴",
-    "account.deactivateHint": "탈퇴 후에는 더 이상 로그인할 수 없습니다.",
+    "account.title": "アカウント設定",
+    "account.deactivate": "退会",
+    "account.deactivateHint": "退会後はログインできません。",
 
-    "side.details": "상세 정보",
-    "side.detailsDesc": "계정 정보 및 설정을 확인하고 수정할 수 있습니다.",
+    "side.details": "詳細情報",
+    "side.detailsDesc": "アカウント情報と設定を確認・修正できます。",
   },
 
   ja: {
@@ -400,7 +400,7 @@ const I18N = {
     "edit.drinking": "Drinking",
     "edit.bio": "Bio",
 
-    "actions.save": "Save",
+    "actions.save": "保存",
 
     "hostCard.title": "Guide Card Profile",
     "hostCard.public": "Public Profile",
@@ -428,14 +428,14 @@ function applyMyPageLanguage(lang) {
   const smoke = document.getElementById("smoking");
   const drink = document.getElementById("drinking");
   if (smoke) {
-    smoke.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "선택";
-    smoke.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "예";
-    smoke.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "아니오";
+    smoke.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "選択";
+    smoke.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "はい";
+    smoke.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "いいえ";
   }
   if (drink) {
-    drink.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "선택";
-    drink.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "예";
-    drink.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "아니오";
+    drink.options[0].text = lang === "ja" ? "選択" : lang === "en" ? "Select" : "選択";
+    drink.options[1].text = lang === "ja" ? "はい" : lang === "en" ? "Yes" : "はい";
+    drink.options[2].text = lang === "ja" ? "いいえ" : lang === "en" ? "No" : "いいえ";
   }
 
   setHint("");

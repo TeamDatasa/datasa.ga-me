@@ -30,11 +30,11 @@
 
   function escapeHtml(s) {
     return String(s ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   function formatTime(iso) {
@@ -54,39 +54,40 @@
 
     const type = String(n.type || "").toUpperCase();
 
-    // 신청(APPLY) 알림은 호스트 신청관리로 이동
     if (type === "APPLY") {
       return `/host/trips/${refId}/applications`;
     }
 
-    // 채팅(CHAT) 알림은 채팅방으로 이동
     if (type === "CHAT") {
       return `/chat/room/${refId}`;
     }
 
-    // 기존 동작 유지
     return `/trip/detail/${refId}`;
   }
 
   function renderList(items) {
     if (!Array.isArray(items) || items.length === 0) {
       listEl.innerHTML = "";
-      if (emptyEl) emptyEl.style.display = "block";
+      if (emptyEl) {
+        emptyEl.textContent = "新しい通知はありません。";
+        emptyEl.style.display = "block";
+      }
       return;
     }
+
     if (emptyEl) emptyEl.style.display = "none";
 
     listEl.innerHTML = items
-        .map((n) => {
-          const href = notifLink(n);
-          const title = escapeHtml(n.title ?? "");
-          const body = escapeHtml(n.body ?? "");
-          const time = escapeHtml(formatTime(n.createdAt));
-          const unreadClass = n.isRead ? "" : " is-unread";
+      .map((n) => {
+        const href = notifLink(n);
+        const title = escapeHtml(n.title ?? "");
+        const body = escapeHtml(n.body ?? "");
+        const time = escapeHtml(formatTime(n.createdAt));
+        const unreadClass = n.isRead ? "" : " is-unread";
 
-          return `
+        return `
           <li class="notif-item${unreadClass}" data-notif-id="${n.notificationId}" data-is-read="${n.isRead}">
-            <button type="button" class="notif-item__delete" data-notif-delete aria-label="알림 삭제">×</button>
+            <button type="button" class="notif-item__delete" data-notif-delete aria-label="通知削除">×</button>
             <a class="notif-item__link" data-notif-link href="${href}">
               <div class="notif-item__title">${title}</div>
               <div class="notif-item__body">${body}</div>
@@ -94,8 +95,8 @@
             </a>
           </li>
         `;
-        })
-        .join("");
+      })
+      .join("");
   }
 
   async function loadUnreadCount() {
@@ -202,7 +203,10 @@
 
       itemEl.remove();
       if (!wasRead) decBadgeIfPossible();
-      if (listEl.children.length === 0 && emptyEl) emptyEl.style.display = "block";
+      if (listEl.children.length === 0 && emptyEl) {
+        emptyEl.textContent = "新しい通知はありません。";
+        emptyEl.style.display = "block";
+      }
       return;
     }
 

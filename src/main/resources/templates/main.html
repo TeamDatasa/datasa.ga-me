@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -32,85 +32,83 @@
 
                     <div class="yw-heroSlide is-active" role="group" aria-label="1 / 3">
                         <div class="yw-hero__copy">
-                            <p class="yw-badge">지역 기반 코스 추천</p>
+                            <p class="yw-badge">地域別コースおすすめ</p>
                             <h1 class="yw-hero__title">
-                                오늘 갈 곳,<br>
-                                빠르게 찾고 바로 떠나자
+                                今日行く場所を、<br>
+                                すぐ見つけてすぐ出発
                             </h1>
-                            <p class="yw-hero__desc">AI 추천부터 인기 코스까지, 한 번에</p>
+                            <p class="yw-hero__desc">AIおすすめから人気コースまで、一度に</p>
 
                             <div class="yw-hero__actions">
-                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/recommendations">AI 추천 받기</a>
-                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/trip/listAll">코스 둘러보기</a>
+                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/recommendations">AIおすすめを見る</a>
+                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/trip/listAll">コースを見る</a>
                             </div>
                         </div>
                     </div>
 
                     <div class="yw-heroSlide" role="group" aria-label="2 / 3">
                         <div class="yw-hero__copy">
-                            <p class="yw-badge">취향 맞춤 필터</p>
+                            <p class="yw-badge">好みに合わせたフィルター</p>
                             <h1 class="yw-hero__title">
-                                내 취향으로 고르고,<br>
-                                실패 없는 하루 코스
+                                好みに合わせて選んで、<br>
+                                失敗しない1日コース
                             </h1>
-                            <p class="yw-hero__desc">지역/테마/언어까지 한 번에</p>
+                            <p class="yw-hero__desc">地域・テーマ・言語までまとめて検索</p>
 
                             <div class="yw-hero__actions">
-                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/trip/listAll">필터로 찾기</a>
-                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/courses">인기 코스 보기</a>
+                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/trip/listAll">フィルターで探す</a>
+                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/courses">人気コースを見る</a>
                             </div>
                         </div>
                     </div>
 
                     <div class="yw-heroSlide" role="group" aria-label="3 / 3">
                         <div class="yw-hero__copy">
-                            <p class="yw-badge">바로 출발</p>
+                            <p class="yw-badge">すぐ出発</p>
                             <h1 class="yw-hero__title">
-                                일정은 가볍게,<br>
-                                오늘은 그냥 떠나자
+                                予定は気軽に、<br>
+                                今日はそのまま出かけよう
                             </h1>
-                            <p class="yw-hero__desc">추천 → 상세 → 신청까지 빠르게</p>
+                            <p class="yw-hero__desc">おすすめ → 詳細 → 申請までスムーズに</p>
 
                             <div class="yw-hero__actions">
-                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/trip/listAll">지금 코스 보기</a>
-                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/community">고객센터</a>
+                                <a class="yw-btn yw-btn--primary yw-btn--lg" href="/trip/listAll">今すぐコースを見る</a>
+                                <a class="yw-btn yw-btn--ghost yw-btn--lg" href="/community">サポート</a>
                             </div>
                         </div>
                     </div>
 
                 </div>
 
-                <button class="yw-heroArrow yw-heroArrow--prev" type="button" id="heroPrev" aria-label="이전 슬라이드">‹</button>
-                <button class="yw-heroArrow yw-heroArrow--next" type="button" id="heroNext" aria-label="다음 슬라이드">›</button>
-                <div class="yw-heroDots" id="heroDots" aria-label="슬라이드 이동"></div>
+                <button class="yw-heroArrow yw-heroArrow--prev" type="button" id="heroPrev" aria-label="前のスライド">‹</button>
+                <button class="yw-heroArrow yw-heroArrow--next" type="button" id="heroNext" aria-label="次のスライド">›</button>
+                <div class="yw-heroDots" id="heroDots" aria-label="スライド移動"></div>
             </div>
 
             <aside class="yw-section">
                 <div class="yw-container">
                     <div class="yw-section__head yw-section__head--row">
-                        <h2 class="yw-section__title" th:if="${!isLogin}">이번주 추천 코스</h2>
-
-                        <h2 class="yw-section__title" th:if="${isLogin}">
-                            <span th:text="${nickname}">닉네임</span>님을 위한 추천 코스
+                        <h2 id="recommendTitle" class="yw-section__title"
+                            th:text="${isLogin} ? ${nickname} + 'さんへのおすすめコース' : '今週のおすすめコース'">
+                            今週のおすすめコース
                         </h2>
 
                     </div>
-                    <div class="yw-cards" id="recommendList"></div>
-
-
+                    <div class="yw-cards" id="recommendList">
                         <article class="yw-card" th:if="${recommendCourses == null || #lists.isEmpty(recommendCourses)}">
                             <div class="yw-card__thumb">
                                 <div class="ai-badge-group">
-                                    <span class="ai-badge">AI 추천</span>
+                                    <span class="ai-badge">AIおすすめ</span>
                             </div>
                             </div>
+
                             <div class="yw-card__body">
-                                <div class="yw-card__title">추천 코스 추가 예정</div>
-                                <div class="yw-card__meta">데이터 연결되면 자동으로 뜸</div>
+                                <div class="yw-card__title">おすすめコースは準備中です</div>
+                                <div class="yw-card__meta">データ連携後に自動表示されます</div>
                             </div>
                         </article>
                     </div>
-
+                </div>
             </aside>
 
         </div>
@@ -122,47 +120,47 @@
             <div class="yw-filter">
 
                 <div class="yw-filter__box">
-                    <strong>언어</strong>
-                    <span class="yw-muted">(복수 선택)</span>
-                    <label><input type="checkbox" class="lang" value="KOREAN"> 한국어</label>
-                    <label><input type="checkbox" class="lang" value="ENGLISH"> 영어</label>
-                    <label><input type="checkbox" class="lang" value="JAPANESE"> 일본어</label>
+                    <strong>言語</strong>
+                    <span class="yw-muted">(複数選択)</span>
+                    <label><input type="checkbox" class="lang" value="KOREAN"> 韓国語</label>
+                    <label><input type="checkbox" class="lang" value="ENGLISH"> 英語</label>
+                    <label><input type="checkbox" class="lang" value="JAPANESE"> 日本語</label>
                 </div>
 
                 <div class="yw-filter__box">
-                    <strong>지역</strong>
+                    <strong>地域</strong>
                     <select id="province">
-                        <option value="">전체(도)</option>
+                        <option value="">すべて（道・広域）</option>
                     </select>
                     <select id="region">
-                        <option value="">전체(시)</option>
+                        <option value="">すべて（市）</option>
                     </select>
                 </div>
 
                 <div class="yw-filter__box">
-                    <strong>테마</strong>
+                    <strong>テーマ</strong>
                     <select id="theme">
-                        <option value="">전체</option>
-                        <option value="FOOD">맛집</option>
-                        <option value="NATURE">자연</option>
-                        <option value="CITY">도시</option>
-                        <option value="CULTURE">문화</option>
-                        <option value="NIGHT">야경</option>
+                        <option value="">すべて</option>
+                        <option value="FOOD">グルメ</option>
+                        <option value="NATURE">自然</option>
+                        <option value="CITY">都市</option>
+                        <option value="CULTURE">文化</option>
+                        <option value="NIGHT">夜景</option>
 
-                        <!-- 추가 6개 -->
-                        <option value="HEALING">힐링</option>
-                        <option value="ACTIVITY">액티비티</option>
-                        <option value="SHOPPING">쇼핑</option>
-                        <option value="HISTORY">역사</option>
-                        <option value="PHOTO">사진</option>
-                        <option value="FAMILY">가족</option>
+                        <!-- 추가 6件 -->
+                        <option value="HEALING">癒やし</option>
+                        <option value="ACTIVITY">アクティビティ</option>
+                        <option value="SHOPPING">ショッピング</option>
+                        <option value="HISTORY">歴史</option>
+                        <option value="PHOTO">写真</option>
+                        <option value="FAMILY">家族</option>
                     </select>
                 </div>
 
                 <div class="yw-filter__box">
-                    <strong>정렬</strong>
-                    <button id="latestBtn" class="active" type="button" onclick="setOrder('latest')">최신순</button>
-                    <button id="popularBtn" type="button" onclick="setOrder('popular')">인기순</button>
+                    <strong>並び替え</strong>
+                    <button id="latestBtn" class="active" type="button" onclick="setOrder('latest')">新着順</button>
+                    <button id="popularBtn" type="button" onclick="setOrder('popular')">人気順</button>
                 </div>
 
             </div>
@@ -170,9 +168,9 @@
             <!-- listAll과 동일한 카드 UI 영역 -->
             <section class="trip-cards main-trip-cards" id="tripList"></section>
 
-            <!-- (추가) 더보기: 메인에서는 3개 초과일 때만 노출 -->
+            <!-- (추가) もっと見る: 메인에서는 3件 초과일 때만 노출 -->
             <div id="mainMoreWrap" class="main-more-wrap" style="display:none;">
-                <a id="mainMoreLink" class="yw-btn yw-btn--ghost" href="/trip/listAll">더보기</a>
+                <a id="mainMoreLink" class="yw-btn yw-btn--ghost" href="/trip/listAll">もっと見る</a>
             </div>
 
         </div>
@@ -184,13 +182,13 @@
 <div id="hostCardModalOverlay" class="hc-overlay" aria-hidden="true">
     <div class="hc-modal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
         <div class="hc-head">
-            <div id="hcTitle" class="hc-title">호스트 프로필</div>
-            <button id="hostCardModalClose" type="button" class="hc-close">닫기</button>
+            <div id="hcTitle" class="hc-title">ホストプロフィール</div>
+            <button id="hostCardModalClose" type="button" class="hc-close">閉じる</button>
         </div>
 
         <div class="hc-body">
             <div class="hc-profile">
-                <img id="hcAvatar" class="hc-avatar" alt="호스트 프로필 이미지"/>
+                <img id="hcAvatar" class="hc-avatar" alt="ホストプロフィール画像"/>
                 <div class="hc-profile__main">
                     <h3 id="hcName" class="hc-name">-</h3>
                     <div id="hcMeta" class="hc-meta"></div>
@@ -205,7 +203,8 @@
 <script th:src="@{/js/authFetch.js}"></script>
 <script th:src="@{/js/main-auth.js}"></script>
 <script th:src="@{/js/notifications.js}"></script>
-<script th:src="@{/js/recommend.js}"></script>
+<script th:src="@{/js/recommend.js(v=${#dates.createNow().time})}"></script>
+<!--<script th:src="@{/js/main.js}"></script>-->
 
 
 <script th:src="@{/js/trip-like.js(v=${#dates.createNow().time})}"></script>

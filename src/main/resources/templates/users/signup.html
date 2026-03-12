@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
@@ -20,16 +20,16 @@
         </div>
     </div>
 
-    <h1 data-i18n="signup.title">회원가입</h1>
-    <p data-i18n="signup.subtitle">계정을 생성해주세요</p>
+    <h1 data-i18n="signup.title">会員登録</h1>
+    <p data-i18n="signup.subtitle">アカウントを作成してください</p>
 
     <form id="signupForm" class="auth-form">
-        <label data-i18n="signup.emailLabel">이메일 주소</label>
+        <label data-i18n="signup.emailLabel">メールアドレス</label>
         <input type="email" id="email" required />
 
         <div class="email-verify-group">
             <button type="button" id="sendCodeBtn" class="auth-btn secondary-btn" data-i18n="signup.sendCode">
-                인증 코드 보내기
+                認証コード送信
             </button>
 
             <div class="email-code-row">
@@ -37,67 +37,67 @@
                        data-i18n-placeholder="signup.codePlaceholder"
                        placeholder="6-digit code" />
                 <button type="button" id="verifyCodeBtn" class="auth-btn secondary-btn" data-i18n="signup.verifyCode">
-                    인증하기
+                    認証する
                 </button>
             </div>
 
             <p id="emailVerifyStatus" class="helper-text"></p>
         </div>
 
-        <label data-i18n="signup.passwordLabel">비밀번호</label>
+        <label data-i18n="signup.passwordLabel">パスワード</label>
         <input type="password" id="password" required />
 
-        <label data-i18n="signup.passwordConfirmLabel">비밀번호 확인</label>
+        <label data-i18n="signup.passwordConfirmLabel">パスワード確認</label>
         <input type="password" id="passwordConfirm" required />
 
-        <label data-i18n="signup.nicknameLabel">닉네임</label>
+        <label data-i18n="signup.nicknameLabel">ニックネーム</label>
         <input type="text" id="name" name="name" required />
 
-        <label data-i18n="signup.birthDateLabel">생년월일</label>
+        <label data-i18n="signup.birthDateLabel">生年月日</label>
         <input type="date" id="birthDate" required />
 
-        <label data-i18n="signup.genderLabel">성별</label>
+        <label data-i18n="signup.genderLabel">性別</label>
         <div class="role-group">
             <label class="role-option">
                 <input type="radio" name="gender" value="FEMALE" checked>
-                <span data-i18n="signup.gender.female">여성</span>
+                <span data-i18n="signup.gender.female">女性</span>
             </label>
             <label class="role-option">
                 <input type="radio" name="gender" value="MALE">
-                <span data-i18n="signup.gender.male">남성</span>
+                <span data-i18n="signup.gender.male">男性</span>
             </label>
             <label class="role-option">
                 <input type="radio" name="gender" value="OTHER">
-                <span data-i18n="signup.gender.other">기타</span>
+                <span data-i18n="signup.gender.other">その他</span>
             </label>
         </div>
 
-        <label data-i18n="signup.countryLabel">국가</label>
+        <label data-i18n="signup.countryLabel">国</label>
         <select id="country" class="translate-select country-select" required></select>
 
-        <label data-i18n="signup.regionLabel">지역</label>
+        <label data-i18n="signup.regionLabel">地域</label>
 
         <select id="regionSelect" class="translate-select country-select" style="display:none;"></select>
 
         <input type="text" id="regionInput" required
                data-i18n-placeholder="signup.regionPlaceholder"
-               placeholder="예: 부산, 도쿄, 서울"
+               placeholder="例：釜山、東京、ソウル"
                style="display:none;" />
 
         <div id="mailModal" class="modal hidden">
             <div class="modal-card">
-                <h3 id="mailModalTitle" data-i18n="signup.modal.sentTitle">인증 메일이 전송되었습니다.</h3>
-                <p id="mailModalMsg" data-i18n="signup.modal.sentMsg">전송이 완료될 때까지 시간이 소요될 수 있습니다.</p>
-                <button type="button" id="mailModalClose" class="auth-btn secondary-btn" data-i18n="common.confirm">확인</button>
+                <h3 id="mailModalTitle" data-i18n="signup.modal.sentTitle">認証メールを送信しました。</h3>
+                <p id="mailModalMsg" data-i18n="signup.modal.sentMsg">送信完了まで少し時間がかかる場合があります。</p>
+                <button type="button" id="mailModalClose" class="auth-btn secondary-btn" data-i18n="common.confirm">確認</button>
             </div>
         </div>
 
-        <button type="submit" class="auth-btn" id="signupBtn" disabled data-i18n="signup.submit">회원가입</button>
+        <button type="submit" class="auth-btn" id="signupBtn" disabled data-i18n="signup.submit">会員登録</button>
     </form>
 
     <div class="auth-footer">
-        <span data-i18n="signup.haveAccount">이미 계정이 있으신가요?</span>
-        <a href="/auth/login" data-i18n="signup.loginLink">로그인</a>
+        <span data-i18n="signup.haveAccount">すでにアカウントをお持ちですか？</span>
+        <a href="/auth/login" data-i18n="signup.loginLink">ログイン</a>
     </div>
 </div>
 

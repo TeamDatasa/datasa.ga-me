@@ -5,7 +5,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const ok = confirm("정말 삭제하시겠습니까?");
+    const ok = confirm("本当に削除しますか？");
     if (!ok) return;
 
     try {
@@ -18,15 +18,15 @@
       });
 
       if (res.ok) {
-        alert("삭제 되었습니다");
+        alert("削除しました。");
         window.location.href = "/trip/listAll";
         return;``
       }
 
       const text = await res.text().catch(() => "");
-      alert(`삭제 실패 (${res.status})\n${text}`);
+      alert(`削除失敗 (${res.status})\n${text}`);
     } catch (err) {
-      alert("삭제 요청 중 오류가 발생했습니다.");
+      alert("削除リクエスト中にエラーが発生しました。");
     }
   });
 })();

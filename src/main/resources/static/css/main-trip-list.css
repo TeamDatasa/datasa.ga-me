@@ -11,12 +11,12 @@
   }
 }
 
-/* 메인 섹션 안에서는 카드가 꽉 차 보이도록 */
+/* 메인 섹션 안에서는 카드가 꽉 차 보이道록 */
 .main-trip-cards .trip-card {
   width: 100%;
 }
 
-/* 메인에서는 카드 설명이 너무 길어질 수 있어 2줄 정도로 제한 */
+/* 메인에서는 카드 説明이 너무 길어질 수 있어 2줄 정道로 제한 */
 .main-trip-cards .trip-card__desc {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -24,7 +24,7 @@
   overflow: hidden;
 }
 
-/* (추가) 더보기 버튼 위치만 잡기 */
+/* (추가) もっと見る 버튼 위치만 잡기 */
 .main-more-wrap {
   margin-top: 12px;
   display: flex;

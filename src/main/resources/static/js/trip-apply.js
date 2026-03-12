@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("[apply] loaded", { tripId, hostUserId, currentUserId });
 
     if (currentUserId == null) {
-      setDisabled("로그인 후 신청 가능");
+      setDisabled("ログイン後に申請できます");
       return;
     }
 
     if (Number(currentUserId) === Number(hostUserId)) {
-      setDisabled("본인 여정");
+      setDisabled("自分のツアー");
       return;
     }
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const extraReason = applyBtn.dataset.applyExtraReason || "";
 
     if (extraDisabled) {
-      setDisabled(extraReason || "신청 불가");
+      setDisabled(extraReason || "申請不可");
       return;
     }
 
@@ -39,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (checkRes.ok) {
       const applied = await checkRes.json();
       if (applied === true) {
-        setDisabled("신청한 여정");
+        setDisabled("申請済みのツアー");
         return;
       }
     }
 
-    setEnabled("여정 신청하기");
+    setEnabled("ツアーに申請する");
 
     applyBtn.addEventListener(
         "click",
@@ -55,12 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const msg = await res.text();
 
           if (!res.ok) {
-            alert(msg || "신청 처리에 실패했습니다.");
+            alert(msg || "申請処理に失敗しました。");
             return;
           }
 
-          setDisabled("신청한 여정");
-          alert("신청이 완료되었습니다.");
+          setDisabled("申請済みのツアー");
+          alert("申請が完了しました。");
         },
         { once: true }
     );
@@ -68,6 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initApplyButton().catch((e) => {
     console.error("[apply] init error", e);
-    setDisabled("로그인 후 신청 가능");
+    setDisabled("ログイン後に申請できます");
   });
 });

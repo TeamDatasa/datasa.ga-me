@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/trip-update.css(v=${#dates.createNow().time})}">
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}">
 
-    <title>여정 수정</title>
+    <title>ツアー編集</title>
 </head>
 
 <body>
@@ -18,20 +18,20 @@
 <main class="up-page">
     <div class="up-container">
         <div class="up-breadcrumb">
-            <a class="up-link" href="/trip/listAll">여행</a>
+            <a class="up-link" href="/trip/listAll">旅行</a>
             <span class="up-sep">/</span>
-            <a class="up-link" th:href="@{|/trip/detail/${request.tripId}|}">여정 상세</a>
+            <a class="up-link" th:href="@{|/trip/detail/${request.tripId}|}">ツアー詳細</a>
             <span class="up-sep">/</span>
-            <span class="up-muted">여정 수정</span>
+            <span class="up-muted">ツアー編集</span>
         </div>
 
         <div class="up-grid">
             <section class="up-card up-main">
                 <header class="up-head">
                     <div class="up-title-wrap">
-                        <h1 class="up-title">여정 수정</h1>
+                        <h1 class="up-title">ツアー編集</h1>
                         <p class="up-sub up-muted">
-                            정책에 따라 여정 시작 7일 전부터 수정이 제한될 수 있습니다.
+                            ポリシーにより、ツアー開始7日前から修正が制限される場合があります。
                         </p>
                     </div>
                 </header>
@@ -47,46 +47,46 @@
                     <input type="hidden" th:field="*{tripId}"/>
 
                     <section class="up-section">
-                        <h2 class="up-section-title">기본 정보</h2>
+                        <h2 class="up-section-title">基本情報</h2>
 
                         <div class="up-field">
-                            <label class="up-label" for="title">제목</label>
-                            <input class="up-input" id="title" type="text" th:field="*{title}" placeholder="여정 제목을 입력하세요" required/>
+                            <label class="up-label" for="title">タイトル</label>
+                            <input class="up-input" id="title" type="text" th:field="*{title}" placeholder="ツアータイトルを入力してください" required/>
                         </div>
 
                         <div class="up-field">
-                            <label class="up-label" for="description">소개</label>
-                            <textarea class="up-textarea" id="description" rows="5" th:field="*{description}" placeholder="여정 소개를 입력하세요" required></textarea>
+                            <label class="up-label" for="description">紹介</label>
+                            <textarea class="up-textarea" id="description" rows="5" th:field="*{description}" placeholder="ツアー紹介を入力してください" required></textarea>
                         </div>
 
                         <div class="up-row">
                             <div class="up-field">
-                                <label class="up-label" for="region">지역</label>
-                                <input class="up-input" id="region" type="text" th:field="*{region}" placeholder="예) 서울, 오사카"/>
+                                <label class="up-label" for="region">地域</label>
+                                <input class="up-input" id="region" type="text" th:field="*{region}" placeholder="例：ソウル, 大阪"/>
                             </div>
 
                             <div class="up-field">
-                                <label class="up-label" for="theme">테마</label>
-                                <input class="up-input" id="theme" type="text" th:field="*{theme}" placeholder="예) 맛집, 힐링"/>
+                                <label class="up-label" for="theme">テーマ</label>
+                                <input class="up-input" id="theme" type="text" th:field="*{theme}" placeholder="例：グルメ, 癒やし"/>
                             </div>
                         </div>
 
                         <div class="up-row">
                             <div class="up-field">
-                                <label class="up-label" for="estimatedCost">예상 비용</label>
+                                <label class="up-label" for="estimatedCost">予想費用</label>
                                 <input class="up-input" id="estimatedCost" type="number" min="0" step="1" th:field="*{estimatedCost}" placeholder="0"/>
                             </div>
 
                             <div class="up-field">
-                                <label class="up-label" for="maxParticipants">모집 정원</label>
+                                <label class="up-label" for="maxParticipants">募集定員</label>
                                 <input class="up-input" id="maxParticipants" type="number" min="1" step="1" th:field="*{maxParticipants}" placeholder="1" required/>
                             </div>
                         </div>
 
                         <div class="up-row">
                             <div class="up-field">
-                                <label class="up-label" for="durationMinutes">소요 시간(분)</label>
-                                <input class="up-input" id="durationMinutes" type="number" min="0" step="1" th:field="*{durationMinutes}" placeholder="예) 120"/>
+                                <label class="up-label" for="durationMinutes">所要時間（分）</label>
+                                <input class="up-input" id="durationMinutes" type="number" min="0" step="1" th:field="*{durationMinutes}" placeholder="例：120"/>
                             </div>
 
                             <div class="up-field"></div>
@@ -94,12 +94,12 @@
 
                         <div class="up-row">
                             <div class="up-field">
-                                <label class="up-label" for="startAt">시작일</label>
+                                <label class="up-label" for="startAt">開始日</label>
                                 <input class="up-input" id="startAt" type="datetime-local" th:field="*{startAt}" required/>
                             </div>
 
                             <div class="up-field">
-                                <label class="up-label" for="endAt">종료일</label>
+                                <label class="up-label" for="endAt">終了日</label>
                                 <input class="up-input" id="endAt" type="datetime-local" th:field="*{endAt}" required/>
                             </div>
                         </div>
@@ -108,36 +108,36 @@
                     <div class="up-divider"></div>
 
                     <section class="up-section">
-                        <h2 class="up-section-title">일정 장소</h2>
+                        <h2 class="up-section-title">日程場所</h2>
 
                         <p class="up-help up-muted">
-                            장소 검색 후 추가하세요. 저장 시 schedulePlaces로 전송됩니다.
+                            場所を検索して追加してください。保存すると schedulePlaces に送信されます。
                         </p>
 
-                        <!-- 지도 미리보기 -->
+                        <!-- 지道 미리보기 -->
                         <div class="up-map-wrap">
                             <div id="upMap" class="up-map"></div>
                         </div>
 
                         <div class="up-place-search">
-                            <input id="placeKeyword" class="up-input" type="text" placeholder="장소 검색 키워드를 입력하세요"/>
-                            <button type="button" id="placeSearchBtn" class="up-btn up-btn--ghost">검색</button>
+                            <input id="placeKeyword" class="up-input" type="text" placeholder="場所検索キーワードを入力してください"/>
+                            <button type="button" id="placeSearchBtn" class="up-btn up-btn--ghost">検索</button>
                         </div>
 
                         <div class="up-place-grid">
                             <div class="up-place-results">
-                                <div class="up-mini-title">검색 결과</div>
+                                <div class="up-mini-title">検索結果</div>
                                 <ul id="placeResultList" class="up-list"></ul>
-                                <div id="placeResultEmpty" class="up-empty up-muted">검색 결과가 없습니다.</div>
+                                <div id="placeResultEmpty" class="up-empty up-muted">検索結果がありません。</div>
                             </div>
 
                             <div class="up-place-selected">
-                                <div class="up-mini-title">선택된 장소</div>
+                                <div class="up-mini-title">選択した場所</div>
 
                                 <ul id="selectedPlaceList" class="up-list"></ul>
 
                                 <div id="selectedPlaceEmpty" class="up-empty up-muted">
-                                    선택된 장소가 없습니다.
+                                    選択した場所がありません。
                                 </div>
 
                                 <div id="hiddenSchedulePlaces">
@@ -158,27 +158,27 @@
                     <div class="up-divider"></div>
 
                     <div class="up-actions">
-                        <a class="up-btn up-btn--ghost" th:href="@{|/trip/detail/${request.tripId}|}">취소</a>
-                        <button type="submit" class="up-btn up-btn--primary">저장</button>
+                        <a class="up-btn up-btn--ghost" th:href="@{|/trip/detail/${request.tripId}|}">キャンセル</a>
+                        <button type="submit" class="up-btn up-btn--primary">保存</button>
                     </div>
                 </form>
             </section>
 
             <aside class="up-card up-side">
                 <div class="up-side-box">
-                    <div class="up-mini-title">수정 안내</div>
+                    <div class="up-mini-title">修正案内</div>
                     <ul class="up-bullets up-muted">
-                        <li>시작일 기준 7일 전부터 수정이 제한될 수 있습니다.</li>
-                        <li>저장 후 상세 화면으로 이동합니다.</li>
-                        <li>장소는 선택된 목록이 schedulePlaces로 전송됩니다.</li>
+                        <li>開始日基準で7日前から修正が制限される場合があります。</li>
+                        <li>保存後、詳細画面へ移動します。</li>
+                        <li>場所は選択した一覧がschedulePlacesへ送信されます。</li>
                     </ul>
                 </div>
 
                 <div class="up-side-box">
-                    <div class="up-mini-title">빠른 이동</div>
+                    <div class="up-mini-title">クイック移動</div>
                     <div class="up-quick">
-                        <a class="up-btn up-btn--ghost up-btn--block" th:href="@{|/trip/detail/${request.tripId}|}">상세로</a>
-                        <a class="up-btn up-btn--ghost up-btn--block" href="/trip/listAll">목록으로</a>
+                        <a class="up-btn up-btn--ghost up-btn--block" th:href="@{|/trip/detail/${request.tripId}|}">詳細へ</a>
+                        <a class="up-btn up-btn--ghost up-btn--block" href="/trip/listAll">一覧へ</a>
                     </div>
                 </div>
             </aside>
@@ -207,7 +207,7 @@
         let selected = [];
         let lastResults = [];
 
-        // ====== 지도(추가) ======
+        // ====== 지道(추가) ======
         let map = null;
         let resultMarkers = [];
         let selectedMarkers = [];
@@ -218,7 +218,7 @@
             const mapEl = document.getElementById("upMap");
             if (!mapEl) return;
 
-            const center = new kakao.maps.LatLng(37.5665, 126.9780); // 기본: 서울
+            const center = new kakao.maps.LatLng(37.5665, 126.9780); // 기본: ソウル
             map = new kakao.maps.Map(mapEl, {
                 center,
                 level: 6
@@ -383,7 +383,7 @@
               <div class="up-item-title">${name}</div>
               <div class="up-item-sub">${addr}</div>
             </div>
-            <button type="button" class="up-mini-btn" data-add-idx="${idx}">추가</button>
+            <button type="button" class="up-mini-btn" data-add-idx="${idx}">追加</button>
           </li>
         `;
             }).join("");
@@ -426,9 +426,9 @@
               <div class="up-item-sub">${addr}</div>
             </div>
             <div class="up-item-actions">
-              <button type="button" class="up-mini-btn" data-up-idx="${idx}">위</button>
-              <button type="button" class="up-mini-btn" data-down-idx="${idx}">아래</button>
-              <button type="button" class="up-mini-btn up-mini-btn--danger" data-del-idx="${idx}">삭제</button>
+              <button type="button" class="up-mini-btn" data-up-idx="${idx}">上</button>
+              <button type="button" class="up-mini-btn" data-down-idx="${idx}">下</button>
+              <button type="button" class="up-mini-btn up-mini-btn--danger" data-del-idx="${idx}">削除</button>
             </div>
           </li>
         `;

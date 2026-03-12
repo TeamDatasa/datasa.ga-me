@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,7 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/notifications.css}"/>
     <link rel="stylesheet" th:href="@{/css/footer.css(v=${#dates.createNow().time})}"/>
 
-    <title>여행 글 작성</title>
+    <title>旅行投稿作成</title>
 
     <!-- Kakao Maps SDK (autoload=false) -->
     <script th:if="${jsKey != null}"
@@ -19,142 +19,142 @@
 <body>
 <div th:replace="~{fragments/header :: siteHeader}"></div>
 
-<h1 class="tw-title">여행 글 작성</h1>
+<h1 class="tw-title">旅行投稿作成</h1>
 
 <form class="tw-form" th:action="@{/trip/write}" method="post" th:object="${request}">
 
     <div class="tw-field">
-        <label for="title">제목</label><br/>
+        <label for="title">タイトル</label><br/>
         <input id="title" type="text" th:field="*{title}" maxlength="120" required/>
     </div>
 
     <div class="tw-field">
-        <label for="description">설명</label><br/>
+        <label for="description">説明</label><br/>
         <textarea id="description" th:field="*{description}" rows="6" cols="60" required></textarea>
     </div>
 
     <div class="tw-field">
-        <label>진행 언어(중복 선택 가능)</label><br/>
+        <label>対応言語（複数選択可）</label><br/>
         <div class="tw-check-group">
             <label class="tw-check">
                 <input type="checkbox" th:field="*{languageCodes}" value="KOREAN"/>
-                <span>한국어</span>
+                <span>韓国語</span>
             </label>
             <label class="tw-check">
                 <input type="checkbox" th:field="*{languageCodes}" value="ENGLISH"/>
-                <span>영어</span>
+                <span>英語</span>
             </label>
             <label class="tw-check">
                 <input type="checkbox" th:field="*{languageCodes}" value="JAPANESE"/>
-                <span>일본어</span>
+                <span>日本語</span>
             </label>
         </div>
-        <div class="tw-help">진행 언어는 1개 이상 선택해야 합니다.</div>
+        <div class="tw-help">対応言語は1つ以上選択してください。</div>
     </div>
 
     <div class="tw-field">
-        <label for="theme">테마</label><br/>
+        <label for="theme">テーマ</label><br/>
         <select id="theme" th:field="*{theme}" required>
-            <option value="" disabled selected>선택하세요</option>
+            <option value="" disabled selected>選択してください</option>
 
-            <option value="FOOD">맛집</option>
-            <option value="NATURE">자연</option>
-            <option value="CITY">도시</option>
-            <option value="CULTURE">문화</option>
-            <option value="NIGHT">야경</option>
-            <option value="HEALING">힐링</option>
-            <option value="ACTIVITY">액티비티</option>
-            <option value="SHOPPING">쇼핑</option>
-            <option value="OTHER">기타(직접 입력)</option>
+            <option value="FOOD">グルメ</option>
+            <option value="NATURE">自然</option>
+            <option value="CITY">都市</option>
+            <option value="CULTURE">文化</option>
+            <option value="NIGHT">夜景</option>
+            <option value="HEALING">癒やし</option>
+            <option value="ACTIVITY">アクティビティ</option>
+            <option value="SHOPPING">ショッピング</option>
+            <option value="OTHER">その他（直接入力）</option>
         </select>
 
-        <!-- 기타 입력 -->
+        <!-- その他 입력 -->
         <div id="themeCustomWrap" style="display:none; margin-top:10px;">
             <input id="themeCustom" type="text" th:field="*{themeCustom}" maxlength="9"
-                   placeholder="10자 미만으로 직접 작성"/>
-            <div class="tw-help">기타는 10자 미만으로 입력해 주세요.</div>
+                   placeholder="10文字未満で直接入力"/>
+            <div class="tw-help">その他は10文字未満で入力してください。</div>
         </div>
     </div>
 
     <div class="tw-field">
-        <label>지역</label><br/>
+        <label>地域</label><br/>
         <div class="tw-row">
             <div class="tw-col">
-                <label for="province" class="tw-sub-label">도</label>
+                <label for="province" class="tw-sub-label">道</label>
                 <select id="province" required>
-                    <option value="" disabled selected>선택하세요</option>
+                    <option value="" disabled selected>選択してください</option>
                 </select>
             </div>
             <div class="tw-col">
-                <label for="region" class="tw-sub-label">시</label>
+                <label for="region" class="tw-sub-label">市</label>
                 <select id="region" th:field="*{region}" required th:attr="data-initial=*{region}">
-                    <option value="" disabled selected>도를 먼저 선택하세요</option>
+                    <option value="" disabled selected>先に道を選択してください</option>
                 </select>
             </div>
         </div>
-        <div class="tw-help">도를 선택하면 해당 도에 포함되는 시 목록이 노출됩니다.</div>
+        <div class="tw-help">道を選択すると、その道に含まれる市の一覧が表示されます。</div>
     </div>
 
     <div class="tw-field">
-        <label for="startAt">시작 일자/시간</label><br/>
+        <label for="startAt">開始日時</label><br/>
         <input id="startAt" type="datetime-local" th:field="*{startAt}" required/>
-        <div class="tw-help">게시글 작성 시점으로부터 24시간 이후만 선택 가능합니다.</div>
+        <div class="tw-help">投稿作成時点から24時間以降のみ選択できます。</div>
     </div>
 
     <div class="tw-field">
-        <label for="endAt">끝나는 일자/시간</label><br/>
+        <label for="endAt">終了日時</label><br/>
         <input id="endAt" type="datetime-local" th:field="*{endAt}" required/>
-        <div class="tw-help">끝나는 일자는 시작 일자/시간 이전으로 선택할 수 없으며, 시작 시간으로부터 30분 이후부터 선택 가능합니다.</div>
+        <div class="tw-help">終了日時は開始日時より前に設定できず、開始時刻から30分後以降のみ選択できます。</div>
     </div>
 
     <div class="tw-field">
-        <label for="durationMinutes">소요 시간(분)</label><br/>
+        <label for="durationMinutes">所要時間（分）</label><br/>
         <input id="durationMinutes" type="number" th:field="*{durationMinutes}" min="1" step="1" required readonly/>
-        <div class="tw-help">시작/끝 일자/시간을 기준으로 자동 계산됩니다.</div>
+        <div class="tw-help">開始・終了日時を基準に自動計算されます。</div>
     </div>
 
     <div class="tw-field">
-        <label for="estimatedCost">예상 비용(KRW)</label><br/>
+        <label for="estimatedCost">予想費用(KRW)</label><br/>
         <input id="estimatedCost" type="number" th:field="*{estimatedCost}" min="0" step="1000"
-               placeholder="1000원 단위로 작성"/>
+               placeholder="1,000ウォン単位で入力"/>
     </div>
 
     <div class="tw-field">
-        <label for="maxParticipants">최대 인원</label><br/>
+        <label for="maxParticipants">最大人数</label><br/>
         <input id="maxParticipants" type="number" th:field="*{maxParticipants}" min="1" step="1" required/>
     </div>
 
     <!-- ================== MAP ================== -->
     <section class="tw-map-section">
-        <div class="tw-section-title">장소 검색</div>
+        <div class="tw-section-title">場所検索</div>
 
         <div class="tw-place-search">
             <input id="keyword" type="text"
-                   placeholder="예: 부산역"
+                   placeholder="例：釜山駅"
                    onkeydown="if(event.key==='Enter'){ event.preventDefault(); searchPlaces(); }"/>
-            <button type="button" onclick="searchPlaces()">검색</button>
+            <button type="button" onclick="searchPlaces()">検索</button>
         </div>
 
-        <!-- 2열: 지도 + 검색결과 (동일 높이) -->
+        <!-- 2열: 지道 + 検索결과 (동일 높이) -->
         <div class="tw-map-grid">
             <div id="map"></div>
 
             <div class="tw-map-side">
                 <div class="tw-result-box">
-                    <div class="tw-mini-title">검색 결과</div>
+                    <div class="tw-mini-title">検索結果</div>
                     <ul id="placesList"></ul>
                     <div id="pagination"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 아래 1열: 일정(가로로 길게) -->
+        <!-- 아래 1열: 日程(가로로 길게) -->
         <div class="tw-schedule-wide">
-            <div class="tw-mini-title">일정(선택한 장소 목록)</div>
+            <div class="tw-mini-title">日程（選択した場所一覧）</div>
 
             <div id="scheduleList">
                 <div style="color:#888; font-size:13px;" id="scheduleEmptyText">
-                    아직 추가된 일정이 없습니다. 지도에서 장소를 클릭해 추가해 주세요.
+                    まだ追加された日程がありません。地図で場所をクリックして追加してください。
                 </div>
             </div>
 
@@ -182,8 +182,8 @@
     <!-- ================== /MAP ================== -->
 
     <div class="tw-actions">
-        <button type="submit">등록</button>
-        <button type="button" class="btn-cancel" onclick="location.href='/trip/listAll'">목록</button>
+        <button type="submit">登録</button>
+        <button type="button" class="btn-cancel" onclick="location.href='/trip/listAll'">一覧</button>
     </div>
 
     <div id="serverError" th:if="${errorMessage != null}" th:attr="data-message=${errorMessage}" style="display:none;"></div>

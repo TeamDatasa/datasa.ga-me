@@ -3,23 +3,23 @@ let markers = [];
 let schedulePlaces = [];
 
 const REGION_MAP = {
-    "서울특별시": ["서울"],
-    "인천광역시": ["인천"],
-    "부산광역시": ["부산"],
-    "대구광역시": ["대구"],
-    "대전광역시": ["대전"],
-    "광주광역시": ["광주"],
-    "울산광역시": ["울산"],
-    "세종특별자치시": ["세종"],
-    "제주특별자치도": ["제주", "서귀포"],
-    "경기도": ["가평", "김포", "남양주", "동두천", "부천", "시흥", "안산", "안성", "안양", "오산", "파주", "성남", "수원", "용인", "하남", "화성", "연천"],
-    "강원특별자치도": ["강릉", "고성", "동해", "속초", "양양", "영월", "원주", "정선", "춘천"],
-    "충청북도": ["제천", "청주", "충주"],
-    "충청남도": ["공주", "논산", "당진", "보령", "부여", "서산", "천안"],
-    "전라북도": ["군산", "익산", "전주"],
-    "전라남도": ["광양", "나주", "목포", "무안", "보성", "순천", "여수", "완도"],
-    "경상북도": ["경주", "구미", "김천", "안동", "영주", "영천", "포항", "상주"],
-    "경상남도": ["거제", "김해", "밀양", "사천", "창원", "통영", "양산"]
+    "ソウル特別市": ["ソウル"],
+    "仁川広域市": ["仁川"],
+    "釜山広域市": ["釜山"],
+    "大邱広域市": ["大邱"],
+    "大田広域市": ["大田"],
+    "光州広域市": ["光州"],
+    "蔚山広域市": ["蔚山"],
+    "世宗特別自治市": ["世宗"],
+    "済州特別自治道": ["済州", "西帰浦"],
+    "京畿道": ["가평", "김포", "남양주", "동두천", "부천", "市흥", "안산", "안성", "안양", "오산", "파주", "성남", "수원", "용인", "하남", "화성", "연천"],
+    "江原特別自治道": ["강릉", "고성", "동해", "속초", "양양", "영월", "원주", "정선", "춘천"],
+    "忠清北道": ["제천", "청주", "충주"],
+    "忠清南道": ["공주", "논산", "당진", "보령", "부여", "서산", "천안"],
+    "全羅北道": ["군산", "익산", "전주"],
+    "全羅南道": ["광양", "나주", "목포", "무안", "보성", "순천", "여수", "완道"],
+    "慶尚北道": ["경주", "구미", "김천", "안동", "영주", "영천", "포항", "상주"],
+    "慶尚南道": ["거제", "김해", "밀양", "사천", "창원", "통영", "양산"]
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -88,7 +88,7 @@ function searchPlaces() {
     if (!keyword) return;
 
     if (!ps) {
-        alert('지도가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+        alert('地図の準備がまだできていません。しばらくしてからもう一度お試しください。');
         return;
     }
 
@@ -225,7 +225,7 @@ function fillCities(province, selectCity) {
     placeholder.value = '';
     placeholder.disabled = true;
     placeholder.selected = true;
-    placeholder.textContent = '선택하세요';
+    placeholder.textContent = '選択してください';
     cityEl.appendChild(placeholder);
 
     const cities = REGION_MAP[province] || [];
@@ -280,7 +280,7 @@ function initDateTimeRules() {
         const nowPlus24 = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         if (selected < nowPlus24) {
-            alert('게시글을 작성하는 시간으로부터 24시간 이후 일자만 선택 가능합니다');
+            alert('投稿作成時点から24時間以降の日付のみ選択できます。');
             startEl.value = toDatetimeLocalValue(nowPlus24);
         }
 
@@ -302,7 +302,7 @@ function initDateTimeRules() {
 
         if (endDate < startDate) {
             if (!isInit) {
-                alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+                alert('終了日は開始日より前の日付を選択できません。');
             }
             endEl.value = toDatetimeLocalValue(minEnd);
             return;
@@ -310,7 +310,7 @@ function initDateTimeRules() {
 
         if (endDate < minEnd) {
             if (!isInit) {
-                alert('끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다');
+                alert('終了日時は開始日時から30分後以降のみ選択できます。');
             }
             endEl.value = toDatetimeLocalValue(minEnd);
         }
@@ -338,11 +338,11 @@ function validateOnSubmit() {
     if (themeEl && themeEl.value === 'OTHER') {
         const v = themeCustomEl ? String(themeCustomEl.value || '').trim() : '';
         if (!v) {
-            alert('기타를 선택한 경우 10자 미만으로 테마를 입력해 주세요.');
+            alert('その他を選択した場合は、10文字未満でテーマを入力してください。');
             return false;
         }
         if (v.length >= 10) {
-            alert('기타 테마는 10자 미만으로 입력해 주세요.');
+            alert('その他のテーマは10文字未満で入力してください。');
             return false;
         }
     }
@@ -350,46 +350,46 @@ function validateOnSubmit() {
     const nowPlus24 = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const startDate = parseDatetimeLocal(startEl.value);
     if (startDate < nowPlus24) {
-        alert('게시글을 작성하는 시간으로부터 24시간 이후 일자만 선택 가능합니다');
+        alert('投稿作成時点から24時間以降の日付のみ選択できます。');
         return false;
     }
 
     const endDate = parseDatetimeLocal(endEl.value);
 
     if (endDate < startDate) {
-        alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+        alert('終了日は開始日より前の日付を選択できません。');
         return false;
     }
 
     const minEnd = new Date(startDate.getTime() + 30 * 60 * 1000);
     if (endDate < minEnd) {
-        alert('끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다');
+        alert('終了日時は開始日時から30分後以降のみ選択できます。');
         return false;
     }
 
     const duration = Number(durEl.value);
     if (!Number.isFinite(duration) || duration <= 0) {
-        alert('끝나는 일자는 시작 일자 이전의 날을 선택할 수 없습니다');
+        alert('終了日は開始日より前の日付を選択できません。');
         return false;
     }
 
     if (duration < 30) {
-        alert('끝나는 일자는 시작 일자/시간으로부터 30분 이후부터 선택 가능합니다');
+        alert('終了日時は開始日時から30分後以降のみ選択できます。');
         return false;
     }
 
     const checkedLang = document.querySelectorAll('input[name="languageCodes"]:checked');
     if (!checkedLang || checkedLang.length === 0) {
-        alert('진행 언어를 1개 이상 선택해 주세요.');
+        alert('対応言語を1つ以上選択してください。');
         return false;
     }
 
     if (!provinceEl || !provinceEl.value) {
-        alert('도를 선택해 주세요.');
+        alert('道を選択してください。');
         return false;
     }
     if (!cityEl || !cityEl.value) {
-        alert('시를 선택해 주세요.');
+        alert('市を選択してください。');
         return false;
     }
 
@@ -474,7 +474,7 @@ function renderSchedulePlaces() {
 
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = '삭제';
+        btn.textContent = '削除';
         btn.style.padding = '8px 10px';
         btn.style.borderRadius = '10px';
         btn.style.border = '1px solid rgba(15,23,42,0.12)';
